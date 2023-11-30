@@ -5,6 +5,7 @@ import { FaRegUser } from "react-icons/fa";
 import { Fragment, useRef, useState } from "react";
 import Modal from "../modal";
 import Login from "../../screens/login";
+import './style.css'
 
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
@@ -27,7 +28,7 @@ const Navbar = () => {
   };
 
   return (
-    <>
+    <div>
       <Disclosure as="nav" className="bg-white/70 hover:bg-white border-b">
         {({ open }) => (
           <>
@@ -104,10 +105,10 @@ const Navbar = () => {
           </>
         )}
       </Disclosure>
-      <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
+      <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef} customMaxWidth="custom-max-width">
         <Login />
       </Modal>
-    </>
+    </div>
   );
 };
 

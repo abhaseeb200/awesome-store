@@ -1,4 +1,5 @@
-const CardProductDetails = () => {
+const CardProductDetails = ({productData}) => {
+  console.log(productData.title,"-----");
   return (
     <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-8 myPadding mt-5">
       <div className=" flex flex-col-reverse gap-5">
@@ -16,7 +17,7 @@ const CardProductDetails = () => {
                 bottom: 0,
                 color: "transparent",
               }}
-              src="https://next13-e-commerce-frontend.vercel.app/_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fdrhzjli1l%2Fimage%2Fupload%2Fv1697368985%2Fbou8gyq5otftsbcmbzwq.avif&w=1080&q=75"
+              src={productData.thumbnail}
             />
           </button>
         </div>
@@ -36,7 +37,7 @@ const CardProductDetails = () => {
                   color: "transparent",
                 }}
                 sizes="100vw"
-                src="https://next13-e-commerce-frontend.vercel.app/_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fdrhzjli1l%2Fimage%2Fupload%2Fv1697368985%2Fbou8gyq5otftsbcmbzwq.avif&w=1080&q=75"
+                src={productData.thumbnail}
               />
             </div>
           </div>

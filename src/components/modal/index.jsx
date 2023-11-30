@@ -1,7 +1,8 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+import { IoClose } from "react-icons/io5";
 
-const Modal = ({open,setOpen,cancelButtonRef,children }) => {
+const Modal = ({ open, setOpen, cancelButtonRef,customMaxWidth, children }) => {
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -33,26 +34,15 @@ const Modal = ({open,setOpen,cancelButtonRef,children }) => {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 max-w-3xl">
+              <Dialog.Panel className={`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 max-w-3xl w-full ${customMaxWidth}`}>
+                <span onClick={() => setOpen(false)} ref={cancelButtonRef}>
+                  <IoClose
+                    className="absolute top-5 right-5 cursor-pointer"
+                    size="1.5rem"
+                  />
+                </span>
                 <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                    {children}
-                </div>
-                <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                  <button
-                    type="button"
-                    className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-                    onClick={() => setOpen(false)}
-                  >
-                    Deactivate
-                  </button>
-                  <button
-                    type="button"
-                    className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    onClick={() => setOpen(false)}
-                    ref={cancelButtonRef}
-                  >
-                    Cancel
-                  </button>
+                  {children}
                 </div>
               </Dialog.Panel>
             </Transition.Child>
