@@ -5,23 +5,28 @@ import { FaRegUser } from "react-icons/fa";
 import { Fragment, useRef, useState } from "react";
 import Modal from "../modal";
 import Login from "../../screens/login";
-import './style.css'
-
-const navigation = [
-  { name: "Dashboard", href: "#", current: true },
-  { name: "Team", href: "#", current: false },
-  { name: "Projects", href: "#", current: false },
-  { name: "Calendar", href: "#", current: false },
-];
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+import "./style.css";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   const cancelButtonRef = useRef(null);
+
+  const { productData } = useSelector((state) => state.data);
+
+  const navigation = [];
+  const updateNavigation = []
+  Object.keys(productData).map((item)=>{
+    let temp = {name:item, to:item, current: false}
+    navigation.push(temp)
+  })
+  console.log(navigation,"-------------------------------");
+
+  function classNames(...classes) {
+    return classes.filter(Boolean).join(" "); //make sure
+  }
 
   const handleModal = () => {
     setOpen(true);
@@ -54,9 +59,9 @@ const Navbar = () => {
                   <div className="hidden sm:ml-6 sm:block">
                     <div className="flex space-x-4">
                       {navigation.map((item) => (
-                        <a
+                        <Link
                           key={item.name}
-                          href={item.href}
+                          to={`/category/${item.to}`}
                           className={classNames(
                             item.current
                               ? "text-black border-b-2 border-black"
@@ -66,7 +71,7 @@ const Navbar = () => {
                           aria-current={item.current ? "page" : undefined}
                         >
                           {item.name}
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   </div>
@@ -105,7 +110,12 @@ const Navbar = () => {
           </>
         )}
       </Disclosure>
-      <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef} customMaxWidth="custom-max-width">
+      <Modal
+        open={open}
+        setOpen={setOpen}
+        cancelButtonRef={cancelButtonRef}
+        customMaxWidth="custom-max-width"
+      >
         <Login />
       </Modal>
     </div>

@@ -1,0 +1,25 @@
+/* Custom CSS */
+.thumbnail-slider .slick-slide img {
+  height: 400px !important;
+  object-fit: contain !important;
+}
+.thumbnail-slider .slick-slider li img {
+  height: 50px !important;
+  object-fit: contain !important;
+  border: 2px solid transparent;
+}
+
+.thumbnail-slider .slick-dots li {
+  width: 75px !important;
+  height: 100% !important;
+  flex: 25%;
+}
+
+.thumbnail-slider .slick-dots {
+  display: flex !important;
+  position: static !important;
+}
+
+.thumbnail-slider li.slick-active img {
+  border: 2px solid #3a65c5 !important;
+}

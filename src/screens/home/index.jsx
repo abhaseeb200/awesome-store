@@ -1,35 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import HeroSection from "../../components/heroSection";
-import homeBannar from "../../assets/home-bannar.jpg";
 import CartProduct from "../../components/cardProduct";
 import CardProductDetails from "../../components/cardProductDetails";
 import Modal from "../../components/modal";
-import axios from "axios";
+import SingleDetailCard from "./components/singleDetailCard";
+import homeBannar from "../../assets/home-bannar.jpg";
+import { dataAction } from "../../redux/actions/dataAction";
 
 const Home = () => {
   const [open, setOpen] = useState(false);
-  const [productsByCategory, setProductsByCategory] = useState({});
+  const [currentProductData, setCurrentProductData] = useState({});
   const cancelButtonRef = useRef(null);
 
-  const handleFetch = async () => {
-    let response = await axios.get("https://dummyjson.com/products");
-    // console.log(response.data, "----");
-    let tempCategoryProduct = {};
-    response.data.products.map((item) => {
-      if (!tempCategoryProduct[item.category]) {
-        tempCategoryProduct[item.category] = [];
-      }
-      tempCategoryProduct[item.category].push(item);
-    });
-    // console.log(tempCategoryProduct, "+++++");
-    setProductsByCategory(tempCategoryProduct);
-  };
-
+  const productsByCategory = useSelector((state) => state.data.productData);
   console.log(productsByCategory);
 
-  useEffect(() => {
-    handleFetch();
-  }, []);
+  const handleModal = (productData) => {
+    setCurrentProductData(productData);
+    setOpen(true);
+  };
 
   return (
     <>
@@ -38,28 +28,35 @@ const Home = () => {
         {Object.keys(productsByCategory).map((category, ind) => {
           return (
             <div key={ind}>
-              <h2 className="font-bold text-3xl">{category}</h2>
+              <h2 className="font-bold text-3xl capitalize">{category}</h2>
+              {/* <ProductSlider productsByCategory={productsByCategory[category]}/> */}
+              <SingleDetailCard
+                productData={productsByCategory[category]}
+                handleModal={handleModal}
+              />
               <div className="flex flex-wrap -mx-4">
-                {productsByCategory[category].map((product, productIND) => {
-                  return (
-                    <>
-                      <div className="w-full sm:w-1/2 md:w-1/5 px-4 mb-4">
+                {productsByCategory[category]
+                  .slice(1)
+                  .map((product, productIND) => {
+                    return (
+                      <div
+                        className="w-full sm:w-1/2 md:w-1/4 px-4 mb-4"
+                        key={productIND}
+                      >
                         <CartProduct
-                          open={open}
-                          setOpen={setOpen}
+                          handleModal={handleModal}
                           productData={product}
                         />
                       </div>
-                    </>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </div>
           );
         })}
 
         <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
-          <CardProductDetails  />
+          <CardProductDetails currentProductData={currentProductData} />
         </Modal>
       </div>
     </>
