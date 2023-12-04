@@ -1,8 +1,9 @@
 import React from "react";
 import { LuShoppingBasket } from "react-icons/lu";
 import { AiOutlineFullscreen } from "react-icons/ai";
+import { Link } from "react-router-dom";
 
-const CartProduct = ({ handleModal , productData}) => {
+const CartProduct = ({ handleModal, productData }) => {
   return (
     <div>
       <div className="relative m-3 flex flex-wrap mx-auto">
@@ -20,7 +21,7 @@ const CartProduct = ({ handleModal , productData}) => {
                 </span>
                 <span
                   className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
-                  onClick={()=>handleModal(productData)}
+                  onClick={() => handleModal(productData)}
                 >
                   <AiOutlineFullscreen />
                 </span>
@@ -29,10 +30,14 @@ const CartProduct = ({ handleModal , productData}) => {
           </div>
           <div className="mt-4 mb-1 flex justify-between">
             <div>
-              <p className="text-lg font-semibold text-gray-900 mb-0">
-               {productData?.title}
+              <Link to={`/product/${productData?.id}`}>
+                <p className="text-lg font-semibold text-gray-900 mb-0">
+                  {productData?.title}
+                </p>
+              </Link>
+              <p className="text-sm text-gray-500">
+                {productData?.categoryName}
               </p>
-              <p className="text-sm text-gray-500">{productData?.categoryName}</p>
               <p className="mt-2 font-semibold">${productData?.price}</p>
             </div>
             <div className="flex flex-col-reverse mb-1 mr-4 group cursor-pointer">

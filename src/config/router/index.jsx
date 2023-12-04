@@ -37,7 +37,7 @@ const Main = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/a" element={<ProductDetail />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/category/:title" element={<Category />} />
         </Routes>
         <Footer />

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Button from "../../components/button/index";
 import ThumbnailSlider from "../sliders/thumbnailSlider";
 
