@@ -8,11 +8,11 @@ import Footer from "../../components/footer";
 import ProductDetail from "../../screens/productDetail";
 import Category from "../../screens/category";
 import { dataAction } from "../../redux/actions/dataAction";
+import Cart from "../../screens/cart";
 
 const Main = () => {
   const dispatch = useDispatch();
   const handleFetch = async () => {
-    // console.log("FETCHING DATA..............");
     try {
       let response = await axios.get("https://dummyjson.com/products");
       let tempCategoryProduct = {};
@@ -39,6 +39,7 @@ const Main = () => {
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/category/:title" element={<Category />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
         <Footer />
       </Router>

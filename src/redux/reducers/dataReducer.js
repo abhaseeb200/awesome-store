@@ -10,9 +10,9 @@ const DataReducer = (state = initialState, action) => {
       for (const category in action.data) {
         action.data[category].forEach((product) => {
           product.sizes = {
-            small: product.price,
-            medium: (product.price * 0.1) + product.price,
-            large: (product.price * 0.2) + product.price,
+            small: { price: product.price, quantity: 0 },
+            medium: { price: (product.price * 0.1) + product.price, quantity: 0 },
+            large: { price: (product.price * 0.2) + product.price, quantity: 0 },
           };
           product.quantity = 0;
           product.colors = ["black", "white", "pink", "red"];

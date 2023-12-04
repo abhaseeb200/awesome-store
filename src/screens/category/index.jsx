@@ -49,7 +49,7 @@ const Category = () => {
               );
             })}
           </div>
-        </div>
+        </div>       
       </div>
 
       <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>

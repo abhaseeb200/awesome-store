@@ -17,12 +17,11 @@ const Navbar = () => {
   const { productData } = useSelector((state) => state.data);
 
   const navigation = [];
-  const updateNavigation = []
-  Object.keys(productData).map((item)=>{
-    let temp = {name:item, to:item, current: false}
-    navigation.push(temp)
-  })
-  console.log(navigation,"-------------------------------");
+  Object.keys(productData).map((item) => {
+    let temp = { name: item, to: item, current: false };
+    navigation.push(temp);
+  });
+  // console.log(navigation,"-------------------------------");
 
   function classNames(...classes) {
     return classes.filter(Boolean).join(" "); //make sure
@@ -80,9 +79,11 @@ const Navbar = () => {
                   <span onClick={handleModal}>
                     <FaRegUser />
                   </span>
-                  <span>
-                    <RiShoppingBag3Line />
-                  </span>
+                  <Link to="/cart">
+                    <span>
+                      <RiShoppingBag3Line />
+                    </span>
+                  </Link>
                 </div>
               </div>
             </div>

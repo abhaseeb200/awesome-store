@@ -1,9 +1,9 @@
 import Slider from "react-slick";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import "../slick.css";
-import "../slick-theme.css";
-import "../style.css";
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
+import "./slick.css";
+import "./slick-theme.css";
+import "./style.css";
 
 const ThumbnailSlider = ({ currentProductData }) => {
   var settings = {
@@ -24,7 +24,7 @@ const ThumbnailSlider = ({ currentProductData }) => {
   return (
     <div className="thumbnail-slider">
       <Slider {...settings}>
-        {currentProductData.images.map((url, ind) => {
+        {currentProductData.images?.map((url, ind) => {
           return (
             <div key={ind}>
               <img src={url} />

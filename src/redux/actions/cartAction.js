@@ -14,10 +14,19 @@ const decrementAction = (itemID) => {
     }
 }
 
-const addToCartAction = (data) => {
+const addToCartAction = (data, currentSize) => {
     return {
         type: ADDTOCART,
-        data: { ...data, quantity: 1 }
+        data: {
+            ...data,
+            sizes: {
+                ...data.sizes,
+                [currentSize]: {
+                    ...data.sizes[currentSize],
+                    quantity: 1
+                }
+            }
+        }
     }
 }
 
