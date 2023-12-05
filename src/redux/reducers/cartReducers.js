@@ -17,7 +17,7 @@ const cartReducers = (state = initialState, action) => {
             state.cart[objIndexDEC].quantity > 1 ? state.cart[objIndexDEC].quantity -= 1 : 1
             return { cart: [...state.cart] }
         case REMOVEFROMCART:
-            let tempRemove = state.cart.filter((i) => i.id !== action.currentID)
+            let tempRemove = state.cart.filter((i) => !(i.id === action.currentID && i.currentSize === action.currentSize && i.currentColor === action.currentColor))
             return { cart: [...tempRemove] }
         case CHECKOUT:
             return { cart: [] }

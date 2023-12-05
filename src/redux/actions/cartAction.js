@@ -14,26 +14,24 @@ const decrementAction = (itemID) => {
     }
 }
 
-const addToCartAction = (data, currentSize) => {
+const addToCartAction = (data, currentSize,currentColor) => {
     return {
         type: ADDTOCART,
         data: {
             ...data,
-            sizes: {
-                ...data.sizes,
-                [currentSize]: {
-                    ...data.sizes[currentSize],
-                    quantity: 1
-                }
-            }
+            quantity: 1,
+            currentSize: currentSize,
+            currentColor: currentColor,
         }
     }
 }
 
-const removeFromCartAction = (dataID) => {
+const removeFromCartAction = (dataID,currentSize,currentColor) => {
     return {
         type: REMOVEFROMCART,
-        currentID: dataID
+        currentID: dataID,
+        currentSize: currentSize,
+        currentColor: currentColor,
     }
 }
 

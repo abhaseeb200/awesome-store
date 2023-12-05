@@ -8,6 +8,7 @@ import Login from "../../screens/login";
 import "./style.css";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import Button from "../button";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -15,6 +16,7 @@ const Navbar = () => {
   const cancelButtonRef = useRef(null);
 
   const { productData } = useSelector((state) => state.data);
+  const { cart } = useSelector((stata) => stata.addToCart);
 
   const navigation = [];
   Object.keys(productData).map((item) => {
@@ -76,12 +78,18 @@ const Navbar = () => {
                   </div>
                 </div>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                  <span onClick={handleModal}>
-                    <FaRegUser />
+                  <span onClick={handleModal} className="cursor-pointer disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition px-4 py-2.5">
+                    <FaRegUser/>
                   </span>
-                  <Link to="/cart">
-                    <span>
-                      <RiShoppingBag3Line />
+                  <Link
+                    to="/cart"
+                    className="ml-4 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition px-4 py-2 flex items-center justify-center"
+                  >
+                    <span className="">
+                      <RiShoppingBag3Line size="1.25rem" />
+                    </span>
+                    <span className="ml-2 text-sm text-white">
+                      {cart.length}
                     </span>
                   </Link>
                 </div>

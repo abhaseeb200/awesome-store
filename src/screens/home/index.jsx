@@ -27,8 +27,8 @@ const Home = () => {
       <div className="p-1 md:p-8 lg:p-10 ">
         {Object.keys(productsByCategory).map((category, ind) => {
           return (
-            <div key={ind}>
-              <h2 className="font-bold text-3xl capitalize">{category}</h2>
+            <div key={ind} className="space-y-4 mb-16">
+              <h2 className="font-bold text-3xl capitalize pb-3">{category}</h2>
               {/* <ProductSlider productsByCategory={productsByCategory[category]}/> */}
               <SingleDetailCard
                 productData={productsByCategory[category]}

@@ -26,7 +26,7 @@ const ThumbnailSlider = ({ currentProductData }) => {
       <Slider {...settings}>
         {currentProductData.images?.map((url, ind) => {
           return (
-            <div key={ind}>
+            <div key={ind} className="aspect-square relative overflow-hidden w-full">
               <img src={url} />
             </div>
           );
