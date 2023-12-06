@@ -9,9 +9,12 @@ import "./style.css";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Button from "../button";
+import Register from "../../screens/register";
 
 const Navbar = () => {
-  const [open, setOpen] = useState(false);
+  const [openLoginModal, setOpenLoginModal] = useState(false);
+  const [openRegisterModal, setOpenRegisterModal] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
 
   const cancelButtonRef = useRef(null);
 
@@ -29,8 +32,13 @@ const Navbar = () => {
     return classes.filter(Boolean).join(" "); //make sure
   }
 
-  const handleModal = () => {
-    setOpen(true);
+  const handleLoginModal = () => {
+    setOpenLoginModal(true);
+  };
+
+  const handleRegisterModal = () => {
+    setOpenLoginModal(false);
+    // setOpenRegisterModal(true);
   };
 
   return (
@@ -78,8 +86,11 @@ const Navbar = () => {
                   </div>
                 </div>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                  <span onClick={handleModal} className="cursor-pointer disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition px-4 py-2.5">
-                    <FaRegUser/>
+                  <span
+                    onClick={handleLoginModal}
+                    className="cursor-pointer disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition px-4 py-2.5"
+                  >
+                    <FaRegUser />
                   </span>
                   <Link
                     to="/cart"
@@ -119,14 +130,38 @@ const Navbar = () => {
           </>
         )}
       </Disclosure>
+
       <Modal
-        open={open}
-        setOpen={setOpen}
+        open={openLoginModal}
+        setOpen={setOpenLoginModal}
         cancelButtonRef={cancelButtonRef}
         customMaxWidth="custom-max-width"
       >
-        <Login />
+        {isLogin ? (
+          <Login
+            setIsLogin={setIsLogin}
+            // handleRegisterModal={handleRegisterModal}
+            // setOpenRegisterModal={setOpenRegisterModal}
+            // open={open}
+            // setOpen={setOpen}
+            // cancelButtonRef={cancelButtonRef}
+          />
+        ) : (
+          <Register />
+        )}
       </Modal>
+
+      {/* <Modal
+        open={openRegisterModal}
+        setOpen={setOpenRegisterModal}
+        // cancelButtonRef={cancelButtonRef}
+        // customMaxWidth="custom-max-width"
+      >
+        <Register
+          // handleLoginModal={handleLoginModal}
+          // setOpenLoginModa={setOpenLoginModal}
+        />
+      </Modal> */}
     </div>
   );
 };

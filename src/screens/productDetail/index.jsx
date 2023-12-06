@@ -5,8 +5,9 @@ import CardProductDetails from "../../components/cardProductDetails";
 import CartProduct from "../../components/cardProduct";
 import Modal from "../../components/modal";
 import { addToCartAction } from "../../redux/actions/cartAction";
+import Loader from "../../components/loader";
 
-const ProductDetail = () => {
+const ProductDetail = ({ loader }) => {
   const [open, setOpen] = useState(false);
   const [currentPrice, setCurrentPrice] = useState(null);
   const [currentSize, setCurrentSize] = useState("");
@@ -48,10 +49,10 @@ const ProductDetail = () => {
     setCurrentSize(size);
   };
 
-  const hanldeCurrentColor =  (color) => {
+  const hanldeCurrentColor = (color) => {
     console.log("//////////////////////", color);
-    setCurrentColor(color)
-  }
+    setCurrentColor(color);
+  };
 
   const handleModal = (productData) => {
     setCurrentProductData(productData);
@@ -62,17 +63,21 @@ const ProductDetail = () => {
     // Check if the product of the same size is already in the cart
     const existingCartItem = cart.find(
       (item) =>
-        item.id === currentProductData.id && item.currentSize === currentSize && item.currentColor === currentColor
+        item.id === currentProductData.id &&
+        item.currentSize === currentSize &&
+        item.currentColor === currentColor
     );
     if (existingCartItem) {
-      console.log(`Product of size ${currentSize} & ${currentColor} already in cart`);
+      console.log(
+        `Product of size ${currentSize} & ${currentColor} already in cart`
+      );
     } else {
       dispatch(addToCartAction(currentProductData, currentSize, currentColor));
     }
   };
 
   useEffect(() => {
-    console.log(currentProduct?.sizes?.small,"_________________________");
+    console.log(currentProduct?.sizes?.small, "_________________________");
     // setCurrentPrice(currentProduct?.sizes?.small);
     setCurrentPrice(null);
     setCurrentColor("");
@@ -80,30 +85,36 @@ const ProductDetail = () => {
 
   return (
     <>
-      <CardProductDetails
-        currentProductData={currentProduct}
-        currentPrice={currentPrice}
-        currentColor= {currentColor}
-        setCurrentPrice={setCurrentPrice}
-        handleCurrentSizes={handleCurrentSizes}
-        handleAddToCart={handleAddToCart}
-        hanldeCurrentColor = {hanldeCurrentColor}
-      />
-      <hr className="my-8 border-t  " />
-      <div className="overflow-x-hidden myPadding pb-8">
-        <h2 className="font-bold text-3xl">Related products</h2>
-        <div className=" flex items-center gap-x-3 w-full overflow-x-auto pb-6">
-          {relatedProducts.map((product, index) => {
-            return (
-              <CartProduct
-                key={index}
-                productData={product}
-                handleModal={handleModal}
-              />
-            );
-          })}
-        </div>
-      </div>
+      {loader ? (
+        <Loader className="h-screen"/>
+      ) : (
+        <>
+          <CardProductDetails
+            currentProductData={currentProduct}
+            currentPrice={currentPrice}
+            currentColor={currentColor}
+            setCurrentPrice={setCurrentPrice}
+            handleCurrentSizes={handleCurrentSizes}
+            handleAddToCart={handleAddToCart}
+            hanldeCurrentColor={hanldeCurrentColor}
+          />
+          <hr className="my-8 border-t  " />
+          <div className="overflow-x-hidden myPadding pb-8">
+            <h2 className="font-bold text-3xl">Related products</h2>
+            <div className=" flex items-center gap-x-3 w-full overflow-x-auto pb-6">
+              {relatedProducts.map((product, index) => {
+                return (
+                  <CartProduct
+                    key={index}
+                    productData={product}
+                    handleModal={handleModal}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
 
       <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
         <CardProductDetails currentProductData={currentProductData} />

@@ -1,9 +1,29 @@
+import { useRef, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { BsFacebook } from "react-icons/bs";
 import Button from "../../components/button";
 import Input from "../../components/input";
+import { authWithGoogle } from "../../config/services/firebase/auth";
+import { auth } from "../../config/firebaseConfig";
+import Modal from "../../components/modal";
+import Register from "../register";
 
-const Login = () => {
+const Login = ({ setIsLogin }) => {
+  // const [nestedModal,setNestedModal] = useState(false)
+
+  const handleAuthWithGoogle = async () => {
+    try {
+      let response = await authWithGoogle();
+      console.log(response, "+++++++++++++++");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // const handleModal = () => {
+  //   setOpen(false);
+  //   setNestedModal(true)
+  // };
 
   return (
     <div className="">
@@ -44,7 +64,10 @@ const Login = () => {
             <hr className="w-full bg-gray-400  " />
           </div>
 
-          <Button className="border border-gray-700 bg-transparent w-full">
+          <Button
+            className="border border-gray-700 bg-transparent w-full"
+            onClick={handleAuthWithGoogle}
+          >
             <FcGoogle size="1.5rem" />
             <p className="text-base font-medium ml-1 text-gray-700">
               Continue with Google
@@ -71,15 +94,17 @@ const Login = () => {
 
           <p className="focus:outline-none text-md mt-4 font-medium leading-none text-gray-500 text-center pb-4">
             Dont have account?
-            <a
-              href="#"
+            <span
+              // href="#"
+              onClick={()=>setIsLogin(false)}
               className="hover:text-gray-500 focus:text-gray-500 focus:outline-none focus:underline hover:underline text-md ml-2 leading-none  text-gray-800 cursor-pointer"
             >
               Register
-            </a>
+            </span>
           </p>
         </div>
       </div>
+
     </div>
   );
 };

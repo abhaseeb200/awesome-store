@@ -3,7 +3,7 @@ import { FcGoogle } from "react-icons/fc";
 import { Input } from "postcss";
 import Button from "../../components/button";
 
-const Register = () => {
+const Register = ({handleLoginModal, setOpenLoginModal}) => {
   return (
     <div className="flex flex-col items-center justify-center">
       {/* LOGO HERE */}
@@ -17,7 +17,7 @@ const Register = () => {
           >
             Email
           </label>
-          <Input type="email" placeholder="example@gamil.com" />
+          {/* <Input type="email" placeholder="example@gamil.com" /> */}
         </div>
         <div className="mt-6  w-full">
           <label
@@ -26,7 +26,7 @@ const Register = () => {
             Password
           </label>
           <div className="relative flex items-center justify-center">
-            <Input type="password" placeholder="············" />
+            {/* <Input type="password" placeholder="············" /> */}
           </div>
         </div>
         <div className="mt-6  w-full">
@@ -36,7 +36,7 @@ const Register = () => {
             Confrim password
           </label>
           <div className="relative flex items-center justify-center">
-            <Input type="password" placeholder="············" />
+            {/* <Input type="password" placeholder="············" /> */}
           </div>
         </div>
         <div className="mt-8">
