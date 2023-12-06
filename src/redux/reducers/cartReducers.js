@@ -1,4 +1,4 @@
-import { ADDTOCART, CHECKOUT, DECREMENT, INCREMENT, REMOVEFROMCART } from "../types/cartType";
+import { ADDTOCART, EMPTYCART, DECREMENT, INCREMENT, REMOVEFROMCART } from "../types/cartType";
 
 const initialState = {
     cart: [],
@@ -19,7 +19,7 @@ const cartReducers = (state = initialState, action) => {
         case REMOVEFROMCART:
             let tempRemove = state.cart.filter((i) => !(i.id === action.currentID && i.currentSize === action.currentSize && i.currentColor === action.currentColor))
             return { cart: [...tempRemove] }
-        case CHECKOUT:
+        case EMPTYCART:
             return { cart: [] }
         default:
             return state

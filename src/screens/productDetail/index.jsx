@@ -6,10 +6,14 @@ import CartProduct from "../../components/cardProduct";
 import Modal from "../../components/modal";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import Loader from "../../components/loader";
+import { setCart } from "../../config/services/firebase/cart";
+import { auth } from "../../config/firebaseConfig";
+import { toast } from "react-toastify";
 
-const ProductDetail = ({ loader }) => {
+const ProductDetail = ({ loader, currentUserID,docID }) => {
   const [open, setOpen] = useState(false);
-  const [currentPrice, setCurrentPrice] = useState(null);
+  const [addToCartLoader, setAddToCartLoader] = useState(false);
+  const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
   const [currentProductData, setCurrentProductData] = useState({});
@@ -59,8 +63,12 @@ const ProductDetail = ({ loader }) => {
     setOpen(true);
   };
 
+  console.log(currentUserID, "CURRENT USER.....");
+
   const handleAddToCart = (currentProductData) => {
-    // Check if the product of the same size is already in the cart
+    // console.log(currentProductData,"_______");
+    // let currentUser = auth.currentUser
+    console.log(currentUserID, "________________");
     const existingCartItem = cart.find(
       (item) =>
         item.id === currentProductData.id &&
@@ -72,21 +80,49 @@ const ProductDetail = ({ loader }) => {
         `Product of size ${currentSize} & ${currentColor} already in cart`
       );
     } else {
-      dispatch(addToCartAction(currentProductData, currentSize, currentColor));
+      //user is login
+      if (currentUserID) {
+        handleSetCart(currentProductData);
+      } else {
+        //user is login out
+        dispatch(addToCartAction(currentProductData, currentSize, currentColor,currentPrice,""));
+      }
+    }
+  };
+
+  const handleSetCart = async (currentProductData) => {
+    setAddToCartLoader(true);
+    let updatedData = {
+      ...currentProductData,
+      quantity: 1,
+      currentSize: currentSize,
+      currentColor: currentColor,
+      currentPrice: currentPrice,
+    };
+    console.log(updatedData, currentUserID);
+    try {
+      let response = await setCart(updatedData, currentUserID);
+      toast.success("Cart add successfully!", {
+        autoClose: 1500,
+      });
+      dispatch(addToCartAction(currentProductData, currentSize, currentColor,currentPrice,response.id));
+      setAddToCartLoader(false);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+      setAddToCartLoader(false);
     }
   };
 
   useEffect(() => {
-    console.log(currentProduct?.sizes?.small, "_________________________");
-    // setCurrentPrice(currentProduct?.sizes?.small);
-    setCurrentPrice(null);
+    setCurrentPrice("");
     setCurrentColor("");
   }, [id]);
 
   return (
     <>
       {loader ? (
-        <Loader className="h-screen"/>
+        <Loader className="h-screen" />
       ) : (
         <>
           <CardProductDetails
@@ -97,6 +133,8 @@ const ProductDetail = ({ loader }) => {
             handleCurrentSizes={handleCurrentSizes}
             handleAddToCart={handleAddToCart}
             hanldeCurrentColor={hanldeCurrentColor}
+            handleSetCart={handleSetCart}
+            addToCartLoader={addToCartLoader}
           />
           <hr className="my-8 border-t  " />
           <div className="overflow-x-hidden myPadding pb-8">

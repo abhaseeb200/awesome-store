@@ -2,7 +2,14 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
 
-const Modal = ({ open, setOpen, cancelButtonRef,customMaxWidth, children }) => {
+const Modal = ({
+  open,
+  setOpen,
+  cancelButtonRef,
+  customMaxWidth,
+  setIsLogin,
+  children,
+}) => {
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -34,8 +41,18 @@ const Modal = ({ open, setOpen, cancelButtonRef,customMaxWidth, children }) => {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className={`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 max-w-3xl w-full ${customMaxWidth}`}>
-                <span onClick={() => setOpen(false)} ref={cancelButtonRef}>
+              <Dialog.Panel
+                className={`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 max-w-3xl w-full ${customMaxWidth}`}
+              >
+                <span
+                  onClick={() => {
+                    setOpen(false);
+                    setTimeout(() => {
+                      setIsLogin(true);
+                    }, 500);
+                  }}
+                  ref={cancelButtonRef}
+                >
                   <IoClose
                     className="absolute top-5 right-5 cursor-pointer"
                     size="1.5rem"

@@ -5,7 +5,6 @@ const authSignUp = (email, password) => {
     return auth.createUserWithEmailAndPassword(email, password)
 }
 
-console.log(googleProvider);
 const authWithGoogle = () => {
     return auth.signInWithPopup(googleProvider)
 }
@@ -18,4 +17,7 @@ const authLogout = () => {
     return auth.signOut()
 }
 
-export { authSignIn, authSignUp, authLogout,authWithGoogle }
+const authState = (user) => {
+    return auth.onAuthStateChanged(user)
+}
+export { authSignIn, authSignUp, authLogout, authWithGoogle,authState }

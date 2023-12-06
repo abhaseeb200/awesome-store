@@ -29,8 +29,3 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 //account page setting
 //better ui cards
 //add to favourite page 
-
-//FIREBASE LOGICS:
-// 1. sign up with email , password,
-// 2. auth with facebook
-// 3. database k ander cart ka data giry ga, jis mei 

@@ -1,4 +1,4 @@
-import { ADDTOCART, CHECKOUT, DECREMENT, INCREMENT, REMOVEFROMCART } from "../types/cartType"
+import { ADDTOCART, DECREMENT, EMPTYCART, INCREMENT, REMOVEFROMCART } from "../types/cartType"
 
 const incrementAction = (itemID) => {
     return {
@@ -14,7 +14,8 @@ const decrementAction = (itemID) => {
     }
 }
 
-const addToCartAction = (data, currentSize,currentColor) => {
+const addToCartAction = (data, currentSize, currentColor,currentPrice,docID) => {
+    console.log(docID,"_____________");
     return {
         type: ADDTOCART,
         data: {
@@ -22,11 +23,13 @@ const addToCartAction = (data, currentSize,currentColor) => {
             quantity: 1,
             currentSize: currentSize,
             currentColor: currentColor,
+            currentPrice: currentPrice,
+            docID : docID,
         }
     }
 }
 
-const removeFromCartAction = (dataID,currentSize,currentColor) => {
+const removeFromCartAction = (dataID, currentSize, currentColor) => {
     return {
         type: REMOVEFROMCART,
         currentID: dataID,
@@ -36,10 +39,10 @@ const removeFromCartAction = (dataID,currentSize,currentColor) => {
 }
 
 
-const checkoutAction = () => {
+const emptyCarttAction = () => {
     return {
-        type: CHECKOUT,
+        type: EMPTYCART,
     }
 }
 
-export { incrementAction, decrementAction, addToCartAction, removeFromCartAction, checkoutAction }
+export { incrementAction, decrementAction, addToCartAction, removeFromCartAction, emptyCarttAction }

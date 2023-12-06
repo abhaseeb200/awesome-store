@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Button from "../../components/button/index";
 import ThumbnailSlider from "../sliders";
 import ColorButton from "../colorButton";
+import { TbLoader2 } from "react-icons/tb";
 
 const CardProductDetails = ({
   currentProductData,
@@ -11,8 +12,8 @@ const CardProductDetails = ({
   handleCurrentSizes,
   handleAddToCart,
   hanldeCurrentColor,
+  addToCartLoader,
 }) => {
-  // console.log(currentProductData, "CURRENT DATA", currentPrice?.price);
   return (
     <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-8 myPadding mt-5">
       <ThumbnailSlider currentProductData={currentProductData} />
@@ -70,15 +71,20 @@ const CardProductDetails = ({
           </div>
         </div>
         {currentColor && currentPrice ? (
-          <Button
-            name="Add to cart"
-            onClick={() => handleAddToCart(currentProductData)}
-          ></Button>
+          addToCartLoader ? (
+            <Button disabled style={{width:"122px",height:"48px"}} className="justify-center">
+              <TbLoader2 size="1.3rem" className="animate-spin"  />
+            </Button>
+          ) : (
+            <Button
+              name="Add to cart"
+              onClick={() => handleAddToCart(currentProductData)}
+            />
+          )
         ) : (
           <Button
             disabled="disabled"
             name="Add to cart"
-            onClick={() => handleAddToCart(currentProductData)} 
           ></Button>
         )}
       </div>
