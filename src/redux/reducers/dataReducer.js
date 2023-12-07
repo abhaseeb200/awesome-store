@@ -57,7 +57,6 @@ const DataReducer = (state = initialState, action) => {
           product.colors = generateRandomColors();
         });
       }
-      console.log(action.data);
       return {
         productData: { ...action.data },
       };

@@ -11,5 +11,3 @@ const Button = ({ name, className, children, ...props }) => {
 };
 
 export default Button;
-
-//make sure children, name are perfect code...?

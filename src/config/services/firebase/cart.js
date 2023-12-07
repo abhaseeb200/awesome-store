@@ -1,7 +1,6 @@
 import { db } from "../../firebaseConfig";
 
 const setCart = (currentProductData, currentUserID) => {
-    console.log(currentProductData, "++++++++++++]");
     return db.collection("carts").add({
         userId: currentUserID,
         timeStamp: Date.now(),
@@ -17,6 +16,18 @@ const getCart = (currentUserID) => {
         .get();
 };
 
+const updateCart = (currentQuantity, currentProductData) => {
+    return db
+        .collection("carts")
+        .doc(currentProductData?.docID)
+        .update({
+            currentProductData: {
+                ...currentProductData, 
+                quantity: currentQuantity
+            }
+        });
+};
+
 const deleteCart = (docId) => {
     return db.collection("carts")
         .doc(docId)
@@ -24,7 +35,6 @@ const deleteCart = (docId) => {
 };
 
 const orderProcess = (products, currentUserID) => {
-    console.log([...products], currentUserID);
     return db.collection("orders").add({
         userId: currentUserID,
         timeStamp: Date.now(),
@@ -33,4 +43,4 @@ const orderProcess = (products, currentUserID) => {
     })
 }
 
-export { setCart, getCart, deleteCart, orderProcess }
+export { setCart, getCart, deleteCart, updateCart, orderProcess }

@@ -1,42 +1,113 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import HeroSection from "../../components/heroSection";
 import CardProduct from "../../components/cardProduct";
 import CardProductDetails from "../../components/cardProductDetails";
 import Modal from "../../components/modal";
 import FilterTab from "./components";
 import Loader from "../../components/loader";
+import { addToCartAction } from "../../redux/actions/cartAction";
+import { setCart } from "../../config/services/firebase/cart";
+import { toast } from "react-toastify";
 
-const Category = ({ loader }) => {
+const Category = ({ loader, currentUserID }) => {
   const [open, setOpen] = useState(false);
   const [currentSizeTab, setCurrentSizeTab] = useState("");
   const [currentColorTab, setCurrentColorTab] = useState("");
   const [filterProducts, setFilterProducts] = useState([]);
+  const [addToCartLoader, setAddToCartLoader] = useState(false);
+  const [currentPrice, setCurrentPrice] = useState("");
+  const [currentSize, setCurrentSize] = useState("");
+  const [currentColor, setCurrentColor] = useState("");
   const [currentProductData, setCurrentProductData] = useState({});
 
   const sizes = ["small", "medium", "large"];
 
   const cancelButtonRef = useRef(null);
   const { title } = useParams();
-  const { productData } = useSelector((state) => state?.data);
 
-  // console.log(productData, "??????????", title);
+  const dispatch = useDispatch()
+  const { productData } = useSelector((state) => state?.data);
+  const { cart } = useSelector((stata) => stata.addToCart);
+
+
   const currentProducts = productData[title];
-  // console.log(currentProducts, "CURRENT PRODYUCT");
 
   const categoryColors = [];
   currentProducts?.map((product) => categoryColors.push(...product.colors));
   const currentColors = [...new Set(categoryColors)];
-  // console.log(currentColors, "-----------");
 
   const handleModal = (productData) => {
     setCurrentProductData(productData);
     setOpen(true);
   };
 
+  const handleCurrentSizes = (price, size) => {
+    setCurrentPrice(price);
+    setCurrentSize(size);
+  };
+
+  const hanldeCurrentColor = (color) => {
+    setCurrentColor(color);
+  };
+
+  const handleSetCart = async (currentProductData) => {
+    setAddToCartLoader(true);
+    let updatedData = {
+      ...currentProductData,
+      quantity: 1,
+      currentSize: currentSize,
+      currentColor: currentColor,
+      currentPrice: currentPrice,
+    };
+    try {
+      let response = await setCart(updatedData, currentUserID);
+      toast.success("Cart add successfully!", {
+        autoClose: 1500,
+      });
+      dispatch(addToCartAction(currentProductData, currentSize, currentColor,currentPrice,1,response.id));
+      setAddToCartLoader(false);
+    } catch (error) {
+      console.log(error);
+      setAddToCartLoader(false);
+    }
+  };
+
+  const handleAddToCart = (currentProductData) => {
+    const existingCartItem = cart.find(
+      (item) =>
+        item.id === currentProductData.id &&
+        item.currentSize === currentSize &&
+        item.currentColor === currentColor
+    );
+    if (existingCartItem) {
+      toast.error("Item already in cart", {
+        autoClose: 1500,
+      });
+    } else {
+      //user is login
+      if (currentUserID) {
+        handleSetCart(currentProductData);
+      } else {
+        //user is login out
+        dispatch(
+          addToCartAction(
+            currentProductData,
+            currentSize,
+            currentColor,
+            currentPrice,
+            1, //quantity
+          )
+        );
+        toast.success("Cart add successfully!", {
+          autoClose: 1500,
+        });
+      }
+    }
+  };
+
   const handleSizeTab = (title) => {
-    console.log(title, "-------------");
     if (title === currentSizeTab) {
       setCurrentSizeTab("");
       setFilterProducts([]);
@@ -46,7 +117,6 @@ const Category = ({ loader }) => {
   };
 
   const handleColorTab = (title) => {
-    console.log(title, "++++++++++++++++++++++++");
     if (title === currentColorTab) {
       setCurrentColorTab("");
       setFilterProducts([]);
@@ -54,14 +124,12 @@ const Category = ({ loader }) => {
       const filtered = currentProducts.filter((product) =>
         product?.colors.includes(title)
       );
-      console.log(filtered, "===================================");
       setFilterProducts(filtered);
       setCurrentColorTab(title);
     }
   };
 
   useEffect(() => {
-    console.log({ filterProducts }, "HEY IAM USE EFFECT");
     setFilterProducts([]);
     setCurrentColorTab("");
   }, [title]);
@@ -77,7 +145,7 @@ const Category = ({ loader }) => {
           <Loader />
         ) : (
           <div className="flex flex-wrap">
-            <div className="w-1/4">
+            <div className="w-full md:w-1/4 px-4 md:px-0 mb-2">
               <h2 className="text-xl font-semibold">Sizes</h2>
               <hr className="my-2" />
               <div className="flex gap-2 flex-wrap">
@@ -107,11 +175,11 @@ const Category = ({ loader }) => {
                 })}
               </div>
             </div>
-            <div className="w-3/4 flex flex-wrap">
+            <div className="w-full md:w-3/4 flex flex-wrap">
               {filterProducts.length > 0
                 ? filterProducts.map((product, index) => {
                     return (
-                      <div key={index} className="w-1/3 px-3">
+                      <div key={index} className="w-full sm:w-1/2 md:w-1/3 px-3">
                         <CardProduct
                           productData={product}
                           handleModal={handleModal}
@@ -121,7 +189,7 @@ const Category = ({ loader }) => {
                   })
                 : currentProducts?.map((product, index) => {
                     return (
-                      <div key={index} className="w-1/3 px-3">
+                      <div key={index} className="w-full sm:w-1/2 md:w-1/3 px-3">
                         <CardProduct
                           productData={product}
                           handleModal={handleModal}
@@ -134,7 +202,16 @@ const Category = ({ loader }) => {
         )}
       </div>
       <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
-        <CardProductDetails currentProductData={currentProductData} />
+        <CardProductDetails
+          currentProductData={currentProductData}
+          handleCurrentSizes={handleCurrentSizes}
+          hanldeCurrentColor={hanldeCurrentColor}
+          handleAddToCart={handleAddToCart}
+          handleSetCart={handleSetCart}
+          currentPrice={currentPrice}
+          currentColor={currentColor}
+          addToCartLoader={addToCartLoader}
+        />
       </Modal>
       ;
     </>

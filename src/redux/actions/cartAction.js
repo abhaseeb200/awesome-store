@@ -1,30 +1,29 @@
 import { ADDTOCART, DECREMENT, EMPTYCART, INCREMENT, REMOVEFROMCART } from "../types/cartType"
 
-const incrementAction = (itemID) => {
+const incrementAction = (currentProductData) => {
     return {
         type: INCREMENT,
-        currentID: itemID,
+        currentProductData: currentProductData
     }
 }
 
-const decrementAction = (itemID) => {
+const decrementAction = (currentProductData) => {
     return {
         type: DECREMENT,
-        currentID: itemID,
+        currentProductData
     }
 }
 
-const addToCartAction = (data, currentSize, currentColor,currentPrice,docID) => {
-    console.log(docID,"_____________");
+const addToCartAction = (data, currentSize, currentColor, currentPrice, quantity = 1, docID) => {
     return {
         type: ADDTOCART,
         data: {
             ...data,
-            quantity: 1,
+            quantity: quantity,
             currentSize: currentSize,
             currentColor: currentColor,
             currentPrice: currentPrice,
-            docID : docID,
+            docID: docID,
         }
     }
 }

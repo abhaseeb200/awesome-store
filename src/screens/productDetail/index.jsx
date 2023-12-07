@@ -10,7 +10,7 @@ import { setCart } from "../../config/services/firebase/cart";
 import { auth } from "../../config/firebaseConfig";
 import { toast } from "react-toastify";
 
-const ProductDetail = ({ loader, currentUserID,docID }) => {
+const ProductDetail = ({ loader, currentUserID, docID }) => {
   const [open, setOpen] = useState(false);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [currentPrice, setCurrentPrice] = useState("");
@@ -40,21 +40,17 @@ const ProductDetail = ({ loader, currentUserID,docID }) => {
   });
 
   if (currentCategory) {
-    // console.log(currentCategory, "----", productData[currentCategory]);
     relatedProducts = productData[currentCategory].filter((product) => {
       return product.id !== +id;
     });
   }
 
-  // console.log("++++++++++++++++++=", cart);
   const handleCurrentSizes = (price, size) => {
-    // console.log(size,"//////////////////////", price);
     setCurrentPrice(price);
     setCurrentSize(size);
   };
 
   const hanldeCurrentColor = (color) => {
-    console.log("//////////////////////", color);
     setCurrentColor(color);
   };
 
@@ -63,12 +59,7 @@ const ProductDetail = ({ loader, currentUserID,docID }) => {
     setOpen(true);
   };
 
-  console.log(currentUserID, "CURRENT USER.....");
-
   const handleAddToCart = (currentProductData) => {
-    // console.log(currentProductData,"_______");
-    // let currentUser = auth.currentUser
-    console.log(currentUserID, "________________");
     const existingCartItem = cart.find(
       (item) =>
         item.id === currentProductData.id &&
@@ -76,16 +67,27 @@ const ProductDetail = ({ loader, currentUserID,docID }) => {
         item.currentColor === currentColor
     );
     if (existingCartItem) {
-      console.log(
-        `Product of size ${currentSize} & ${currentColor} already in cart`
-      );
+      toast.error("Item already in cart", {
+        autoClose: 1500,
+      });
     } else {
       //user is login
       if (currentUserID) {
         handleSetCart(currentProductData);
       } else {
         //user is login out
-        dispatch(addToCartAction(currentProductData, currentSize, currentColor,currentPrice,""));
+        dispatch(
+          addToCartAction(
+            currentProductData,
+            currentSize,
+            currentColor,
+            currentPrice,
+            1, //quantity
+          )
+        );
+        toast.success("Cart add successfully!", {
+          autoClose: 1500,
+        });
       }
     }
   };
@@ -99,17 +101,23 @@ const ProductDetail = ({ loader, currentUserID,docID }) => {
       currentColor: currentColor,
       currentPrice: currentPrice,
     };
-    console.log(updatedData, currentUserID);
     try {
       let response = await setCart(updatedData, currentUserID);
       toast.success("Cart add successfully!", {
         autoClose: 1500,
       });
-      dispatch(addToCartAction(currentProductData, currentSize, currentColor,currentPrice,response.id));
+      dispatch(
+        addToCartAction(
+          currentProductData,
+          currentSize,
+          currentColor,
+          currentPrice,
+          1,
+          response.id
+        )
+      );
       setAddToCartLoader(false);
-      console.log(response);
     } catch (error) {
-      console.log(error);
       setAddToCartLoader(false);
     }
   };
@@ -136,17 +144,18 @@ const ProductDetail = ({ loader, currentUserID,docID }) => {
             handleSetCart={handleSetCart}
             addToCartLoader={addToCartLoader}
           />
-          <hr className="my-8 border-t  " />
+          <hr className="my-8 border-t" />
           <div className="overflow-x-hidden myPadding pb-8">
             <h2 className="font-bold text-3xl">Related products</h2>
-            <div className=" flex items-center gap-x-3 w-full overflow-x-auto pb-6">
+            <div className="flex flex-wrap items-center w-full overflow-x-auto pb-6">
               {relatedProducts.map((product, index) => {
                 return (
-                  <CartProduct
-                    key={index}
-                    productData={product}
-                    handleModal={handleModal}
-                  />
+                  <div className="w-full sm:w-1/2 md:w-1/4 px-4" key={index}>
+                    <CartProduct
+                      productData={product}
+                      handleModal={handleModal}
+                    />
+                  </div>
                 );
               })}
             </div>
@@ -155,7 +164,17 @@ const ProductDetail = ({ loader, currentUserID,docID }) => {
       )}
 
       <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
-        <CardProductDetails currentProductData={currentProductData} />
+        <CardProductDetails
+          currentProductData={currentProduct}
+          currentPrice={currentPrice}
+          currentColor={currentColor}
+          setCurrentPrice={setCurrentPrice}
+          handleCurrentSizes={handleCurrentSizes}
+          handleAddToCart={handleAddToCart}
+          hanldeCurrentColor={hanldeCurrentColor}
+          handleSetCart={handleSetCart}
+          addToCartLoader={addToCartLoader}
+        />
       </Modal>
     </>
   );

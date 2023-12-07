@@ -3,11 +3,21 @@ import { FcGoogle } from "react-icons/fc";
 import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button";
 import Input from "../../components/input";
-import { authSignUp, authWithGoogle } from "../../config/services/firebase/auth";
+import {
+  authSignUp,
+  authWithGoogle,
+} from "../../config/services/firebase/auth";
 import { toast } from "react-toastify";
+import { db } from "../../config/firebaseConfig";
+import { setUsers } from "../../config/services/firebase/users";
 
 const Register = ({ setIsLogin, setOpenModal }) => {
   const [loader, setLoader] = useState(false);
+  const [fullName, setFullName] = useState({
+    value: "",
+    isError: false,
+    messageError: "",
+  });
   const [email, setEmail] = useState({
     value: "",
     isError: false,
@@ -141,6 +151,29 @@ const Register = ({ setIsLogin, setOpenModal }) => {
     }
   };
 
+  const handleFullName = (e) => {
+    let fullNameVal = e.target.value;
+    if (fullNameVal.trim() === "") {
+      setFullName({
+        value: fullNameVal,
+        isError: true,
+        messageError: "Please enter your full name.",
+      });
+    } else if (!fullNameVal.match(/^[a-zA-Z\s]+$/)) {
+      setFullName({
+        value: fullNameVal,
+        isError: true,
+        messageError: "Only letters are allowed in the full name.",
+      });
+    } else {
+      setFullName({
+        value: fullNameVal,
+        isError: false,
+        messageError: "",
+      });
+    }
+  };
+
   const signUpHandler = async (e) => {
     e.preventDefault();
     if (email.value === "") {
@@ -166,6 +199,7 @@ const Register = ({ setIsLogin, setOpenModal }) => {
     }
 
     if (
+      fullName.value === "" ||
       email.value === "" ||
       password.value === "" ||
       confirmPassword.value === ""
@@ -174,17 +208,29 @@ const Register = ({ setIsLogin, setOpenModal }) => {
     }
 
     //validation cheeck
-    if (!email.isError && !password.isError && !confirmPassword.isError) {
+    if (
+      !fullName.isError &&
+      !email.isError &&
+      !password.isError &&
+      !confirmPassword.isError
+    ) {
       try {
         setLoader(true);
-        const userCredential = await authSignUp(email.value, password.value);
+        const userCredential = await authSignUp(
+          email.value.trim(),
+          password.value.trim()
+        );
         const user = userCredential.user;
-        console.log(user, ":________");
+        let usersData = await setUsers(
+          email.value.trim(),
+          fullName.value.trim(),
+          user.uid
+        );
         toast.success("Register account successfully!", {
           autoClose: 1500,
         });
         setLoader(false);
-        setOpenModal(false)
+        setOpenModal(false);
       } catch (err) {
         console.log(err);
         setLoader(false);
@@ -201,10 +247,15 @@ const Register = ({ setIsLogin, setOpenModal }) => {
   const handleAuthWithGoogle = async () => {
     try {
       let response = await authWithGoogle();
-      console.log(response, "+++++++++++++++");
       setOpenModal(false);
+      toast.success("SignUp successfully!", {
+        autoClose: 1500,
+      });
     } catch (error) {
       console.log(error);
+      toast.error(error, {
+        autoClose: 1500,
+      });
     }
   };
 
@@ -216,6 +267,19 @@ const Register = ({ setIsLogin, setOpenModal }) => {
           Register your account free
         </p>
         <div>
+          <label className="text-sm font-medium leading-none text-gray-800">
+            Full Name
+          </label>
+          <Input
+            type="text"
+            placeholder="John Doe"
+            value={fullName.value}
+            isError={fullName.isError}
+            messageError={fullName.messageError}
+            onChange={handleFullName}
+          />
+        </div>
+        <div className="mt-6  w-full">
           <label className="text-sm font-medium leading-none text-gray-800">
             Email
           </label>
@@ -276,7 +340,10 @@ const Register = ({ setIsLogin, setOpenModal }) => {
           <hr className="w-full bg-gray-400  " />
         </div>
 
-        <Button className="border border-gray-700 bg-transparent w-full" onClick={handleAuthWithGoogle}>
+        <Button
+          className="border border-gray-700 bg-transparent w-full"
+          onClick={handleAuthWithGoogle}
+        >
           <FcGoogle size="1.5rem" />
           <p className="text-base font-medium ml-1 text-gray-700">
             Continue with Google

@@ -17,12 +17,14 @@ import {
   emptyCarttAction,
 } from "../../redux/actions/cartAction";
 import { getCart } from "../services/firebase/cart";
+import Favourite from "../../screens/favourite";
 
 const Main = () => {
   const [loader, setLoader] = useState(true);
   const [isUser, setIsUser] = useState(false);
   const [loaderAuthIcon, setLoaderAuthIcon] = useState(true);
   const [loaderCart, setLoaderCart] = useState(true);
+  const [loaderfavourite, setLoaderfavourite] = useState(false);
   const [currentUserID, setCurrentUserID] = useState("");
 
   const dispatch = useDispatch();
@@ -40,7 +42,6 @@ const Main = () => {
       dispatch(dataAction(tempCategoryProduct));
       setLoader(false);
     } catch (error) {
-      console.log(error);
       setLoader(false);
     }
   };
@@ -49,14 +50,12 @@ const Main = () => {
     try {
       authState((user) => {
         if (user) {
-          console.log("User is signed in:", user);
           setIsUser(true);
           setCurrentUserID(user.uid);
         } else {
-          console.log("No user is signed in");
           setIsUser(false);
           setCurrentUserID("");
-          setLoaderCart(false)
+          setLoaderCart(false);
         }
         setLoaderAuthIcon(false);
       });
@@ -71,7 +70,6 @@ const Main = () => {
       try {
         let response = await getCart(currentUserID);
         response.forEach((element) => {
-          console.log(element.data(), "ELEMENTs");
           let product = element.data().currentProductData;
           dispatch(
             addToCartAction(
@@ -79,6 +77,7 @@ const Main = () => {
               product.currentSize,
               product.currentColor,
               product.currentPrice,
+              product.quantity,
               element.id
             )
           );
@@ -108,10 +107,14 @@ const Main = () => {
           setIsUser={setIsUser}
           isUser={isUser}
           loaderCart={loaderCart}
+          loaderfavourite={loaderfavourite}
         />
         <ToastContainer />
         <Routes>
-          <Route path="/" element={<Home loader={loader} />} />
+          <Route
+            path="/"
+            element={<Home loader={loader} currentUserID={currentUserID} />}
+          />
           <Route
             path="/product/:id"
             element={
@@ -120,11 +123,27 @@ const Main = () => {
           />
           <Route
             path="/category/:title"
-            element={<Category loader={loader} />}
+            element={<Category loader={loader} currentUserID={currentUserID} />}
           />
           <Route
             path="/cart"
-            element={<Cart loader={loader} currentUserID={currentUserID} loaderCart={loaderCart} />}
+            element={
+              <Cart
+                loader={loader}
+                currentUserID={currentUserID}
+                loaderCart={loaderCart}
+              />
+            }
+          />
+          <Route
+            path="/favourite"
+            element={
+              <Favourite
+                loader={loader}
+                currentUserID={currentUserID}
+                loaderfavourite={loaderfavourite}
+              />
+            }
           />
         </Routes>
         <Footer />

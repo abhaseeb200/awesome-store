@@ -1,9 +1,7 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import Button from "../../components/button/index";
-import ThumbnailSlider from "../sliders";
 import ColorButton from "../colorButton";
 import { TbLoader2 } from "react-icons/tb";
+import Button from "../../components/button/index";
+import ThumbnailSlider from "../sliders";
 
 const CardProductDetails = ({
   currentProductData,
@@ -18,8 +16,8 @@ const CardProductDetails = ({
     <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-8 myPadding mt-5">
       <ThumbnailSlider currentProductData={currentProductData} />
       <div>
-        <h2 className="text-3xl font-bold">{currentProductData?.title}</h2>
-        <div className="text-2xl mt-3">
+        <h2 className="font-bold text-2xl md:text-3xl">{currentProductData?.title}</h2>
+        <div className="text-xl md:text-2xl mt-3">
           <div className="font-semibold">
             ${currentPrice || currentProductData?.sizes?.small}
           </div>

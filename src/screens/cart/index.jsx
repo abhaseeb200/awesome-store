@@ -3,46 +3,121 @@ import Button from "../../components/button";
 import CartListCard from "../../components/cartListCard/index.";
 import {
   addToCartAction,
+  decrementAction,
   emptyCarttAction,
+  incrementAction,
   removeFromCartAction,
 } from "../../redux/actions/cartAction";
-import { deleteCart, orderProcess } from "../../config/services/firebase/cart";
+import {
+  deleteCart,
+  orderProcess,
+  updateCart,
+} from "../../config/services/firebase/cart";
 import Loader from "../../components/loader";
-import CheckoutForm from "../../components/paymentForm";
-import { loadStripe } from "@stripe/stripe-js";
 import { toast } from "react-toastify";
+import { useState } from "react";
+import { TbLoader2 } from "react-icons/tb";
 
 const Cart = ({ loaderCart, currentUserID }) => {
+  const [checkoutLoader, setCheckoutLoader] = useState(false);
+  const [incrementLoader, setIncrementLoader] = useState(false);
+  const [decrementLoader, setDecrementLoader] = useState(false);
+  const [currentID, setCurrentID] = useState(null);
+  const [currentColor, setCurrentColor] = useState("");
+  const [currentSize, setCurrentSize] = useState("");
   const { cart } = useSelector((stata) => stata.addToCart);
   let checkoutTotal = 0;
 
   const dispatch = useDispatch();
-  console.log(cart);
+
   const handleDelete = async (currentID, currentSize, currentColor, docID) => {
-    console.log(docID, "DOCID");
     dispatch(removeFromCartAction(currentID, currentSize, currentColor));
     try {
       let response = await deleteCart(docID);
-      console.log(response);
     } catch (error) {
       console.log(error);
     }
   };
 
   const orderTotal = () => {
-    cart.map((item) => (checkoutTotal += item?.currentPrice));
-    return checkoutTotal;
+    cart.map((item) => (checkoutTotal += item?.currentPrice * item?.quantity));
+    return checkoutTotal.toFixed(2);
   };
 
   const handleCheckout = async () => {
-    try {
-      let response = await orderProcess(cart, currentUserID);
-      dispatch(emptyCarttAction());
-      toast.success("Cart add successfully!", {
+    if (cart.length > 0) {
+      if (currentUserID) {
+        handleFirebaseEmptyCart();
+      } else {
+        dispatch(emptyCarttAction());
+        toast.success("CheckOut successfully!", {
+          autoClose: 1500,
+        });
+      }
+    } else {
+      toast.error("Cart is empty!", {
         autoClose: 1500,
       });
+    }
+  };
+
+  const handleFirebaseEmptyCart = async () => {
+    try {
+      setCheckoutLoader(true);
+      let response = await orderProcess(cart, currentUserID);
+      cart.forEach((element) => {
+        deleteCart(element?.docID);
+      });
+      dispatch(emptyCarttAction());
+      toast.success("CheckOut successfully!", {
+        autoClose: 1500,
+      });
+      setCheckoutLoader(false);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleQuantityIncrement = async (currentProductData) => {
+    setCurrentID(currentProductData?.id);
+    setCurrentColor(currentProductData?.currentColor)
+    setCurrentSize(currentProductData?.currentSize)
+    setIncrementLoader(true);
+    if (currentUserID) {
+      try {
+        let updateQuantity = currentProductData.quantity + 1;
+        await updateCart(updateQuantity, currentProductData);
+        dispatch(incrementAction(currentProductData));
+        setIncrementLoader(false);
+      } catch (error) {
+        console.log(error);
+        setIncrementLoader(false);
+      }
+    } else {
+      dispatch(incrementAction(currentProductData));
+      setIncrementLoader(false);
+    }
+  };
+
+  const handleQuantityDecrement = async (currentProductData) => {
+    setCurrentID(currentProductData?.id);
+    setCurrentColor(currentProductData?.currentColor)
+    setCurrentSize(currentProductData?.currentSize)
+    setDecrementLoader(true);
+    if (currentUserID) {
+      try {
+        let updateQuantity =
+          currentProductData.quantity > 1 ? currentProductData.quantity - 1 : 1;
+        await updateCart(updateQuantity, currentProductData);
+        dispatch(decrementAction(currentProductData));
+        setDecrementLoader(false);
+      } catch (error) {
+        console.log(error);
+        setDecrementLoader(false);
+      }
+    } else {
+      dispatch(decrementAction(currentProductData));
+      setDecrementLoader(false);
     }
   };
 
@@ -53,14 +128,26 @@ const Cart = ({ loaderCart, currentUserID }) => {
         <div className="lg:col-span-7">
           {loaderCart ? (
             <Loader />
-          ) : (
+          ) : cart.length > 0 ? (
             cart.map((item, index) => {
               return (
                 <div key={index}>
-                  <CartListCard item={item} handleDelete={handleDelete} />
+                  <CartListCard
+                    item={item}
+                    handleDelete={handleDelete}
+                    handleQuantityIncrement={handleQuantityIncrement}
+                    handleQuantityDecrement={handleQuantityDecrement}
+                    incrementLoader={incrementLoader}
+                    decrementLoader={decrementLoader}
+                    currentID={currentID}
+                    currentColor={currentColor}
+                    currentSize={currentSize}
+                  />
                 </div>
               );
             })
+          ) : (
+            <p>No items added to cart</p>
           )}
         </div>
         <div className="lg:col-span-5 sticky top-2 bg-gray-50 rounded-lg px-4 py-6 sm:lg-6 lg:p-8">
@@ -69,14 +156,23 @@ const Cart = ({ loaderCart, currentUserID }) => {
             <div className="flex items-center justify-between p-3 border-t border-neutral-200">
               <p>Order total</p>
               <div className="font-semibold">
-                {loaderCart ? "Loading..." : orderTotal()}
+                {loaderCart ? "Loading..." : "$"+orderTotal()}
               </div>
             </div>
-            <Button
-              name="Checkout"
-              className="w-full justify-center"
-              onClick={handleCheckout}
-            />
+            {checkoutLoader ? (
+              <Button
+                className="w-full justify-center"
+                onClick={handleCheckout}
+              >
+                <TbLoader2 size="1.3rem" className="animate-spin" />
+              </Button>
+            ) : (
+              <Button
+                name="Checkout"
+                className="w-full justify-center"
+                onClick={handleCheckout}
+              />
+            )}
           </div>
         </div>
       </div>

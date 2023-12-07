@@ -124,16 +124,14 @@ const Login = ({ setIsLogin, setOpenModal }) => {
         setLoader(true);
         const userCredential = await authSignIn(email.value, password.value);
         const user = userCredential.user;
-        console.log(user, ":________");
         toast.success("Login successfully!", {
           autoClose: 1500,
         });
         setLoader(false);
         setOpenModal(false);
       } catch (err) {
-        console.log(err);
         setLoader(false);
-        toast.error(err, {
+        toast.error(err.code, {
           autoClose: 1500,
         });
       }
@@ -143,10 +141,15 @@ const Login = ({ setIsLogin, setOpenModal }) => {
   const handleAuthWithGoogle = async () => {
     try {
       let response = await authWithGoogle();
-      console.log(response, "+++++++++++++++");
       setOpenModal(false);
+      toast.success("Login successfully!", {
+        autoClose: 1500,
+      });
     } catch (error) {
       console.log(error);
+      toast.success(error, {
+        autoClose: 1500,
+      });
     }
   };
 

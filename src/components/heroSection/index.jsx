@@ -1,6 +1,6 @@
 const HeroSection = ({ title, backgroundImage }) => {
   return (
-    <div className="p-1 md:p-8 lg:p-10 ">
+    <div className="px-3 py-6 md:p-5 lg:p-9 ">
       <section
         className="flex items-center justify-center text-center rounded-xl aspect-video md:aspect-[2.4/1]"
         style={{

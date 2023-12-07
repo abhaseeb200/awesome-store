@@ -27,6 +27,6 @@ body {
 .h-screen {
   height: 80vh;
 }
-/* ::placeholder {
-  font-size: 14px; 
-} */
+.validationError {
+  border-color:#ef4444 ;
+}
