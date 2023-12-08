@@ -18,6 +18,7 @@ import {
 } from "../../redux/actions/cartAction";
 import { getCart } from "../services/firebase/cart";
 import Favourite from "../../screens/favourite";
+import { getFavourite } from "../services/firebase/favourite";
 
 const Main = () => {
   const [loader, setLoader] = useState(true);
@@ -26,6 +27,7 @@ const Main = () => {
   const [loaderCart, setLoaderCart] = useState(true);
   const [loaderfavourite, setLoaderfavourite] = useState(false);
   const [currentUserID, setCurrentUserID] = useState("");
+  const [currentFavourite, setCurrentFavourite] = useState([]);
 
   const dispatch = useDispatch();
 
@@ -90,6 +92,21 @@ const Main = () => {
     }
   };
 
+  const handleGetFavourite = async () => {
+    try {
+      let res = await getFavourite(currentUserID);
+      if (res.exists) {
+        // If the document exists, extract the data
+        console.log(res.data());
+        setCurrentFavourite(res.data());
+      } else {
+        console.log("No such document!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     handleFetch();
     handleAuthState();
@@ -97,6 +114,7 @@ const Main = () => {
 
   useEffect(() => {
     handleGetCart();
+    handleGetFavourite();
   }, [currentUserID]);
 
   return (
@@ -113,7 +131,13 @@ const Main = () => {
         <Routes>
           <Route
             path="/"
-            element={<Home loader={loader} currentUserID={currentUserID} />}
+            element={
+              <Home
+                loader={loader}
+                currentUserID={currentUserID}
+                currentFavourite={currentFavourite}
+              />
+            }
           />
           <Route
             path="/product/:id"
@@ -142,6 +166,7 @@ const Main = () => {
                 loader={loader}
                 currentUserID={currentUserID}
                 loaderfavourite={loaderfavourite}
+                currentFavourite={currentFavourite}
               />
             }
           />

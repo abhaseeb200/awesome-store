@@ -16,7 +16,7 @@ import {
 } from "../../redux/actions/favouriteAction";
 import { setFavourite } from "../../config/services/firebase/favourite";
 
-const Home = ({ loader, currentUserID }) => {
+const Home = ({ loader, currentUserID,currentFavourite }) => {
   const [open, setOpen] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
   const [addToCartLoader, setAddToCartLoader] = useState(false);
@@ -30,8 +30,8 @@ const Home = ({ loader, currentUserID }) => {
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
 
-  console.log(favourite);
-
+  // console.log(favourite);
+  console.log(currentFavourite,"+++++++++++++++");
   const handleModal = (productData) => {
     setCurrentProductData(productData);
     setOpen(true);
@@ -120,9 +120,9 @@ const Home = ({ loader, currentUserID }) => {
       });
     } else {
       if (currentUserID) {
-        let response = await setFavourite(currentProductData, currentUserID);
+        let response = await setFavourite(currentProductData, currentUserID,currentFavourite);
         console.log(response);
-        dispatch(addToFavouriteAction(currentProductData, response.id));
+        dispatch(addToFavouriteAction(currentProductData));
         toast.success("Favourite successfully!", {
           autoClose: 1500,
         });
