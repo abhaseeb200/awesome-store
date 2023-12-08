@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { AiOutlineFullscreen } from "react-icons/ai";
 import { IoMdHeartEmpty } from "react-icons/io";
 import { FaHeart } from "react-icons/fa";
+import { TbLoader2 } from "react-icons/tb";
 
 const CartProduct = ({
   handleModal,
@@ -11,11 +12,11 @@ const CartProduct = ({
   favourite,
   handleFavourite,
   handleRemoveFavourite,
+  addToFavouriteLoader,
 }) => {
   let favouriteProducts = favourite?.find(
-    (product) => product.id === productData.id
+    (product) => product?.id === productData?.id
   );
-  console.log(favouriteProducts);
   return (
     <div key={index} className="relative flex flex-wrap mx-auto">
       <Link to={`/product/${productData?.id}`}>
@@ -31,7 +32,15 @@ const CartProduct = ({
               >
                 <AiOutlineFullscreen />
               </span>
-              {favouriteProducts ? (
+
+              {addToFavouriteLoader ? (
+                <span
+                  className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 group-hover:-translate-y-2 sm:group-hover:-translate-y-6 transition duration-300 opacity-0 group-hover:opacity-100 border p-1 sm:p-4 md:p-5"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <TbLoader2 size="1.2rem" className="animate-spin" />
+                </span>
+              ) : favouriteProducts ? (
                 <span
                   className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 group-hover:-translate-y-2 sm:group-hover:-translate-y-6 transition duration-300 opacity-0 group-hover:opacity-100 border p-1 sm:p-4 md:p-5"
                   onClick={(e) => {
@@ -39,7 +48,7 @@ const CartProduct = ({
                     handleRemoveFavourite(productData);
                   }}
                 >
-                  <FaHeart color="#ef4444"/>
+                  <FaHeart color="#ef4444" />
                 </span>
               ) : (
                 <span

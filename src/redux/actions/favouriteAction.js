@@ -5,7 +5,6 @@ import {
 } from "../types/favouriteType";
 
 const addToFavouriteAction = (data) => {
-  console.log(data);
   return {
     type: ADDTOFAVOURITE,
     data: data,
@@ -13,7 +12,6 @@ const addToFavouriteAction = (data) => {
 };
 
 const removeFromFavouriteAction = (dataID) => {
-  console.log(data, docID);
   return {
     type: REMOVEFROMFAVOURITE,
     currentID: dataID,

@@ -262,7 +262,7 @@ const Register = ({ setIsLogin, setOpenModal }) => {
   return (
     <div className="flex flex-col items-center justify-center">
       {/* LOGO HERE */}
-      <div className="bg-white shadow rounded w-full p-10 mt-16">
+      <div className="bg-white shadow rounded w-full p-10 mt-5">
         <p className="focus:outline-none text-2xl font-extrabold leading-6 text-gray-800 pb-8 text-center">
           Register your account free
         </p>
@@ -321,16 +321,20 @@ const Register = ({ setIsLogin, setOpenModal }) => {
           />
         </div>
         <div className="mt-8">
-          <Button
-            className="w-full justify-center text-sm"
-            onClick={signUpHandler}
-          >
-            {loader ? (
+          {loader ? (
+            <Button
+              className="w-full justify-center text-sm"
+              disabled="disabled"
+            >
               <TbLoader2 size="1.4rem" className="animate-spin" />
-            ) : (
-              "Create an account"
-            )}
-          </Button>
+            </Button>
+          ) : (
+            <Button
+              name="Create an account"
+              className="w-full justify-center text-sm"
+              onClick={signUpHandler}
+            />
+          )}
         </div>
         <div className="w-full flex items-center justify-between mt-6">
           <hr className="w-full bg-gray-400" />

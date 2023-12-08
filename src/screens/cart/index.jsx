@@ -10,6 +10,7 @@ import {
 } from "../../redux/actions/cartAction";
 import {
   deleteCart,
+  emptryCart,
   orderProcess,
   updateCart,
 } from "../../config/services/firebase/cart";
@@ -30,12 +31,28 @@ const Cart = ({ loaderCart, currentUserID }) => {
 
   const dispatch = useDispatch();
 
-  const handleDelete = async (currentID, currentSize, currentColor, docID) => {
-    dispatch(removeFromCartAction(currentID, currentSize, currentColor));
-    try {
-      let response = await deleteCart(docID);
-    } catch (error) {
-      console.log(error);
+  const handleDelete = async (currentID, currentSize, currentColor) => {
+    if (currentUserID) {
+      try {
+        let response = await deleteCart(
+          currentUserID,
+          currentID,
+          currentSize,
+          currentColor,
+          cart
+        );
+        dispatch(removeFromCartAction(currentID, currentSize, currentColor));
+        toast.success("Remove successfully!", {
+          autoClose: 1500,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      dispatch(removeFromCartAction(currentID, currentSize, currentColor));
+      toast.success("Remove successfully!", {
+        autoClose: 1500,
+      });
     }
   };
 
@@ -65,9 +82,7 @@ const Cart = ({ loaderCart, currentUserID }) => {
     try {
       setCheckoutLoader(true);
       let response = await orderProcess(cart, currentUserID);
-      cart.forEach((element) => {
-        deleteCart(element?.docID);
-      });
+      let result = await emptryCart(currentUserID);
       dispatch(emptyCarttAction());
       toast.success("CheckOut successfully!", {
         autoClose: 1500,
@@ -80,14 +95,19 @@ const Cart = ({ loaderCart, currentUserID }) => {
 
   const handleQuantityIncrement = async (currentProductData) => {
     setCurrentID(currentProductData?.id);
-    setCurrentColor(currentProductData?.currentColor)
-    setCurrentSize(currentProductData?.currentSize)
+    setCurrentColor(currentProductData?.currentColor);
+    setCurrentSize(currentProductData?.currentSize);
     setIncrementLoader(true);
     if (currentUserID) {
       try {
         let updateQuantity = currentProductData.quantity + 1;
-        await updateCart(updateQuantity, currentProductData);
-        dispatch(incrementAction(currentProductData));
+        await updateCart(
+          updateQuantity,
+          currentProductData,
+          currentUserID,
+          cart
+        );
+        // dispatch(incrementAction(currentProductData));
         setIncrementLoader(false);
       } catch (error) {
         console.log(error);
@@ -101,15 +121,20 @@ const Cart = ({ loaderCart, currentUserID }) => {
 
   const handleQuantityDecrement = async (currentProductData) => {
     setCurrentID(currentProductData?.id);
-    setCurrentColor(currentProductData?.currentColor)
-    setCurrentSize(currentProductData?.currentSize)
+    setCurrentColor(currentProductData?.currentColor);
+    setCurrentSize(currentProductData?.currentSize);
     setDecrementLoader(true);
     if (currentUserID) {
       try {
         let updateQuantity =
           currentProductData.quantity > 1 ? currentProductData.quantity - 1 : 1;
-        await updateCart(updateQuantity, currentProductData);
-        dispatch(decrementAction(currentProductData));
+        await updateCart(
+          updateQuantity,
+          currentProductData,
+          currentUserID,
+          cart
+        );
+        // dispatch(decrementAction(currentProductData));
         setDecrementLoader(false);
       } catch (error) {
         console.log(error);
@@ -156,13 +181,13 @@ const Cart = ({ loaderCart, currentUserID }) => {
             <div className="flex items-center justify-between p-3 border-t border-neutral-200">
               <p>Order total</p>
               <div className="font-semibold">
-                {loaderCart ? "Loading..." : "$"+orderTotal()}
+                {loaderCart ? "Loading..." : "$" + orderTotal()}
               </div>
             </div>
             {checkoutLoader ? (
               <Button
                 className="w-full justify-center"
-                onClick={handleCheckout}
+                disabled="disabled"
               >
                 <TbLoader2 size="1.3rem" className="animate-spin" />
               </Button>

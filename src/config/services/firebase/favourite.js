@@ -1,21 +1,29 @@
 import { db } from "../../firebaseConfig";
 
-const setFavourite = (currentProductData, currentUserID,currentFavouriteData) => {
-  // let updateData = [currentProductData.id]
-  console.log(currentFavouriteData,"______________");
+const setFavourite = (currentProductData, currentUserID, prevFavourite) => {
+  let allPrevFavouriteID = prevFavourite.map((product) => product.id)
   return db
     .collection("favourite")
     .doc(currentUserID)
     .set({
-      // userId: [currentUserID],
-      // timeStamp: Date.now(),
-      currentProductData: [currentProductData.id],
+      productsID: [...allPrevFavouriteID, currentProductData.id],
     });
 };
 
+const deleteFavourite = (currentProductData, currentUserID, prevFavourite) => {
+  let allPrevFavouriteID = prevFavourite.map((product) => product.id)
+  let updateData = allPrevFavouriteID.filter((id) => id !== currentProductData.id)
+  // console.log(allPrevFavouriteID,"RMOVE PRODUCTS IDS",updateData);
+  return db
+    .collection("favourite")
+    .doc(currentUserID)
+    .set({
+      productsID: [...updateData],
+    });
+}
+
 const getFavourite = (currentUserID) => {
-    console.log(currentUserID,"------------");
   return db.collection("favourite").doc(currentUserID).get();
 };
 
-export { setFavourite, getFavourite };
+export { setFavourite, getFavourite, deleteFavourite };

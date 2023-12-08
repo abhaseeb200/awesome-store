@@ -16,7 +16,7 @@ import { toast } from "react-toastify";
 import { emptyCarttAction } from "../../redux/actions/cartAction";
 import { IoMdHeartEmpty } from "react-icons/io";
 
-const Navbar = ({ loaderAuthIcon, isUser, loaderCart,loaderfavourite }) => {
+const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
   const [openModal, setOpenModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const cancelButtonRef = useRef(null);
@@ -75,7 +75,7 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart,loaderfavourite }) => {
                     <Link to="/">Awessome </Link>
                   </div>
                   <div className="hidden lg:ml-6 lg:block">
-                    <div className="flex space-x-4">
+                    <div className="flex space-x-2">
                       {navigation.map((item, index) => (
                         <NavLink
                           key={item.name}
@@ -94,39 +94,23 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart,loaderfavourite }) => {
                     to="/favourite"
                     className="mr-4 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition px-4 py-2 flex items-center justify-center"
                   >
-                    {loaderfavourite ? (
-                      <span className="">
-                        <TbLoader2 size="1.2rem" className="animate-spin" />
-                      </span>
-                    ) : (
-                      <>
-                        <span className="">
-                          <IoMdHeartEmpty size="1.25rem" />
-                        </span>
-                        <span className="ml-2 text-sm text-white">
-                          {favourite.length}
-                        </span>
-                      </>
-                    )}
+                    <span className="">
+                      <IoMdHeartEmpty size="1.25rem" />
+                    </span>
+                    <span className="ml-2 text-sm text-white">
+                      {favourite.length}
+                    </span>
                   </Link>
                   <Link
                     to="/cart"
                     className="mr-4 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition px-4 py-2 flex items-center justify-center"
                   >
-                    {loaderCart ? (
-                      <span className="">
-                        <TbLoader2 size="1.2rem" className="animate-spin" />
-                      </span>
-                    ) : (
-                      <>
-                        <span className="">
-                          <RiShoppingBag3Line size="1.25rem" />
-                        </span>
-                        <span className="ml-2 text-sm text-white">
-                          {cart.length}
-                        </span>
-                      </>
-                    )}
+                    <span className="">
+                      <RiShoppingBag3Line size="1.25rem" />
+                    </span>
+                    <span className="ml-2 text-sm text-white">
+                      {cart.length}
+                    </span>
                   </Link>
                   <span className="cursor-pointer w-auto flex items-center justify-center disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition">
                     {loaderAuthIcon ? (

@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import Home from "../../screens/home";
 import Navbar from "../../components/navbar";
@@ -19,17 +19,23 @@ import {
 import { getCart } from "../services/firebase/cart";
 import Favourite from "../../screens/favourite";
 import { getFavourite } from "../services/firebase/favourite";
+import {
+  addToFavouriteAction,
+  emptyFavouriteAction,
+} from "../../redux/actions/favouriteAction";
 
 const Main = () => {
   const [loader, setLoader] = useState(true);
   const [isUser, setIsUser] = useState(false);
   const [loaderAuthIcon, setLoaderAuthIcon] = useState(true);
   const [loaderCart, setLoaderCart] = useState(true);
-  const [loaderfavourite, setLoaderfavourite] = useState(false);
+  const [loaderfavourite, setLoaderfavourite] = useState(true);
   const [currentUserID, setCurrentUserID] = useState("");
-  const [currentFavourite, setCurrentFavourite] = useState([]);
+  const [currentFavourites, setCurrentFavourites] = useState([]);
 
   const dispatch = useDispatch();
+
+  const { productData } = useSelector((state) => state.data);
 
   const handleFetch = async () => {
     try {
@@ -58,6 +64,7 @@ const Main = () => {
           setIsUser(false);
           setCurrentUserID("");
           setLoaderCart(false);
+          setLoaderfavourite(false);
         }
         setLoaderAuthIcon(false);
       });
@@ -70,20 +77,27 @@ const Main = () => {
     dispatch(emptyCarttAction());
     if (currentUserID) {
       try {
-        let response = await getCart(currentUserID);
-        response.forEach((element) => {
-          let product = element.data().currentProductData;
-          dispatch(
-            addToCartAction(
-              product,
-              product.currentSize,
-              product.currentColor,
-              product.currentPrice,
-              product.quantity,
-              element.id
-            )
-          );
-        });
+        let result = await getCart(currentUserID);
+        if (result.exists) {
+          console.log(result.data().productData);
+          let dbProductData = result.data().productData;
+          for (let i = 0; i < dbProductData?.length; i++) {
+            dispatch(addToCartAction(dbProductData[i]));
+          }
+        }
+        // response.forEach((element) => {
+        //   let product = element.data().currentProductData;
+        //   dispatch(
+        //     addToCartAction(
+        //       product,
+        //       product.currentSize,
+        //       product.currentColor,
+        //       product.currentPrice,
+        //       product.quantity,
+        //       element.id
+        //     )
+        //   );
+        // });
         setLoaderCart(false);
       } catch (error) {
         console.log(error);
@@ -93,17 +107,33 @@ const Main = () => {
   };
 
   const handleGetFavourite = async () => {
-    try {
-      let res = await getFavourite(currentUserID);
-      if (res.exists) {
-        // If the document exists, extract the data
-        console.log(res.data());
-        setCurrentFavourite(res.data());
-      } else {
-        console.log("No such document!");
+    dispatch(emptyFavouriteAction());
+    if (currentUserID) {
+      try {
+        let result = await getFavourite(currentUserID);
+        if (result.exists) {
+          // If the document exists, extract the data
+          let filterFavouriteProducts = [];
+          let productsID = result.data().productsID;
+          Object.keys(productData).forEach((category) => {
+            for (let i = 0; i < productsID?.length; i++) {
+              let obj = productData[category]?.find(
+                (product) => product.id === productsID[i]
+              );
+              if (obj) {
+                dispatch(addToFavouriteAction(obj));
+                filterFavouriteProducts.push(obj);
+              }
+            }
+          });
+          console.log(filterFavouriteProducts);
+          setCurrentFavourites(result.data().productsID);
+          setLoaderfavourite(false);
+        }
+      } catch (error) {
+        console.log(error);
+        setLoaderfavourite(false);
       }
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -121,11 +151,8 @@ const Main = () => {
     <>
       <Router>
         <Navbar
-          loaderAuthIcon={loaderAuthIcon}
           setIsUser={setIsUser}
           isUser={isUser}
-          loaderCart={loaderCart}
-          loaderfavourite={loaderfavourite}
         />
         <ToastContainer />
         <Routes>
@@ -135,19 +162,28 @@ const Main = () => {
               <Home
                 loader={loader}
                 currentUserID={currentUserID}
-                currentFavourite={currentFavourite}
               />
             }
           />
           <Route
             path="/product/:id"
             element={
-              <ProductDetail loader={loader} currentUserID={currentUserID} />
+              <ProductDetail
+                loader={loader}
+                currentUserID={currentUserID}
+                loaderfavourite={loaderfavourite}
+              />
             }
           />
           <Route
             path="/category/:title"
-            element={<Category loader={loader} currentUserID={currentUserID} />}
+            element={
+              <Category
+                loader={loader}
+                currentUserID={currentUserID}
+                loaderfavourite={loaderfavourite}
+              />
+            }
           />
           <Route
             path="/cart"
@@ -166,7 +202,6 @@ const Main = () => {
                 loader={loader}
                 currentUserID={currentUserID}
                 loaderfavourite={loaderfavourite}
-                currentFavourite={currentFavourite}
               />
             }
           />

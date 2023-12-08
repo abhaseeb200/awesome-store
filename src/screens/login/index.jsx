@@ -157,7 +157,7 @@ const Login = ({ setIsLogin, setOpenModal }) => {
     <div className="">
       <div className="flex flex-col items-center justify-center">
         {/* LOGO HERE */}
-        <div className="bg-white shadow rounded w-full p-10 mt-16">
+        <div className="bg-white shadow rounded w-full p-10 mt-5">
           <p className="focus:outline-none text-2xl font-extrabold leading-6 text-gray-800 pb-8 text-center">
             Welcome to Awesome Store
           </p>
@@ -195,16 +195,20 @@ const Login = ({ setIsLogin, setOpenModal }) => {
             />
           </div>
           <div className="mt-8">
-            <Button
-              className="w-full justify-center text-sm"
-              onClick={signInHandler}
-            >
-              {loader ? (
+            {loader ? (
+              <Button
+                className="w-full justify-center text-sm"
+                disabled="disabled"
+              >
                 <TbLoader2 size="1.3rem" className="animate-spin" />
-              ) : (
-                "Login"
-              )}
-            </Button>
+              </Button>
+            ) : (
+              <Button
+                name="Login"
+                className="w-full justify-center text-sm"
+                onClick={signInHandler}
+              />
+            )}
           </div>
           <div className="w-full flex items-center justify-between mt-6">
             <hr className="w-full bg-gray-400" />
@@ -223,18 +227,6 @@ const Login = ({ setIsLogin, setOpenModal }) => {
               Continue with Google
             </p>
           </Button>
-
-          {/* <Button className="bg-gray-200 hover:bg-gray-300 w-full justify-center">
-            <span className="text-black font-normal">
-              Forgot your password?
-            </span>
-            <a
-              href="#"
-              className="focus:outline-none focus:underline hover:underline text-sm font-medium leading-none text-gray-800 cursor-pointer"
-            >
-              Reset It
-            </a>
-          </Button> */}
 
           <p className="focus:outline-none text-md mt-4 font-medium leading-none text-gray-500 text-center pb-4">
             Dont have account?

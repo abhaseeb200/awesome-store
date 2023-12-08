@@ -10,8 +10,16 @@ import Loader from "../../components/loader";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import { setCart } from "../../config/services/firebase/cart";
 import { toast } from "react-toastify";
+import {
+  addToFavouriteAction,
+  removeFromFavouriteAction,
+} from "../../redux/actions/favouriteAction";
+import {
+  deleteFavourite,
+  setFavourite,
+} from "../../config/services/firebase/favourite";
 
-const Category = ({ loader, currentUserID }) => {
+const Category = ({ loader, currentUserID, loaderfavourite }) => {
   const [open, setOpen] = useState(false);
   const [currentSizeTab, setCurrentSizeTab] = useState("");
   const [currentColorTab, setCurrentColorTab] = useState("");
@@ -21,22 +29,28 @@ const Category = ({ loader, currentUserID }) => {
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
   const [currentProductData, setCurrentProductData] = useState({});
-
-  const sizes = ["small", "medium", "large"];
+  const [currentColors, setCurrentColors] = useState([]);
+  const [currentProducts, setCurrentProducts] = useState([]);
+  const [sizes, setSizes] = useState(["small", "medium", "large"]);
 
   const cancelButtonRef = useRef(null);
   const { title } = useParams();
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const { productData } = useSelector((state) => state?.data);
   const { cart } = useSelector((stata) => stata.addToCart);
+  const { favourite } = useSelector((stata) => stata.addToFavourite);
 
-
-  const currentProducts = productData[title];
-
-  const categoryColors = [];
-  currentProducts?.map((product) => categoryColors.push(...product.colors));
-  const currentColors = [...new Set(categoryColors)];
+  const currentCategoryProductsFetch = () => {
+    let currentCategoryProducts = productData[title];
+    setCurrentProducts(currentCategoryProducts);
+    const categoryColors = [];
+    currentCategoryProducts?.map((product) =>
+      categoryColors?.push(...product.colors)
+    );
+    const currentColorstemp = [...new Set(categoryColors)];
+    setCurrentColors(currentColorstemp);
+  };
 
   const handleModal = (productData) => {
     setCurrentProductData(productData);
@@ -44,12 +58,67 @@ const Category = ({ loader, currentUserID }) => {
   };
 
   const handleCurrentSizes = (price, size) => {
+    console.log(size);
     setCurrentPrice(price);
     setCurrentSize(size);
   };
 
   const hanldeCurrentColor = (color) => {
     setCurrentColor(color);
+  };
+
+  const handleFavourite = async (currentProductData) => {
+    let isAlreadyProduct = favourite.find(
+      (product) => product.id === currentProductData.id
+    );
+    if (isAlreadyProduct) {
+      toast.error("Item already added!", {
+        autoClose: 1500,
+      });
+    } else {
+      if (currentUserID) {
+        let response = await setFavourite(
+          currentProductData,
+          currentUserID,
+          favourite
+        );
+        console.log(response);
+        dispatch(addToFavouriteAction(currentProductData));
+        toast.success("Favourite successfully!", {
+          autoClose: 1500,
+        });
+      } else {
+        dispatch(addToFavouriteAction(currentProductData));
+        toast.success("Favourite successfully!", {
+          autoClose: 1500,
+        });
+      }
+    }
+  };
+
+  const handleRemoveFavourite = async (currentProductData) => {
+    if (currentUserID) {
+      //user is login
+      try {
+        let result = await deleteFavourite(
+          currentProductData,
+          currentUserID,
+          favourite
+        );
+        dispatch(removeFromFavouriteAction(currentProductData.id));
+        toast.success("Remove favourite!", {
+          autoClose: 1500,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      //user is logout
+      dispatch(removeFromFavouriteAction(currentProductData.id));
+      toast.success("Remove favourite!", {
+        autoClose: 1500,
+      });
+    }
   };
 
   const handleSetCart = async (currentProductData) => {
@@ -62,11 +131,11 @@ const Category = ({ loader, currentUserID }) => {
       currentPrice: currentPrice,
     };
     try {
-      let response = await setCart(updatedData, currentUserID);
+      let response = await setCart(updatedData, currentUserID, cart);
+      dispatch(addToCartAction(updatedData));
       toast.success("Cart add successfully!", {
         autoClose: 1500,
       });
-      dispatch(addToCartAction(currentProductData, currentSize, currentColor,currentPrice,1,response.id));
       setAddToCartLoader(false);
     } catch (error) {
       console.log(error);
@@ -75,6 +144,7 @@ const Category = ({ loader, currentUserID }) => {
   };
 
   const handleAddToCart = (currentProductData) => {
+    console.log(cart);
     const existingCartItem = cart.find(
       (item) =>
         item.id === currentProductData.id &&
@@ -91,15 +161,14 @@ const Category = ({ loader, currentUserID }) => {
         handleSetCart(currentProductData);
       } else {
         //user is login out
-        dispatch(
-          addToCartAction(
-            currentProductData,
-            currentSize,
-            currentColor,
-            currentPrice,
-            1, //quantity
-          )
-        );
+        let updatedData = {
+          ...currentProductData,
+          quantity: 1,
+          currentSize: currentSize,
+          currentColor: currentColor,
+          currentPrice: currentPrice,
+        };
+        dispatch(addToCartAction(updatedData));
         toast.success("Cart add successfully!", {
           autoClose: 1500,
         });
@@ -110,7 +179,6 @@ const Category = ({ loader, currentUserID }) => {
   const handleSizeTab = (title) => {
     if (title === currentSizeTab) {
       setCurrentSizeTab("");
-      setFilterProducts([]);
     } else {
       setCurrentSizeTab(title);
     }
@@ -130,9 +198,20 @@ const Category = ({ loader, currentUserID }) => {
   };
 
   useEffect(() => {
+    currentCategoryProductsFetch();
     setFilterProducts([]);
     setCurrentColorTab("");
   }, [title]);
+
+  useEffect(() => {
+    setCurrentColor("");
+    setCurrentPrice("");
+    setCurrentSize("");
+  }, [open]);
+
+  useEffect(() => {
+    currentCategoryProductsFetch();
+  }, [productData]);
 
   return (
     <>
@@ -179,20 +258,34 @@ const Category = ({ loader, currentUserID }) => {
               {filterProducts.length > 0
                 ? filterProducts.map((product, index) => {
                     return (
-                      <div key={index} className="w-full sm:w-1/2 md:w-1/3 px-3">
+                      <div
+                        key={index}
+                        className="w-full sm:w-1/2 md:w-1/3 px-3"
+                      >
                         <CardProduct
                           productData={product}
                           handleModal={handleModal}
+                          favourite={favourite}
+                          handleFavourite={handleFavourite}
+                          handleRemoveFavourite={handleRemoveFavourite}
+                          loaderfavourite={loaderfavourite}
                         />
                       </div>
                     );
                   })
                 : currentProducts?.map((product, index) => {
                     return (
-                      <div key={index} className="w-full sm:w-1/2 md:w-1/3 px-3">
+                      <div
+                        key={index}
+                        className="w-full sm:w-1/2 md:w-1/3 px-3"
+                      >
                         <CardProduct
                           productData={product}
                           handleModal={handleModal}
+                          favourite={favourite}
+                          handleFavourite={handleFavourite}
+                          handleRemoveFavourite={handleRemoveFavourite}
+                          loaderfavourite={loaderfavourite}
                         />
                       </div>
                     );

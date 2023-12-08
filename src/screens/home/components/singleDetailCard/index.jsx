@@ -1,9 +1,23 @@
 import { AiOutlineFullscreen } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { LuShoppingBasket } from "react-icons/lu";
+import { TbLoader2 } from "react-icons/tb";
+import { FaHeart } from "react-icons/fa";
+import { IoMdHeartEmpty } from "react-icons/io";
 
-const SingleDetailCard = ({ productData, handleModal }) => {
+const SingleDetailCard = ({
+  productData,
+  handleModal,
+  favourite,
+  handleFavourite,
+  handleRemoveFavourite,
+  loaderfavourite,
+}) => {
   let firstProduct = productData[0];
+  let favouriteProducts = favourite?.find(
+    (product) => product?.id === firstProduct?.id
+  );
+  // console.log(favouriteProducts);
   return (
     <div className="flex flex-col md:flex-row items-start justify-between flex-wrap border p-4 rounded-xl cursor-pointer group relative">
       <Link
@@ -20,6 +34,34 @@ const SingleDetailCard = ({ productData, handleModal }) => {
         >
           <AiOutlineFullscreen />
         </span>
+        {loaderfavourite ? (
+          <span
+            className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 group-hover:-translate-y-2 sm:group-hover:-translate-y-0 transition duration-300 opacity-0 group-hover:opacity-100 border p-1 sm:p-4 md:p-5"
+            onClick={(e) => e.preventDefault()}
+          >
+            <TbLoader2 size="1.2rem" className="animate-spin" />
+          </span>
+        ) : favouriteProducts ? (
+          <span
+            className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 group-hover:-translate-y-2 sm:group-hover:-translate-y-0 transition duration-300 opacity-0 group-hover:opacity-100 border p-1 sm:p-4 md:p-5"
+            onClick={(e) => {
+              e.preventDefault();
+              handleRemoveFavourite(firstProduct);
+            }}
+          >
+            <FaHeart color="#ef4444" />
+          </span>
+        ) : (
+          <span
+            className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 group-hover:-translate-y-2 sm:group-hover:-translate-y-0 transition duration-300 opacity-0 group-hover:opacity-100 border p-1 sm:p-4 md:p-5"
+            onClick={(e) => {
+              e.preventDefault();
+              handleFavourite(firstProduct);
+            }}
+          >
+            <IoMdHeartEmpty />
+          </span>
+        )}
       </div>
       <div className="bg-black/0 group-hover:bg-black/40 transition rounded-xl w-full h-full absolute inset-0 z-10" />
       <div className="w-full sm:w-full md:w-1/3 relative rounded-lg overflow-hidden flex-shrink-0 mb-4 sm:mb-0 md:mb-0">

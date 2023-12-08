@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import HeroSection from "../../components/heroSection";
 import CartProduct from "../../components/cardProduct";
@@ -14,12 +14,20 @@ import {
   addToFavouriteAction,
   removeFromFavouriteAction,
 } from "../../redux/actions/favouriteAction";
-import { setFavourite } from "../../config/services/firebase/favourite";
+import {
+  deleteFavourite,
+  setFavourite,
+} from "../../config/services/firebase/favourite";
 
-const Home = ({ loader, currentUserID,currentFavourite }) => {
+const Home = ({
+  loader,
+  currentUserID,
+  loaderfavourite,
+}) => {
   const [open, setOpen] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
   const [addToCartLoader, setAddToCartLoader] = useState(false);
+  const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
@@ -30,8 +38,6 @@ const Home = ({ loader, currentUserID,currentFavourite }) => {
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
 
-  // console.log(favourite);
-  console.log(currentFavourite,"+++++++++++++++");
   const handleModal = (productData) => {
     setCurrentProductData(productData);
     setOpen(true);
@@ -56,20 +62,11 @@ const Home = ({ loader, currentUserID,currentFavourite }) => {
       currentPrice: currentPrice,
     };
     try {
-      let response = await setCart(updatedData, currentUserID);
+      let response = await setCart(updatedData, currentUserID, cart);
+      dispatch(addToCartAction(updatedData));
       toast.success("Cart add successfully!", {
         autoClose: 1500,
       });
-      dispatch(
-        addToCartAction(
-          currentProductData,
-          currentSize,
-          currentColor,
-          currentPrice,
-          1, //quantity default set to 1
-          response.id
-        )
-      );
       setAddToCartLoader(false);
     } catch (error) {
       console.log(error);
@@ -94,15 +91,14 @@ const Home = ({ loader, currentUserID,currentFavourite }) => {
         handleSetCart(currentProductData);
       } else {
         //user is login out
-        dispatch(
-          addToCartAction(
-            currentProductData,
-            currentSize,
-            currentColor,
-            currentPrice,
-            1 //quantity
-          )
-        );
+        let updatedData = {
+          ...currentProductData,
+          quantity: 1,
+          currentSize: currentSize,
+          currentColor: currentColor,
+          currentPrice: currentPrice,
+        };
+        dispatch(addToCartAction(updatedData));
         toast.success("Cart add successfully!", {
           autoClose: 1500,
         });
@@ -119,13 +115,14 @@ const Home = ({ loader, currentUserID,currentFavourite }) => {
         autoClose: 1500,
       });
     } else {
+      setAddToFavouriteLoader(true);
       if (currentUserID) {
-        let response = await setFavourite(currentProductData, currentUserID,currentFavourite);
-        console.log(response);
+        await setFavourite(currentProductData, currentUserID, favourite);
         dispatch(addToFavouriteAction(currentProductData));
         toast.success("Favourite successfully!", {
           autoClose: 1500,
         });
+        setAddToFavouriteLoader(false);
       } else {
         dispatch(addToFavouriteAction(currentProductData));
         toast.success("Favourite successfully!", {
@@ -135,12 +132,37 @@ const Home = ({ loader, currentUserID,currentFavourite }) => {
     }
   };
 
-  const handleRemoveFavourite = (currentProductData) => {
-    dispatch(removeFromFavouriteAction(currentProductData.id));
-    toast.success("Remove favourite!", {
-      autoClose: 1500,
-    });
+  const handleRemoveFavourite = async (currentProductData) => {
+    if (currentUserID) {
+      //user is login
+      try {
+        let result = await deleteFavourite(
+          currentProductData,
+          currentUserID,
+          favourite
+        );
+        dispatch(removeFromFavouriteAction(currentProductData.id));
+        toast.success("Remove favourite!", {
+          autoClose: 1500,
+        });
+        setAddToFavouriteLoader(false);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      //user is logout
+      dispatch(removeFromFavouriteAction(currentProductData.id));
+      toast.success("Remove favourite!", {
+        autoClose: 1500,
+      });
+    }
   };
+
+  useEffect(() => {
+    setCurrentColor("");
+    setCurrentPrice("");
+    setCurrentSize("");
+  }, [open]);
 
   return (
     <>
@@ -158,6 +180,10 @@ const Home = ({ loader, currentUserID,currentFavourite }) => {
                 <SingleDetailCard
                   productData={productsByCategory[category]}
                   handleModal={handleModal}
+                  favourite={favourite}
+                  handleFavourite={handleFavourite}
+                  handleRemoveFavourite={handleRemoveFavourite}
+                  addToFavouriteLoader={addToFavouriteLoader}
                 />
                 <div className="flex flex-wrap -mx-4">
                   {productsByCategory[category]
@@ -174,6 +200,7 @@ const Home = ({ loader, currentUserID,currentFavourite }) => {
                             favourite={favourite}
                             handleFavourite={handleFavourite}
                             handleRemoveFavourite={handleRemoveFavourite}
+                            addToFavouriteLoader={addToFavouriteLoader}
                           />
                         </div>
                       );
