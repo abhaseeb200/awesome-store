@@ -115,8 +115,8 @@ const Home = ({
         autoClose: 1500,
       });
     } else {
-      setAddToFavouriteLoader(true);
       if (currentUserID) {
+        setAddToFavouriteLoader(true);
         await setFavourite(currentProductData, currentUserID, favourite);
         dispatch(addToFavouriteAction(currentProductData));
         toast.success("Favourite successfully!", {
