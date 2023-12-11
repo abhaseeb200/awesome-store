@@ -7,28 +7,31 @@ import CartProduct from "../../components/cardProduct";
 import Modal from "../../components/modal";
 import Loader from "../../components/loader";
 import { addToCartAction } from "../../redux/actions/cartAction";
+import {
+  addToFavouriteAction,
+  removeFromFavouriteAction,
+} from "../../redux/actions/favouriteAction";
 import { setCart } from "../../config/services/firebase/cart";
 import {
   deleteFavourite,
   setFavourite,
 } from "../../config/services/firebase/favourite";
-import {
-  addToFavouriteAction,
-  removeFromFavouriteAction,
-} from "../../redux/actions/favouriteAction";
 
-const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
+const ProductDetail = ({ loader, currentUserID }) => {
   const [open, setOpen] = useState(false);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
+  const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentProduct, setCurrentProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
+
   const cancelButtonRef = useRef(null);
 
   const dispatch = useDispatch();
+
   const { productData } = useSelector((stata) => stata.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
@@ -72,32 +75,10 @@ const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
     setOpen(true);
   };
 
-  const handleSetCart = async (currentProductData) => {
-    setAddToCartLoader(true);
-    let updatedData = {
-      ...currentProductData,
-      quantity: 1,
-      currentSize: currentSize,
-      currentColor: currentColor,
-      currentPrice: currentPrice,
-    };
-    try {
-      let response = await setCart(updatedData, currentUserID, cart);
-      dispatch(addToCartAction(updatedData));
-      toast.success("Cart add successfully!", {
-        autoClose: 1500,
-      });
-      setAddToCartLoader(false);
-    } catch (error) {
-      console.log(error);
-      setAddToCartLoader(false);
-    }
-  };
-
   const handleAddToCart = (currentProductData) => {
-    const existingCartItem = cart.find(
+    let existingCartItem = cart.find(
       (item) =>
-        item.id === currentProductData.id &&
+        item.id === currentProductData?.id &&
         item.currentSize === currentSize &&
         item.currentColor === currentColor
     );
@@ -106,18 +87,19 @@ const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
         autoClose: 1500,
       });
     } else {
-      //user is login
+      //exist item not found
+      let updatedData = {
+        ...currentProductData,
+        quantity: 1,
+        currentSize: currentSize,
+        currentColor: currentColor,
+        currentPrice: currentPrice,
+      };
       if (currentUserID) {
-        handleSetCart(currentProductData);
+        //user is login
+        handleSetCart(updatedData);
       } else {
         //user is login out
-        let updatedData = {
-          ...currentProductData,
-          quantity: 1,
-          currentSize: currentSize,
-          currentColor: currentColor,
-          currentPrice: currentPrice,
-        };
         dispatch(addToCartAction(updatedData));
         toast.success("Cart add successfully!", {
           autoClose: 1500,
@@ -126,7 +108,23 @@ const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
     }
   };
 
+  const handleSetCart = async (updatedData) => {
+    setAddToCartLoader(true);
+    try {
+      await setCart(updatedData, currentUserID, cart);
+      dispatch(addToCartAction(updatedData));
+      setAddToCartLoader(false);
+      toast.success("Cart add successfully!", {
+        autoClose: 1500,
+      });
+    } catch (error) {
+      console.log(error);
+      setAddToCartLoader(false);
+    }
+  };
+
   const handleFavourite = async (currentProductData) => {
+    setAddToFavouriteLoader(true);
     let isAlreadyProduct = favourite.find(
       (product) => product.id === currentProductData.id
     );
@@ -143,11 +141,13 @@ const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
         );
         console.log(response);
         dispatch(addToFavouriteAction(currentProductData));
+        setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {
           autoClose: 1500,
         });
       } else {
         dispatch(addToFavouriteAction(currentProductData));
+        setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {
           autoClose: 1500,
         });
@@ -156,6 +156,7 @@ const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
   };
 
   const handleRemoveFavourite = async (currentProductData) => {
+    setAddToFavouriteLoader(true);
     if (currentUserID) {
       //user is login
       try {
@@ -165,6 +166,7 @@ const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
           favourite
         );
         dispatch(removeFromFavouriteAction(currentProductData.id));
+        setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {
           autoClose: 1500,
         });
@@ -174,6 +176,7 @@ const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
     } else {
       //user is logout
       dispatch(removeFromFavouriteAction(currentProductData.id));
+      setAddToFavouriteLoader(false);
       toast.success("Remove favourite!", {
         autoClose: 1500,
       });
@@ -203,30 +206,30 @@ const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
       ) : (
         <>
           <CardProductDetails
-            currentProductData={currentProduct}
-            currentPrice={currentPrice}
-            currentColor={currentColor}
             setCurrentPrice={setCurrentPrice}
             handleCurrentSizes={handleCurrentSizes}
             handleAddToCart={handleAddToCart}
             hanldeCurrentColor={hanldeCurrentColor}
             handleSetCart={handleSetCart}
+            currentPrice={currentPrice}
+            currentColor={currentColor}
+            currentProductData={currentProduct}
             addToCartLoader={addToCartLoader}
           />
           <hr className="my-8 border-t" />
-          <div className="overflow-x-hidden myPadding pb-8">
-            <h2 className="font-bold text-3xl">Related products</h2>
-            <div className="flex flex-wrap items-center w-full overflow-x-auto pb-6">
+          <div className="px-4 md:p-8 lg:p-10">
+            <h2 className="font-bold text-xl md:text-3xl">Related products</h2>
+            <div className="flex flex-wrap -mx-4 pb-6">
               {relatedProducts.map((product, index) => {
                 return (
                   <div className="w-full sm:w-1/2 md:w-1/4 px-4" key={index}>
                     <CartProduct
-                      productData={product}
-                      favourite={favourite}
                       handleModal={handleModal}
                       handleFavourite={handleFavourite}
                       handleRemoveFavourite={handleRemoveFavourite}
-                      loaderfavourite={loaderfavourite}
+                      favourite={favourite}
+                      productData={product}
+                      addToFavouriteLoader={addToFavouriteLoader}
                     />
                   </div>
                 );
@@ -238,15 +241,15 @@ const ProductDetail = ({ loader, currentUserID, loaderfavourite }) => {
 
       <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
         <CardProductDetails
-          currentProductData={currentProduct}
+          currentProductData={currentProductData}
           currentPrice={currentPrice}
           currentColor={currentColor}
+          addToCartLoader={addToCartLoader}
           setCurrentPrice={setCurrentPrice}
           handleCurrentSizes={handleCurrentSizes}
           handleAddToCart={handleAddToCart}
           hanldeCurrentColor={hanldeCurrentColor}
           handleSetCart={handleSetCart}
-          addToCartLoader={addToCartLoader}
         />
       </Modal>
     </>

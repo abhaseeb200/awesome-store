@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import { FcGoogle } from "react-icons/fc";
 import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button";
@@ -7,8 +8,6 @@ import {
   authSignUp,
   authWithGoogle,
 } from "../../config/services/firebase/auth";
-import { toast } from "react-toastify";
-import { db } from "../../config/firebaseConfig";
 import { setUsers } from "../../config/services/firebase/users";
 
 const Register = ({ setIsLogin, setOpenModal }) => {
@@ -176,6 +175,13 @@ const Register = ({ setIsLogin, setOpenModal }) => {
 
   const signUpHandler = async (e) => {
     e.preventDefault();
+    if (fullName.value === "") {
+      setFullName({
+        value: fullName.value,
+        isError: true,
+        messageError: "Please enter your full name",
+      });
+    }
     if (email.value === "") {
       setEmail({
         value: email.value,
@@ -221,11 +227,7 @@ const Register = ({ setIsLogin, setOpenModal }) => {
           password.value.trim()
         );
         const user = userCredential.user;
-        let usersData = await setUsers(
-          email.value.trim(),
-          fullName.value.trim(),
-          user.uid
-        );
+        await setUsers(email.value.trim(), fullName.value.trim(), user.uid);
         toast.success("Register account successfully!", {
           autoClose: 1500,
         });
@@ -244,9 +246,10 @@ const Register = ({ setIsLogin, setOpenModal }) => {
     }
   };
 
-  const handleAuthWithGoogle = async () => {
+  const handleAuthWithGoogle = async (e) => {
+    e.preventDefault()
     try {
-      let response = await authWithGoogle();
+      await authWithGoogle();
       setOpenModal(false);
       toast.success("SignUp successfully!", {
         autoClose: 1500,
@@ -262,7 +265,7 @@ const Register = ({ setIsLogin, setOpenModal }) => {
   return (
     <div className="flex flex-col items-center justify-center">
       {/* LOGO HERE */}
-      <div className="bg-white shadow rounded w-full p-10 mt-5">
+      <form className="bg-white shadow rounded w-full sm:p-10 p-5 mt-5">
         <p className="focus:outline-none text-2xl font-extrabold leading-6 text-gray-800 pb-8 text-center">
           Register your account free
         </p>
@@ -363,7 +366,7 @@ const Register = ({ setIsLogin, setOpenModal }) => {
             Login
           </span>
         </p>
-      </div>
+      </form>
     </div>
   );
 };

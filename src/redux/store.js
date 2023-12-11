@@ -1,12 +1,12 @@
 import { combineReducers, createStore } from "redux";
 import cartReducers from "./reducers/cartReducers";
 import DataReducer from "./reducers/dataReducer";
-import FavouriteReducers from "./reducers/favouriteReducers";
+import favouriteReducers from "./reducers/favouriteReducers";
 
 const combinedReducer  = combineReducers({
     data: DataReducer,
     addToCart: cartReducers,
-    addToFavourite: FavouriteReducers,
+    addToFavourite: favouriteReducers,
 })
 
 const store = createStore(combinedReducer)

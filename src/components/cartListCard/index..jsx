@@ -28,17 +28,7 @@ const CartListCard = ({
             <p className="border-neutral-400 border-l pl-4 text-gray-500">
               {item?.currentSize}
             </p>
-            <span
-              className="ml-12"
-              onClick={() =>
-                handleDelete(
-                  item?.id,
-                  item?.currentSize,
-                  item?.currentColor,
-                  item?.docID
-                )
-              }
-            >
+            <span className="ml-12" onClick={() => handleDelete(item)}>
               <AiOutlineDelete
                 className="bg-rose-500 rounded-lg p-1 hover:bg-rose-400 cursor-pointer"
                 color="#fff"

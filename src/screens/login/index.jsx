@@ -1,13 +1,13 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { toast } from "react-toastify";
 import { FcGoogle } from "react-icons/fc";
+import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button";
 import Input from "../../components/input";
 import {
   authSignIn,
   authWithGoogle,
 } from "../../config/services/firebase/auth";
-import { TbLoader2 } from "react-icons/tb";
-import { toast } from "react-toastify";
 
 const Login = ({ setIsLogin, setOpenModal }) => {
   const [loader, setLoader] = useState(false);
@@ -138,9 +138,10 @@ const Login = ({ setIsLogin, setOpenModal }) => {
     }
   };
 
-  const handleAuthWithGoogle = async () => {
+  const handleAuthWithGoogle = async (e) => {
+    e.preventDefault()
     try {
-      let response = await authWithGoogle();
+      await authWithGoogle();
       setOpenModal(false);
       toast.success("Login successfully!", {
         autoClose: 1500,
@@ -154,10 +155,10 @@ const Login = ({ setIsLogin, setOpenModal }) => {
   };
 
   return (
-    <div className="">
+    <>
       <div className="flex flex-col items-center justify-center">
         {/* LOGO HERE */}
-        <div className="bg-white shadow rounded w-full p-10 mt-5">
+        <form className="bg-white shadow rounded w-full sm:p-10 p-5 mt-5">
           <p className="focus:outline-none text-2xl font-extrabold leading-6 text-gray-800 pb-8 text-center">
             Welcome to Awesome Store
           </p>
@@ -237,9 +238,9 @@ const Login = ({ setIsLogin, setOpenModal }) => {
               Register
             </span>
           </p>
-        </div>
+        </form>
       </div>
-    </div>
+    </>
   );
 };
 

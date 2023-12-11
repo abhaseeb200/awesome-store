@@ -1,7 +1,7 @@
-import ColorButton from "../colorButton";
 import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button/index";
 import ThumbnailSlider from "../sliders";
+import ColorButton from "../colorButton";
 
 const CardProductDetails = ({
   currentProductData,
@@ -13,11 +13,11 @@ const CardProductDetails = ({
   addToCartLoader,
 }) => {
   return (
-    <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-8 myPadding mt-5">
+    <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-8 px-4 md:p-8 lg:p-10 mt-5">
       <ThumbnailSlider currentProductData={currentProductData} />
       <div>
-        <h2 className="font-bold text-2xl md:text-3xl">{currentProductData?.title}</h2>
-        <div className="text-xl md:text-2xl mt-3">
+        <h2 className="font-bold text-xl md:text-3xl">{currentProductData?.title}</h2>
+        <div className="text-1xl md:text-2xl mt-3">
           <div className="font-semibold">
             ${currentPrice || currentProductData?.sizes?.small}
           </div>

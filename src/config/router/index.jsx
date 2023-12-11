@@ -1,37 +1,38 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { ToastContainer } from "react-toastify";
 import axios from "axios";
-import Home from "../../screens/home";
 import Navbar from "../../components/navbar";
 import Footer from "../../components/footer";
+import Home from "../../screens/home";
+import Cart from "../../screens/cart";
 import ProductDetail from "../../screens/productDetail";
 import Category from "../../screens/category";
+import Favourite from "../../screens/favourite";
 import { dataAction } from "../../redux/actions/dataAction";
-import Cart from "../../screens/cart";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { authState } from "../services/firebase/auth";
 import {
   addToCartAction,
   emptyCarttAction,
 } from "../../redux/actions/cartAction";
-import { getCart } from "../services/firebase/cart";
-import Favourite from "../../screens/favourite";
-import { getFavourite } from "../services/firebase/favourite";
 import {
   addToFavouriteAction,
   emptyFavouriteAction,
 } from "../../redux/actions/favouriteAction";
+import { authState } from "../services/firebase/auth";
+import { getCart } from "../services/firebase/cart";
+import { getFavourite } from "../services/firebase/favourite";
+import "react-toastify/dist/ReactToastify.css";
 
 const Main = () => {
+  const [openModal, setOpenModal] = useState(false);
   const [loader, setLoader] = useState(true);
   const [isUser, setIsUser] = useState(false);
-  const [loaderAuthIcon, setLoaderAuthIcon] = useState(true);
   const [loaderCart, setLoaderCart] = useState(true);
   const [loaderfavourite, setLoaderfavourite] = useState(true);
   const [currentUserID, setCurrentUserID] = useState("");
-  const [currentFavourites, setCurrentFavourites] = useState([]);
+
+  const cancelButtonRef = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -66,7 +67,6 @@ const Main = () => {
           setLoaderCart(false);
           setLoaderfavourite(false);
         }
-        setLoaderAuthIcon(false);
       });
     } catch (error) {
       console.log(error);
@@ -79,25 +79,11 @@ const Main = () => {
       try {
         let result = await getCart(currentUserID);
         if (result.exists) {
-          console.log(result.data().productData);
-          let dbProductData = result.data().productData;
-          for (let i = 0; i < dbProductData?.length; i++) {
-            dispatch(addToCartAction(dbProductData[i]));
-          }
+          let response = result.data().productData;
+          response.forEach((item) => {
+            dispatch(addToCartAction(item));
+          });
         }
-        // response.forEach((element) => {
-        //   let product = element.data().currentProductData;
-        //   dispatch(
-        //     addToCartAction(
-        //       product,
-        //       product.currentSize,
-        //       product.currentColor,
-        //       product.currentPrice,
-        //       product.quantity,
-        //       element.id
-        //     )
-        //   );
-        // });
         setLoaderCart(false);
       } catch (error) {
         console.log(error);
@@ -113,21 +99,19 @@ const Main = () => {
         let result = await getFavourite(currentUserID);
         if (result.exists) {
           // If the document exists, extract the data
-          let filterFavouriteProducts = [];
           let productsID = result.data().productsID;
+          //Products ID are in firebase, that why we need to filter with redux products
           Object.keys(productData).forEach((category) => {
-            for (let i = 0; i < productsID?.length; i++) {
+            productsID?.forEach((itemID) => {
               let obj = productData[category]?.find(
-                (product) => product.id === productsID[i]
+                (product) => product.id === itemID
               );
+
               if (obj) {
                 dispatch(addToFavouriteAction(obj));
-                filterFavouriteProducts.push(obj);
               }
-            }
+            });
           });
-          console.log(filterFavouriteProducts);
-          setCurrentFavourites(result.data().productsID);
           setLoaderfavourite(false);
         }
       } catch (error) {
@@ -135,6 +119,10 @@ const Main = () => {
         setLoaderfavourite(false);
       }
     }
+  };
+
+  const handleModal = () => {
+    setOpenModal(true);
   };
 
   useEffect(() => {
@@ -153,17 +141,16 @@ const Main = () => {
         <Navbar
           setIsUser={setIsUser}
           isUser={isUser}
+          handleModal={handleModal}
+          openModal={openModal}
+          setOpenModal={setOpenModal}
+          cancelButtonRef={cancelButtonRef}
         />
         <ToastContainer />
         <Routes>
           <Route
             path="/"
-            element={
-              <Home
-                loader={loader}
-                currentUserID={currentUserID}
-              />
-            }
+            element={<Home loader={loader} currentUserID={currentUserID} />}
           />
           <Route
             path="/product/:id"
@@ -171,7 +158,6 @@ const Main = () => {
               <ProductDetail
                 loader={loader}
                 currentUserID={currentUserID}
-                loaderfavourite={loaderfavourite}
               />
             }
           />
@@ -181,7 +167,6 @@ const Main = () => {
               <Category
                 loader={loader}
                 currentUserID={currentUserID}
-                loaderfavourite={loaderfavourite}
               />
             }
           />
@@ -192,6 +177,10 @@ const Main = () => {
                 loader={loader}
                 currentUserID={currentUserID}
                 loaderCart={loaderCart}
+                openModal={openModal}
+                cancelButtonRef={cancelButtonRef}
+                handleModal={handleModal}
+                setOpenModal={setOpenModal}
               />
             }
           />

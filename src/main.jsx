@@ -10,14 +10,3 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <App />
   </Provider>
 );
-
-
-//bugs -> 
-// category filter without query parameeters
-// does not filer of sizes
-// what if product does not have size and color
-
-//next feature will be ->
-//account page setting
-//better ui cards
-//add to favourite page 

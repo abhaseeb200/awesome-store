@@ -1,25 +1,29 @@
-import { useRef, useState } from "react";
-import { Dialog, Disclosure, Transition } from "@headlessui/react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { Disclosure } from "@headlessui/react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { RiShoppingBag3Line } from "react-icons/ri";
 import { IoMenu } from "react-icons/io5";
 import { FaRegUser } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
+import { IoMdHeartEmpty } from "react-icons/io";
 import Modal from "../modal";
 import Login from "../../screens/login";
-import "./style.css";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, NavLink } from "react-router-dom";
 import Register from "../../screens/register";
-import { authLogout, authState } from "../../config/services/firebase/auth";
-import { TbLoader2 } from "react-icons/tb";
-import { toast } from "react-toastify";
 import { emptyCarttAction } from "../../redux/actions/cartAction";
-import { IoMdHeartEmpty } from "react-icons/io";
+import { authLogout } from "../../config/services/firebase/auth";
+import "./style.css";
 
-const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
-  const [openModal, setOpenModal] = useState(false);
+const Navbar = ({
+  isUser,
+  handleModal,
+  openModal,
+  setOpenModal,
+  cancelButtonRef,
+}) => {
   const [isLogin, setIsLogin] = useState(true);
-  const cancelButtonRef = useRef(null);
+  const [navigation, setNavigation] = useState([]);
 
   const dispatch = useDispatch();
 
@@ -27,23 +31,20 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
 
-  const navigation = [];
-  Object.keys(productData).map((item) => {
-    let temp = { name: item, to: item };
-    navigation.push(temp);
-  });
+  const location = useLocation();
 
-  function classNames(...classes) {
-    return classes.filter(Boolean).join(" "); //make sure
-  }
-
-  const handleModal = () => {
-    setOpenModal(true);
+  const handleNavigation = () => {
+    let navTemp = [];
+    Object.keys(productData).map((item) => {
+      let temp = { name: item, to: item };
+      navTemp.push(temp);
+    });
+    setNavigation(navTemp);
   };
 
   const handleLogout = async () => {
     try {
-      let response = await authLogout();
+      await authLogout();
       toast.success("LogOut successfully!", {
         autoClose: 1500,
       });
@@ -55,8 +56,12 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
     }
   };
 
+  useEffect(() => {
+    handleNavigation();
+  }, [productData]);
+
   return (
-    <div>
+    <>
       <Disclosure as="nav" className="bg-white/70 hover:bg-white border-b">
         {({ open }) => (
           <>
@@ -78,7 +83,7 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
                     <div className="flex space-x-2">
                       {navigation.map((item, index) => (
                         <NavLink
-                          key={item.name}
+                          key={index}
                           to={`/category/${item.to}`}
                           className="py-2 text-sm font-medium px-4 py-3 flex-shrink-0 capitalize text-gray-300 text-neutral-500 hover:text-black"
                           aria-current={item.current ? "page" : undefined}
@@ -92,7 +97,7 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 lg:static lg:inset-auto lg:ml-6 lg:pr-0">
                   <Link
                     to="/favourite"
-                    className="mr-4 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition px-4 py-2 flex items-center justify-center"
+                    className="sm:mr-4 mr-1 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition sm:px-4 sm:py-2 px-2 py-1.5 flex items-center justify-center"
                   >
                     <span className="">
                       <IoMdHeartEmpty size="1.25rem" />
@@ -103,7 +108,7 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
                   </Link>
                   <Link
                     to="/cart"
-                    className="mr-4 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition px-4 py-2 flex items-center justify-center"
+                    className="sm:mr-4 mr-1 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition sm:px-4 sm:py-2 px-2 py-1.5 flex items-center justify-center"
                   >
                     <span className="">
                       <RiShoppingBag3Line size="1.25rem" />
@@ -113,16 +118,18 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
                     </span>
                   </Link>
                   <span className="cursor-pointer w-auto flex items-center justify-center disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition">
-                    {loaderAuthIcon ? (
-                      <span className="px-4 py-2.5">
-                        <TbLoader2 size="1rem" className="animate-spin" />
-                      </span>
-                    ) : isUser ? (
-                      <span className="px-4 py-2.5" onClick={handleLogout}>
+                    {isUser ? (
+                      <span
+                        className="sm:px-4 sm:py-2.5 px-3 py-2"
+                        onClick={handleLogout}
+                      >
                         <MdLogout />
                       </span>
                     ) : (
-                      <span onClick={handleModal} className="px-4 py-2.5">
+                      <span
+                        onClick={handleModal}
+                        className="sm:px-4 sm:py-2.5 px-4 py-2.5"
+                      >
                         <FaRegUser />
                       </span>
                     )}
@@ -130,23 +137,21 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
                 </div>
               </div>
             </div>
-
             <Disclosure.Panel className="lg:hidden">
-              <div className="space-y-1 px-2 pb-3 pt-2 flex flex-col">
+              <div className={`space-y-1 px-2 pb-3 pt-2 flex flex-col`}>
                 {navigation.map((item, index) => (
-                  <NavLink
-                    key={item.name}
+                  <Disclosure.Button
+                    key={index}
+                    as={Link}
                     to={`/category/${item.to}`}
-                    className={classNames(
-                      item.current
-                        ? "text-red border-b-2 border-black"
-                        : "text-gray-300 text-neutral-500 hover:text-black",
-                      "py-2 text-sm font-medium px-4 py-3 flex-shrink-0 capitalize"
-                    )}
+                    className={`py-2 text-sm font-medium px-4 py-3 flex-shrink-0 capitalize text-gray-300 text-neutral-500 hover:text-black ${
+                      location.pathname === `/category/${item.to}`
+                        && "active"
+                    }`}
                     aria-current={item.current ? "page" : undefined}
                   >
                     {item.name}
-                  </NavLink>
+                  </Disclosure.Button>
                 ))}
               </div>
             </Disclosure.Panel>
@@ -167,7 +172,7 @@ const Navbar = ({ loaderAuthIcon, isUser, loaderCart }) => {
           <Register setIsLogin={setIsLogin} setOpenModal={setOpenModal} />
         )}
       </Modal>
-    </div>
+    </>
   );
 };
 

@@ -1,6 +1,4 @@
 import Slider from "react-slick";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 import "./slick.css";
 import "./slick-theme.css";
 import "./style.css";

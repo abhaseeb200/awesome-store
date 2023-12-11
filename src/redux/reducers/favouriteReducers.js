@@ -4,7 +4,7 @@ const initialState = {
     favourite: [],
 }
 
-const FavouriteReducers = (state = initialState, action) => {
+const favouriteReducers = (state = initialState, action) => {
     switch (action.type) {
         case ADDTOFAVOURITE:
             return { favourite: [...state.favourite,action.data] }
@@ -18,4 +18,4 @@ const FavouriteReducers = (state = initialState, action) => {
     }
 }
 
-export default FavouriteReducers
+export default favouriteReducers

@@ -1,8 +1,13 @@
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { TbLoader2 } from "react-icons/tb";
+import Loader from "../../components/loader";
 import Button from "../../components/button";
 import CartListCard from "../../components/cartListCard/index.";
 import {
-  addToCartAction,
   decrementAction,
   emptyCarttAction,
   incrementAction,
@@ -14,34 +19,25 @@ import {
   orderProcess,
   updateCart,
 } from "../../config/services/firebase/cart";
-import Loader from "../../components/loader";
-import { toast } from "react-toastify";
-import { useState } from "react";
-import { TbLoader2 } from "react-icons/tb";
+import CheckoutForm from "../../components/checkoutForm";
 
-const Cart = ({ loaderCart, currentUserID }) => {
+const Cart = ({ loaderCart, currentUserID, setOpenModal }) => {
   const [checkoutLoader, setCheckoutLoader] = useState(false);
   const [incrementLoader, setIncrementLoader] = useState(false);
   const [decrementLoader, setDecrementLoader] = useState(false);
   const [currentID, setCurrentID] = useState(null);
   const [currentColor, setCurrentColor] = useState("");
   const [currentSize, setCurrentSize] = useState("");
-  const { cart } = useSelector((stata) => stata.addToCart);
-  let checkoutTotal = 0;
 
   const dispatch = useDispatch();
 
-  const handleDelete = async (currentID, currentSize, currentColor) => {
+  const { cart } = useSelector((stata) => stata.addToCart);
+
+  const handleDelete = async (currentProductData) => {
     if (currentUserID) {
       try {
-        let response = await deleteCart(
-          currentUserID,
-          currentID,
-          currentSize,
-          currentColor,
-          cart
-        );
-        dispatch(removeFromCartAction(currentID, currentSize, currentColor));
+        await deleteCart(currentUserID, currentProductData, cart);
+        dispatch(removeFromCartAction(currentProductData));
         toast.success("Remove successfully!", {
           autoClose: 1500,
         });
@@ -49,7 +45,7 @@ const Cart = ({ loaderCart, currentUserID }) => {
         console.log(error);
       }
     } else {
-      dispatch(removeFromCartAction(currentID, currentSize, currentColor));
+      dispatch(removeFromCartAction(currentProductData));
       toast.success("Remove successfully!", {
         autoClose: 1500,
       });
@@ -57,6 +53,7 @@ const Cart = ({ loaderCart, currentUserID }) => {
   };
 
   const orderTotal = () => {
+    let checkoutTotal = 0;
     cart.map((item) => (checkoutTotal += item?.currentPrice * item?.quantity));
     return checkoutTotal.toFixed(2);
   };
@@ -66,10 +63,10 @@ const Cart = ({ loaderCart, currentUserID }) => {
       if (currentUserID) {
         handleFirebaseEmptyCart();
       } else {
-        dispatch(emptyCarttAction());
-        toast.success("CheckOut successfully!", {
+        toast.error("Please Login!", {
           autoClose: 1500,
         });
+        setOpenModal(true);
       }
     } else {
       toast.error("Cart is empty!", {
@@ -81,13 +78,13 @@ const Cart = ({ loaderCart, currentUserID }) => {
   const handleFirebaseEmptyCart = async () => {
     try {
       setCheckoutLoader(true);
-      let response = await orderProcess(cart, currentUserID);
-      let result = await emptryCart(currentUserID);
+      await orderProcess(cart, currentUserID);
+      await emptryCart(currentUserID);
       dispatch(emptyCarttAction());
+      setCheckoutLoader(false);
       toast.success("CheckOut successfully!", {
         autoClose: 1500,
       });
-      setCheckoutLoader(false);
     } catch (error) {
       console.log(error);
     }
@@ -107,7 +104,6 @@ const Cart = ({ loaderCart, currentUserID }) => {
           currentUserID,
           cart
         );
-        // dispatch(incrementAction(currentProductData));
         setIncrementLoader(false);
       } catch (error) {
         console.log(error);
@@ -134,7 +130,6 @@ const Cart = ({ loaderCart, currentUserID }) => {
           currentUserID,
           cart
         );
-        // dispatch(decrementAction(currentProductData));
         setDecrementLoader(false);
       } catch (error) {
         console.log(error);
@@ -146,9 +141,21 @@ const Cart = ({ loaderCart, currentUserID }) => {
     }
   };
 
+  // const stripePromise = loadStripe(
+  //   "pk_test_51OKLsnGLwqlmQwFXPS6HETbf0TcWBycqYGxwYQLNhY0w0KM9e4syhKjScfb3UmrZZy5aHAAk17yxrmcCIIAb3CBr00b9WBNNSx"
+  // );
+
+  // const options = {
+  //   // passing the client secret obtained from the server
+  //   clientSecret: "sk_test_51OKLsnGLwqlmQwFXxp0kClXWbvwfXJ5beb7Bwf6sER6U7m8of2ASZxT585CisFdd4e5jkCTGCtt27jz6Yf68Vlcd00yO0IXQ5p",
+  // };
+
   return (
     <div className="myPadding flex-1 min-h-[700px]">
       <h2 className="font-medium text-3xl py-10">Shopping Cart</h2>
+      {/* <Elements stripe={stripePromise}>
+        <CheckoutForm />
+      </Elements> */}
       <div className="lg:grid lg:grid-cols-12 lg:items-start gap-x-12 ">
         <div className="lg:col-span-7">
           {loaderCart ? (
@@ -181,14 +188,15 @@ const Cart = ({ loaderCart, currentUserID }) => {
             <div className="flex items-center justify-between p-3 border-t border-neutral-200">
               <p>Order total</p>
               <div className="font-semibold">
-                {loaderCart ? "Loading..." : "$" + orderTotal()}
+                {loaderCart ? (
+                  <TbLoader2 size="1rem" className="animate-spin" />
+                ) : (
+                  "$" + orderTotal()
+                )}
               </div>
             </div>
             {checkoutLoader ? (
-              <Button
-                className="w-full justify-center"
-                disabled="disabled"
-              >
+              <Button className="w-full justify-center" disabled="disabled">
                 <TbLoader2 size="1.3rem" className="animate-spin" />
               </Button>
             ) : (

@@ -4,26 +4,26 @@ import { toast } from "react-toastify";
 import CartProduct from "../../components/cardProduct";
 import Modal from "../../components/modal";
 import CardProductDetails from "../../components/cardProductDetails";
+import Loader from "../../components/loader";
 import { removeFromFavouriteAction } from "../../redux/actions/favouriteAction";
+import { addToCartAction } from "../../redux/actions/cartAction";
 import { deleteFavourite } from "../../config/services/firebase/favourite";
 import { setCart } from "../../config/services/firebase/cart";
-import { addToCartAction } from "../../redux/actions/cartAction";
-import Loader from "../../components/loader";
 
 const Favourite = ({ currentUserID, loaderfavourite }) => {
   const [open, setOpen] = useState(false);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState({});
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
+
   const cancelButtonRef = useRef(null);
+
+  const dispatch = useDispatch();
 
   const { favourite } = useSelector((stata) => stata.addToFavourite);
   const { cart } = useSelector((stata) => stata.addToCart);
-
-  const dispatch = useDispatch();
 
   const handleRemoveFavourite = async (currentProductData) => {
     if (currentUserID) {
@@ -56,32 +56,14 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
     setCurrentSize(size);
   };
 
-  const handleSetCart = async (currentProductData) => {
-    setAddToCartLoader(true);
-    let updatedData = {
-      ...currentProductData,
-      quantity: 1,
-      currentSize: currentSize,
-      currentColor: currentColor,
-      currentPrice: currentPrice,
-    };
-    try {
-      let response = await setCart(updatedData, currentUserID, cart);
-      dispatch(addToCartAction(updatedData));
-      toast.success("Cart add successfully!", {
-        autoClose: 1500,
-      });
-      setAddToCartLoader(false);
-    } catch (error) {
-      console.log(error);
-      setAddToCartLoader(false);
-    }
+  const hanldeCurrentColor = (color) => {
+    setCurrentColor(color);
   };
 
   const handleAddToCart = (currentProductData) => {
-    const existingCartItem = cart.find(
+    let existingCartItem = cart.find(
       (item) =>
-        item.id === currentProductData.id &&
+        item.id === currentProductData?.id &&
         item.currentSize === currentSize &&
         item.currentColor === currentColor
     );
@@ -90,18 +72,19 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
         autoClose: 1500,
       });
     } else {
-      //user is login
+      //exist item not found
+      let updatedData = {
+        ...currentProductData,
+        quantity: 1,
+        currentSize: currentSize,
+        currentColor: currentColor,
+        currentPrice: currentPrice,
+      };
       if (currentUserID) {
-        handleSetCart(currentProductData);
+        //user is login
+        handleSetCart(updatedData);
       } else {
         //user is login out
-        let updatedData = {
-          ...currentProductData,
-          quantity: 1,
-          currentSize: currentSize,
-          currentColor: currentColor,
-          currentPrice: currentPrice,
-        };
         dispatch(addToCartAction(updatedData));
         toast.success("Cart add successfully!", {
           autoClose: 1500,
@@ -110,8 +93,19 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
     }
   };
 
-  const hanldeCurrentColor = (color) => {
-    setCurrentColor(color);
+  const handleSetCart = async (updatedData) => {
+    setAddToCartLoader(true);
+    try {
+      await setCart(updatedData, currentUserID, cart);
+      dispatch(addToCartAction(updatedData));
+      setAddToCartLoader(false);
+      toast.success("Cart add successfully!", {
+        autoClose: 1500,
+      });
+    } catch (error) {
+      console.log(error);
+      setAddToCartLoader(false);
+    }
   };
 
   useEffect(() => {
@@ -121,9 +115,9 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
   }, [open]);
 
   return (
-    <div className="myPadding flex-1 min-h-[700px]">
-      <h2 className="font-medium text-3xl py-10">Favourite</h2>
-      <div className="flex flex-wrap">
+    <div className="px-4 md:p-8 lg:p-10 flex-1 min-h-[700px]">
+      <h2 className="font-medium text-3xl sm:py-10 pt-5 ">Favourite</h2>
+      <div className="flex flex-wrap -mx-4">
         {loaderfavourite ? (
           <Loader className="justify-center w-full" />
         ) : favourite.length > 0 ? (
@@ -135,7 +129,6 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
                   favourite={favourite}
                   handleModal={handleModal}
                   handleRemoveFavourite={handleRemoveFavourite}
-                  loaderfavourite={loaderfavourite}
                 />
               </div>
             );

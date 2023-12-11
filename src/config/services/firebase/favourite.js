@@ -1,6 +1,7 @@
 import { db } from "../../firebaseConfig";
 
 const setFavourite = (currentProductData, currentUserID, prevFavourite) => {
+  //only set ID products in array form
   let allPrevFavouriteID = prevFavourite.map((product) => product.id)
   return db
     .collection("favourite")
@@ -10,10 +11,13 @@ const setFavourite = (currentProductData, currentUserID, prevFavourite) => {
     });
 };
 
+const getFavourite = (currentUserID) => {
+  return db.collection("favourite").doc(currentUserID).get();
+};
+
 const deleteFavourite = (currentProductData, currentUserID, prevFavourite) => {
   let allPrevFavouriteID = prevFavourite.map((product) => product.id)
   let updateData = allPrevFavouriteID.filter((id) => id !== currentProductData.id)
-  // console.log(allPrevFavouriteID,"RMOVE PRODUCTS IDS",updateData);
   return db
     .collection("favourite")
     .doc(currentUserID)
@@ -21,9 +25,5 @@ const deleteFavourite = (currentProductData, currentUserID, prevFavourite) => {
       productsID: [...updateData],
     });
 }
-
-const getFavourite = (currentUserID) => {
-  return db.collection("favourite").doc(currentUserID).get();
-};
 
 export { setFavourite, getFavourite, deleteFavourite };

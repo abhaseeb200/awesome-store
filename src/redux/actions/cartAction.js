@@ -10,26 +10,23 @@ const incrementAction = (currentProductData) => {
 const decrementAction = (currentProductData) => {
     return {
         type: DECREMENT,
-        currentProductData
+        currentProductData: currentProductData
     }
 }
 
 const addToCartAction = (data) => {
     return {
         type: ADDTOCART,
-        data: {...data}
+        data: data
     }
 }
 
-const removeFromCartAction = (dataID, currentSize, currentColor) => {
+const removeFromCartAction = (currentProductData) => {
     return {
         type: REMOVEFROMCART,
-        currentID: dataID,
-        currentSize: currentSize,
-        currentColor: currentColor,
+        currentProductData: currentProductData,
     }
 }
-
 
 const emptyCarttAction = () => {
     return {

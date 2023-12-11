@@ -1,6 +1,5 @@
-import { AiOutlineFullscreen } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import { LuShoppingBasket } from "react-icons/lu";
+import { AiOutlineFullscreen } from "react-icons/ai";
 import { TbLoader2 } from "react-icons/tb";
 import { FaHeart } from "react-icons/fa";
 import { IoMdHeartEmpty } from "react-icons/io";
@@ -11,13 +10,12 @@ const SingleDetailCard = ({
   favourite,
   handleFavourite,
   handleRemoveFavourite,
-  loaderfavourite,
+  addToFavouriteLoader,
 }) => {
   let firstProduct = productData[0];
   let favouriteProducts = favourite?.find(
     (product) => product?.id === firstProduct?.id
   );
-  // console.log(favouriteProducts);
   return (
     <div className="flex flex-col md:flex-row items-start justify-between flex-wrap border p-4 rounded-xl cursor-pointer group relative">
       <Link
@@ -34,7 +32,7 @@ const SingleDetailCard = ({
         >
           <AiOutlineFullscreen />
         </span>
-        {loaderfavourite ? (
+        {addToFavouriteLoader ? (
           <span
             className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 group-hover:-translate-y-2 sm:group-hover:-translate-y-0 transition duration-300 opacity-0 group-hover:opacity-100 border p-1 sm:p-4 md:p-5"
             onClick={(e) => e.preventDefault()}
