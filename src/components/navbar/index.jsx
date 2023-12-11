@@ -128,7 +128,7 @@ const Navbar = ({
                     ) : (
                       <span
                         onClick={handleModal}
-                        className="sm:px-4 sm:py-2.5 px-4 py-2.5"
+                        className="sm:px-4 sm:py-2.5 px-3 py-2"
                       >
                         <FaRegUser />
                       </span>
