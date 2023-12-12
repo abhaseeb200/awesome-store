@@ -17,7 +17,7 @@ const CartListCard = ({
     <li className="py-7 mb-3 px-3 flex gap-x-3 border-b relative hover:bg-gray-50 transition rounded-t-xl ">
       <div className="w-24  md:w-44 aspect-square relative  p-2 border rounded-lg ">
         <div className="flex -w-full h-full relative ">
-          <img src={item?.thumbnail} className="object-cover" />
+          <img src={item?.thumbnail} className="object-contain" />
         </div>
       </div>
       <div className="flex flex-col py-1 flex-1 gap-y-4  relative">
