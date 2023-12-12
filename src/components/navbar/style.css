@@ -6,3 +6,8 @@ nav .active {
   color: #000;
   font-weight: 700;
 }
+
+.mysidenav .active {
+  color: #000;
+  font-weight: 700;
+}

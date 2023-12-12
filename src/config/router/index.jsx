@@ -26,7 +26,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Main = () => {
   const [openModal, setOpenModal] = useState(false);
-  const [loader, setLoader] = useState(true);
+  const [loaderFetchAPI, setLoaderFetchAPI] = useState(true);
   const [isUser, setIsUser] = useState(false);
   const [loaderCart, setLoaderCart] = useState(true);
   const [loaderfavourite, setLoaderfavourite] = useState(true);
@@ -49,9 +49,9 @@ const Main = () => {
         tempCategoryProduct[item.category].push(item);
       });
       dispatch(dataAction(tempCategoryProduct));
-      setLoader(false);
+      setLoaderFetchAPI(false);
     } catch (error) {
-      setLoader(false);
+      setLoaderFetchAPI(false);
     }
   };
 
@@ -61,6 +61,8 @@ const Main = () => {
         if (user) {
           setIsUser(true);
           setCurrentUserID(user.uid);
+          dispatch(emptyFavouriteAction());
+          dispatch(emptyCarttAction());
         } else {
           setIsUser(false);
           setCurrentUserID("");
@@ -74,7 +76,6 @@ const Main = () => {
   };
 
   const handleGetCart = async () => {
-    dispatch(emptyCarttAction());
     if (currentUserID) {
       try {
         let result = await getCart(currentUserID);
@@ -93,7 +94,6 @@ const Main = () => {
   };
 
   const handleGetFavourite = async () => {
-    dispatch(emptyFavouriteAction());
     if (currentUserID) {
       try {
         let result = await getFavourite(currentUserID);
@@ -146,35 +146,27 @@ const Main = () => {
           setOpenModal={setOpenModal}
           cancelButtonRef={cancelButtonRef}
         />
-        <ToastContainer />
+        <ToastContainer position="top-center" />
         <Routes>
           <Route
             path="/"
-            element={<Home loader={loader} currentUserID={currentUserID} />}
+            element={<Home loaderFetchAPI={loaderFetchAPI} currentUserID={currentUserID} />}
           />
           <Route
             path="/product/:id"
             element={
-              <ProductDetail
-                loader={loader}
-                currentUserID={currentUserID}
-              />
+              <ProductDetail loader={loaderFetchAPI} currentUserID={currentUserID} />
             }
           />
           <Route
             path="/category/:title"
-            element={
-              <Category
-                loader={loader}
-                currentUserID={currentUserID}
-              />
-            }
+            element={<Category loader={loaderFetchAPI} currentUserID={currentUserID} />}
           />
           <Route
             path="/cart"
             element={
               <Cart
-                loader={loader}
+                loader={loaderFetchAPI}
                 currentUserID={currentUserID}
                 loaderCart={loaderCart}
                 openModal={openModal}
@@ -188,7 +180,7 @@ const Main = () => {
             path="/favourite"
             element={
               <Favourite
-                loader={loader}
+                loader={loaderFetchAPI}
                 currentUserID={currentUserID}
                 loaderfavourite={loaderfavourite}
               />

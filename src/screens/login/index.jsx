@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
 import { FcGoogle } from "react-icons/fc";
 import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button";
 import Input from "../../components/input";
+import { emptyFavouriteAction } from "../../redux/actions/favouriteAction";
+import { emptyCarttAction } from "../../redux/actions/cartAction";
 import {
   authSignIn,
   authWithGoogle,
@@ -97,6 +100,8 @@ const Login = ({ setIsLogin, setOpenModal }) => {
     }
   };
 
+  // const dispatch = useDispatch()
+
   const signInHandler = async (e) => {
     e.preventDefault();
     if (email.value === "") {
@@ -124,11 +129,13 @@ const Login = ({ setIsLogin, setOpenModal }) => {
         setLoader(true);
         const userCredential = await authSignIn(email.value, password.value);
         const user = userCredential.user;
+        setLoader(false);
+        setOpenModal(false);
+        // dispatch(emptyFavouriteAction());
+        // dispatch(emptyCarttAction());
         toast.success("Login successfully!", {
           autoClose: 1500,
         });
-        setLoader(false);
-        setOpenModal(false);
       } catch (err) {
         setLoader(false);
         toast.error(err.code, {
@@ -139,10 +146,12 @@ const Login = ({ setIsLogin, setOpenModal }) => {
   };
 
   const handleAuthWithGoogle = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       await authWithGoogle();
       setOpenModal(false);
+      // dispatch(emptyFavouriteAction());
+      // dispatch(emptyCarttAction());
       toast.success("Login successfully!", {
         autoClose: 1500,
       });

@@ -23,7 +23,7 @@ const generateRandomColors = () => {
   return randomColors;
 }
 
-const DataReducer = (state = initialState, action) => {
+const dataReducer = (state = initialState, action) => {
   switch (action.type) {
     case DATA:
       for (let category in action.data) {
@@ -45,4 +45,4 @@ const DataReducer = (state = initialState, action) => {
   }
 };
 
-export default DataReducer;
+export default dataReducer;

@@ -28,3 +28,7 @@
 .thumbnail-slider {
   aspect-ratio: 1 / 1 !important;
 }
+
+button.slick-arrow.slick-next {
+  display: none !important;
+}

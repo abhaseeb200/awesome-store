@@ -13,6 +13,7 @@ import { setCart } from "../../config/services/firebase/cart";
 const Favourite = ({ currentUserID, loaderfavourite }) => {
   const [open, setOpen] = useState(false);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
+  const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
@@ -26,20 +27,24 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
   const { cart } = useSelector((stata) => stata.addToCart);
 
   const handleRemoveFavourite = async (currentProductData) => {
+    setAddToFavouriteLoader(true);
     if (currentUserID) {
       //user is login
       try {
         await deleteFavourite(currentProductData, currentUserID, favourite);
         dispatch(removeFromFavouriteAction(currentProductData.id));
+        setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {
           autoClose: 1500,
         });
       } catch (error) {
         console.log(error);
+        setAddToFavouriteLoader(false);
       }
     } else {
       //user is logout
       dispatch(removeFromFavouriteAction(currentProductData.id));
+      setAddToFavouriteLoader(false);
       toast.success("Remove favourite!", {
         autoClose: 1500,
       });
@@ -127,6 +132,7 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
                 <CartProduct
                   productData={product}
                   favourite={favourite}
+                  addToFavouriteLoader={addToFavouriteLoader}
                   handleModal={handleModal}
                   handleRemoveFavourite={handleRemoveFavourite}
                 />

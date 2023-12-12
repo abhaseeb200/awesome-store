@@ -3,10 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import HeroSection from "../../components/heroSection";
 import CartProduct from "../../components/cardProduct";
+import CartProductSkeleton from "../../components/cardProduct/skeleton";
 import CardProductDetails from "../../components/cardProductDetails";
+import SingleDetailCardSkeleton from "./component/skeleton";
 import Modal from "../../components/modal";
 import SingleDetailCard from "./component/index";
-import Loader from "../../components/loader";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import {
   addToFavouriteAction,
@@ -19,7 +20,7 @@ import {
 import { setCart } from "../../config/services/firebase/cart";
 import homeBannar from "../../assets/home-bannar.jpg";
 
-const Home = ({ loader, currentUserID }) => {
+const Home = ({ loaderFetchAPI, currentUserID }) => {
   const [open, setOpen] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
   const [addToCartLoader, setAddToCartLoader] = useState(false);
@@ -125,15 +126,11 @@ const Home = ({ loader, currentUserID }) => {
   };
 
   const handleRemoveFavourite = async (currentProductData) => {
-    setAddToFavouriteLoader(true)
+    setAddToFavouriteLoader(true);
     if (currentUserID) {
       //user is login
       try {
-        await deleteFavourite(
-          currentProductData,
-          currentUserID,
-          favourite
-        );
+        await deleteFavourite(currentProductData, currentUserID, favourite);
         dispatch(removeFromFavouriteAction(currentProductData.id));
         setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {
@@ -162,22 +159,30 @@ const Home = ({ loader, currentUserID }) => {
     <>
       <HeroSection title="We have 50% discounts" backgroundImage={homeBannar} />
       <div className="px-4 md:p-8 lg:p-10">
-        {loader ? (
-          <Loader />
+        {loaderFetchAPI ? (
+          <>
+            <SingleDetailCardSkeleton />
+            <div className="flex flex-wrap -mx-4">
+              <CartProductSkeleton />
+              <CartProductSkeleton />
+              <CartProductSkeleton />
+              <CartProductSkeleton />
+            </div>
+          </>
         ) : (
           Object.keys(productData).map((category, ind) => {
             return (
               <div key={ind} className="space-y-4 mb-16">
-                <h2 className="font-bold lg:text-3xl capitalize pb-3">
+                <h2 className="font-bold md:text-3xl text-lg capitalize pb-3">
                   {category}
                 </h2>
                 <SingleDetailCard
                   productData={productData[category]}
-                  handleModal={handleModal}
                   favourite={favourite}
+                  addToFavouriteLoader={addToFavouriteLoader}
+                  handleModal={handleModal}
                   handleFavourite={handleFavourite}
                   handleRemoveFavourite={handleRemoveFavourite}
-                  addToFavouriteLoader={addToFavouriteLoader}
                 />
                 <div className="flex flex-wrap -mx-4">
                   {productData[category].slice(1).map((product, productIND) => {
@@ -187,12 +192,12 @@ const Home = ({ loader, currentUserID }) => {
                         key={productIND}
                       >
                         <CartProduct
-                          handleModal={handleModal}
                           productData={product}
                           favourite={favourite}
+                          addToFavouriteLoader={addToFavouriteLoader}
+                          handleModal={handleModal}
                           handleFavourite={handleFavourite}
                           handleRemoveFavourite={handleRemoveFavourite}
-                          addToFavouriteLoader={addToFavouriteLoader}
                         />
                       </div>
                     );
