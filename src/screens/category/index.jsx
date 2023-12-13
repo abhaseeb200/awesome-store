@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 import HeroSection from "../../components/heroSection";
+import HeroSectionSkeleton from "../../components/heroSection/skeleton";
 import CardProduct from "../../components/cardProduct";
+import CartProductSkeleton from "../../components/cardProduct/skeleton";
 import CardProductDetails from "../../components/cardProductDetails";
 import Modal from "../../components/modal";
 import FilterTab from "./component";
-import Loader from "../../components/loader";
+import FilterTabSkeleton from "./component/skeleton";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import {
   addToFavouriteAction,
@@ -18,22 +21,32 @@ import {
   setFavourite,
 } from "../../config/services/firebase/favourite";
 import { setCart } from "../../config/services/firebase/cart";
+import { generateRandomColors } from "../../config/services/randomGenerators/randomGenerates";
+import { munallyDataAction } from "../../redux/actions/dataAction";
 
-const Category = ({ loader, currentUserID }) => {
+const Category = ({ currentUserID }) => {
   const [open, setOpen] = useState(false);
   const [currentSizeTab, setCurrentSizeTab] = useState("");
   const [currentColorTab, setCurrentColorTab] = useState("");
   const [filterProducts, setFilterProducts] = useState([]);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
+  const [loaderFetchAPI, setLoaderFetchAPI] = useState(true);
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentColors, setCurrentColors] = useState([]);
   const [currentProducts, setCurrentProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]); //use for find repeated categories api
   const [sizes] = useState(["small", "medium", "large"]);
-
+  const [colors] = useState([
+    "FloralWhite",
+    "LightSkyBlue",
+    "DodgerBlue",
+    "Tomato",
+    "LightGray",
+  ]);
   const cancelButtonRef = useRef(null);
 
   const { title } = useParams();
@@ -43,17 +56,58 @@ const Category = ({ loader, currentUserID }) => {
   const { productData } = useSelector((state) => state?.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
+  console.log(productData, "STORE");
 
-  const currentCategoryProductsFetch = () => {
-    let currentCategoryProducts = productData[title];
-    setCurrentProducts(currentCategoryProducts);
-    let categoryColors = [];
-    currentCategoryProducts?.map((product) =>
-      categoryColors?.push(...product.colors)
+  const categoryProductsFetch = async () => {
+    setLoaderFetchAPI(true);
+    let isAlreadyCategory = Object.keys(productData).find(
+      (category) => category === title
     );
-    let removeDuplicationCurrentColors = [...new Set(categoryColors)]; //remove the duplicate colors in array
-    setCurrentColors(removeDuplicationCurrentColors);
+    if (!isAlreadyCategory) {
+      try {
+        let response = await axios.get(
+          `https://dummyjson.com/products/category/${title}`
+        );
+        let data = response.data.products;
+        let updateData = data.map((item) => {
+          return {
+            ...item,
+            sizes: {
+              small: item.price,
+              medium: item.price * 0.1 + item.price,
+              large: item.price * 0.2 + item.price,
+            },
+            quantity: 0,
+            colors: generateRandomColors(),
+          };
+        });
+        console.log(updateData);
+        setCurrentProducts(updateData);
+        dispatch(munallyDataAction(productData,updateData,title))
+
+        // let tempProduct = [...updateData, ...allProducts];
+        // setAllProducts(tempProduct);
+        setLoaderFetchAPI(false);
+      } catch (error) {
+        console.log(error);
+        setLoaderFetchAPI(false);
+      }
+    } else {
+      setCurrentProducts(productData[title]);
+      setLoaderFetchAPI(false);
+    }
   };
+
+  // const currentCategoryProductsFetch = () => {
+  //   let currentCategoryProducts = productData[title];
+  //   setCurrentProducts(currentCategoryProducts);
+  //   let categoryColors = [];
+  //   currentCategoryProducts?.map((product) =>
+  //     categoryColors?.push(...product.colors)
+  //   );
+  //   let removeDuplicationCurrentColors = [...new Set(categoryColors)]; //remove the duplicate colors in array
+  //   setCurrentColors(removeDuplicationCurrentColors);
+  // };
 
   const handleModal = (productData) => {
     setCurrentProductData(productData);
@@ -85,6 +139,7 @@ const Category = ({ loader, currentUserID }) => {
       let filtered = currentProducts.filter((product) =>
         product?.colors.includes(title)
       );
+      console.log(filtered);
       setFilterProducts(filtered);
       setCurrentColorTab(title);
     }
@@ -109,6 +164,7 @@ const Category = ({ loader, currentUserID }) => {
         });
       } else {
         dispatch(addToFavouriteAction(currentProductData));
+        setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {
           autoClose: 1500,
         });
@@ -132,6 +188,7 @@ const Category = ({ loader, currentUserID }) => {
     } else {
       //user is logout
       dispatch(removeFromFavouriteAction(currentProductData.id));
+      setAddToFavouriteLoader(false);
       toast.success("Remove favourite!", {
         autoClose: 1500,
       });
@@ -187,9 +244,10 @@ const Category = ({ loader, currentUserID }) => {
   };
 
   useEffect(() => {
-    currentCategoryProductsFetch();
+    // currentCategoryProductsFetch();
     setFilterProducts([]);
     setCurrentColorTab("");
+    categoryProductsFetch();
   }, [title]);
 
   useEffect(() => {
@@ -199,25 +257,33 @@ const Category = ({ loader, currentUserID }) => {
   }, [open]);
 
   useEffect(() => {
-    currentCategoryProductsFetch();
+    // currentCategoryProductsFetch();
   }, [productData]);
 
   return (
     <>
-      <HeroSection
-        title="We have the best quality"
-        backgroundImage="https://res.cloudinary.com/drhzjli1l/image/upload/v1696692681/uysunsd7p05c2xjblkwz.jpg"
-      />
+      {loaderFetchAPI ? (
+        <HeroSectionSkeleton />
+      ) : (
+        <HeroSection
+          title="We have the best quality"
+          backgroundImage="https://res.cloudinary.com/drhzjli1l/image/upload/v1696692681/uysunsd7p05c2xjblkwz.jpg"
+        />
+      )}
       <div className="p-1 md:p-8 lg:p-10">
-        {loader ? (
-          <Loader />
-        ) : (
-          <div className="flex flex-wrap">
-            <div className="w-full md:w-1/4 px-4 md:px-0 mb-2">
-              <h2 className="sm:text-xl text-md text font-semibold">Sizes</h2>
-              <hr className="my-2" />
-              <div className="flex gap-2 flex-wrap">
-                {sizes.map((size, index) => {
+        <div className="flex flex-wrap">
+          <div className="w-full md:w-1/4 px-4 md:px-0 mb-2">
+            <h2 className="sm:text-xl text-md text font-semibold">Sizes</h2>
+            <hr className="my-2" />
+            <div className="flex gap-2 flex-wrap">
+              {loaderFetchAPI ? (
+                <>
+                  <FilterTabSkeleton />
+                  <FilterTabSkeleton />
+                  <FilterTabSkeleton />
+                </>
+              ) : (
+                sizes.map((size, index) => {
                   return (
                     <FilterTab
                       key={index}
@@ -226,12 +292,20 @@ const Category = ({ loader, currentUserID }) => {
                       currentFilterTab={currentSizeTab}
                     />
                   );
-                })}
-              </div>
-              <h2 className="sm:text-xl text-md font-semibold mt-10">Colors</h2>
-              <hr className="my-2" />
-              <div className="flex gap-2 flex-wrap">
-                {currentColors.map((color, index) => {
+                })
+              )}
+            </div>
+            <h2 className="sm:text-xl text-md font-semibold mt-10">Colors</h2>
+            <hr className="my-2" />
+            <div className="flex gap-2 flex-wrap">
+              {loaderFetchAPI ? (
+                <>
+                  <FilterTabSkeleton />
+                  <FilterTabSkeleton />
+                  <FilterTabSkeleton />
+                </>
+              ) : (
+                colors.map((color, index) => {
                   return (
                     <FilterTab
                       key={index}
@@ -240,48 +314,51 @@ const Category = ({ loader, currentUserID }) => {
                       currentFilterTab={currentColorTab}
                     />
                   );
-                })}
-              </div>
-            </div>
-            <div className="w-full md:w-3/4 flex flex-wrap">
-              {filterProducts.length > 0
-                ? filterProducts.map((product, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="w-full sm:w-1/2 md:w-1/3 px-3"
-                      >
-                        <CardProduct
-                          productData={product}
-                          handleModal={handleModal}
-                          favourite={favourite}
-                          handleFavourite={handleFavourite}
-                          handleRemoveFavourite={handleRemoveFavourite}
-                          addToFavouriteLoader={addToFavouriteLoader}
-                        />
-                      </div>
-                    );
-                  })
-                : currentProducts?.map((product, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="w-full sm:w-1/2 md:w-1/3 px-3"
-                      >
-                        <CardProduct
-                          productData={product}
-                          handleModal={handleModal}
-                          favourite={favourite}
-                          handleFavourite={handleFavourite}
-                          handleRemoveFavourite={handleRemoveFavourite}
-                          addToFavouriteLoader={addToFavouriteLoader}
-                        />
-                      </div>
-                    );
-                  })}
+                })
+              )}
             </div>
           </div>
-        )}
+          <div className="w-full md:w-3/4 flex flex-wrap">
+            {loaderFetchAPI ? (
+              <>
+                <CartProductSkeleton />
+                <CartProductSkeleton />
+                <CartProductSkeleton />
+                <CartProductSkeleton />
+              </>
+            ) : filterProducts.length > 0 ? (
+              filterProducts.map((product, index) => {
+                return (
+                  <div key={index} className="w-full sm:w-1/2 md:w-1/3 px-3">
+                    <CardProduct
+                      productData={product}
+                      handleModal={handleModal}
+                      favourite={favourite}
+                      handleFavourite={handleFavourite}
+                      handleRemoveFavourite={handleRemoveFavourite}
+                      addToFavouriteLoader={addToFavouriteLoader}
+                    />
+                  </div>
+                );
+              })
+            ) : (
+              currentProducts?.map((product, index) => {
+                return (
+                  <div key={index} className="w-full sm:w-1/2 md:w-1/3 px-3">
+                    <CardProduct
+                      productData={product}
+                      handleModal={handleModal}
+                      favourite={favourite}
+                      handleFavourite={handleFavourite}
+                      handleRemoveFavourite={handleRemoveFavourite}
+                      addToFavouriteLoader={addToFavouriteLoader}
+                    />
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       </div>
       <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
         <CardProductDetails

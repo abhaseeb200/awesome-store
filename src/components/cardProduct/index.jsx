@@ -21,8 +21,8 @@ const CartProduct = ({
   return (
     <div key={index} className="relative flex flex-wrap mx-auto">
       <Link to={`/product/${productData?.id}`} className="w-full">
-        <div className="mrelative border max-w-sm bg-white shadow-md rounded-xl p-3 my-3 cursor-pointer group overflow-hidden max-w-full">
-          <div className="absolute z-10 inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100  transition-opacity flex items-center justify-center p-3 my-3 rounded-xl">
+        <div className="relative border bg-white shadow-md rounded-xl p-3 my-3 cursor-pointer group overflow-hidden max-w-full">
+          <div className="absolute z-10 inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100  transition-opacity flex items-center justify-center p-3 rounded-xl">
             <div className="flex w-full justify-center gap-2">
               <span
                 className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 group-hover:-translate-y-2 sm:group-hover:-translate-y-6 transition duration-300 opacity-0 group-hover:opacity-100 border p-1 sm:p-4 md:p-5"

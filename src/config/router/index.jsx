@@ -31,6 +31,7 @@ const Main = () => {
   const [loaderCart, setLoaderCart] = useState(true);
   const [loaderfavourite, setLoaderfavourite] = useState(true);
   const [currentUserID, setCurrentUserID] = useState("");
+  const [categoriesName, setCategoriesName] = useState([]);
 
   const cancelButtonRef = useRef(null);
 
@@ -40,7 +41,7 @@ const Main = () => {
 
   const handleFetch = async () => {
     try {
-      let response = await axios.get("https://dummyjson.com/products");
+      let response = await axios.get("https://dummyjson.com/products?limit=10&skip=0");
       let tempCategoryProduct = {};
       response.data.products.map((item) => {
         if (!tempCategoryProduct[item.category]) {
@@ -150,23 +151,35 @@ const Main = () => {
         <Routes>
           <Route
             path="/"
-            element={<Home loaderFetchAPI={loaderFetchAPI} currentUserID={currentUserID} />}
+            element={
+              <Home
+                loaderFetchAPI={loaderFetchAPI}
+                currentUserID={currentUserID}
+              />
+            }
           />
           <Route
             path="/product/:id"
             element={
-              <ProductDetail loader={loaderFetchAPI} currentUserID={currentUserID} />
+              <ProductDetail
+                loaderFetchAPI={loaderFetchAPI}
+                currentUserID={currentUserID}
+              />
             }
           />
           <Route
             path="/category/:title"
-            element={<Category loader={loaderFetchAPI} currentUserID={currentUserID} />}
+            element={
+              <Category
+                loaderFetchAPI={loaderFetchAPI}
+                currentUserID={currentUserID}
+              />
+            }
           />
           <Route
             path="/cart"
             element={
               <Cart
-                loader={loaderFetchAPI}
                 currentUserID={currentUserID}
                 loaderCart={loaderCart}
                 openModal={openModal}
@@ -180,7 +193,6 @@ const Main = () => {
             path="/favourite"
             element={
               <Favourite
-                loader={loaderFetchAPI}
                 currentUserID={currentUserID}
                 loaderfavourite={loaderfavourite}
               />

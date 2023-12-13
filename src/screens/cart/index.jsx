@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import { TbLoader2 } from "react-icons/tb";
-import Loader from "../../components/loader";
-import Button from "../../components/button";
+// import { Elements } from "@stripe/react-stripe-js";
+// import { loadStripe } from "@stripe/stripe-js";
 import CartListCard from "../../components/cartListCard/index.";
+import CartListCardSkeleton from "../../components/cartListCard/skeleton";
+import CheckoutSection from "../../components/checkoutSection";
+import CheckoutSectionSkeleton from "../../components/checkoutSection/skeleton";
 import {
   decrementAction,
   emptyCarttAction,
@@ -19,7 +19,7 @@ import {
   orderProcess,
   updateCart,
 } from "../../config/services/firebase/cart";
-import CheckoutForm from "../../components/checkoutForm";
+// import CheckoutForm from "../../components/checkoutForm";
 
 const Cart = ({ loaderCart, currentUserID, setOpenModal }) => {
   const [checkoutLoader, setCheckoutLoader] = useState(false);
@@ -151,15 +151,18 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal }) => {
   // };
 
   return (
-    <div className="myPadding flex-1 min-h-[700px]">
-      <h2 className="font-medium text-3xl py-10">Shopping Cart</h2>
+    <div className="myPadding flex-1 h-screen">
       {/* <Elements stripe={stripePromise}>
         <CheckoutForm />
       </Elements> */}
+      <h2 className="font-medium text-3xl py-10">Shopping Cart</h2>
       <div className="lg:grid lg:grid-cols-12 lg:items-start gap-x-12 ">
         <div className="lg:col-span-7">
           {loaderCart ? (
-            <Loader />
+            <>
+              <CartListCardSkeleton />
+              <CartListCardSkeleton />
+            </>
           ) : cart.length > 0 ? (
             cart.map((item, index) => {
               return (
@@ -182,32 +185,16 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal }) => {
             <p>No items added to cart</p>
           )}
         </div>
-        <div className="lg:col-span-5 sticky top-2 bg-gray-50 rounded-lg px-4 py-6 sm:lg-6 lg:p-8">
-          <h2 className="text-lg font-medium text-gray-900">Order Summary</h2>
-          <div className="mt-6 space-y-6">
-            <div className="flex items-center justify-between p-3 border-t border-neutral-200">
-              <p>Order total</p>
-              <div className="font-semibold">
-                {loaderCart ? (
-                  <TbLoader2 size="1rem" className="animate-spin" />
-                ) : (
-                  "$" + orderTotal()
-                )}
-              </div>
-            </div>
-            {checkoutLoader ? (
-              <Button className="w-full justify-center" disabled="disabled">
-                <TbLoader2 size="1.3rem" className="animate-spin" />
-              </Button>
-            ) : (
-              <Button
-                name="Checkout"
-                className="w-full justify-center"
-                onClick={handleCheckout}
-              />
-            )}
-          </div>
-        </div>
+        {loaderCart ? (
+          <CheckoutSectionSkeleton />
+        ) : (
+          <CheckoutSection
+            loaderCart={loaderCart}
+            checkoutLoader={checkoutLoader}
+            orderTotal={orderTotal}
+            handleCheckout={handleCheckout}
+          />
+        )}
       </div>
     </div>
   );

@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
 import CardProductDetails from "../../components/cardProductDetails";
+import CardProductDetailsSkeleton from "../../components/cardProductDetails/skeleton";
 import CartProduct from "../../components/cardProduct";
+import CartProductSkeleton from "../../components/cardProduct/skeleton";
 import Modal from "../../components/modal";
-import Loader from "../../components/loader";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import {
   addToFavouriteAction,
@@ -16,8 +18,9 @@ import {
   deleteFavourite,
   setFavourite,
 } from "../../config/services/firebase/favourite";
+import { generateRandomColors } from "../../config/services/randomGenerators/randomGenerates";
 
-const ProductDetail = ({ loader, currentUserID }) => {
+const ProductDetail = ({ loaderFetchAPI, currentUserID }) => {
   const [open, setOpen] = useState(false);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
@@ -27,6 +30,7 @@ const ProductDetail = ({ loader, currentUserID }) => {
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentProduct, setCurrentProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
+  // const [allProducts, setAllProducts] = useState([]);
 
   const cancelButtonRef = useRef(null);
 
@@ -38,28 +42,53 @@ const ProductDetail = ({ loader, currentUserID }) => {
 
   const { id } = useParams();
 
-  const handleFetchProduct = () => {
-    let currentCategory = "";
-    Object.keys(productData).forEach((category) => {
-      const foundProduct = productData[category].find(
-        (product) => product.id == id
-      );
-      if (foundProduct) {
-        setCurrentProduct(foundProduct);
-        currentCategory = category;
-        return;
-      }
-    });
+  const handleFetchProduct = async () => {
+    try {
+      let response = await axios.get(`https://dummyjson.com/products/${id}`);
+      let data = response.data;
+      console.log(data);
+      let updateData = {
+        ...data,
+        sizes: {
+          small: data.price,
+          medium: data.price * 0.1 + data.price,
+          large: data.price * 0.2 + data.price,
+        },
+        quantity: 0,
+        colors: generateRandomColors(),
+      };
+      setCurrentProduct(updateData);
 
-    if (currentCategory) {
-      let relatedProductsTemp = productData[currentCategory].filter(
-        (product) => {
-          return product.id !== +id;
-        }
-      );
-      setRelatedProducts(relatedProductsTemp);
+      // let tempProduct = [{...updateData}, {...allProducts}]
+      // console.log(tempProduct);
+      // setAllProducts(tempProduct)
+    } catch (error) {
+      console.log(error);
     }
   };
+
+  // const handleFetchProduct = () => {
+  //   let currentCategory = "";
+  //   Object.keys(productData).forEach((category) => {
+  //     const foundProduct = productData[category].find(
+  //       (product) => product.id == id
+  //     );
+  //     if (foundProduct) {
+  //       setCurrentProduct(foundProduct);
+  //       currentCategory = category;
+  //       return;
+  //     }
+  //   });
+
+  //   if (currentCategory) {
+  //     let relatedProductsTemp = productData[currentCategory].filter(
+  //       (product) => {
+  //         return product.id !== +id;
+  //       }
+  //     );
+  //     setRelatedProducts(relatedProductsTemp);
+  //   }
+  // };
 
   const handleCurrentSizes = (price, size) => {
     setCurrentPrice(price);
@@ -190,7 +219,7 @@ const ProductDetail = ({ loader, currentUserID }) => {
   }, [id]);
 
   useEffect(() => {
-    handleFetchProduct();
+    // handleFetchProduct();
   }, [productData]);
 
   useEffect(() => {
@@ -201,8 +230,19 @@ const ProductDetail = ({ loader, currentUserID }) => {
 
   return (
     <>
-      {loader ? (
-        <Loader className="h-screen" />
+      {loaderFetchAPI ? (
+        <>
+          <CardProductDetailsSkeleton />
+          <hr className="my-8 border-t" />
+          <div className="px-4 md:p-8 lg:p-10">
+            <div className="flex flex-wrap -mx-4">
+              <CartProductSkeleton />
+              <CartProductSkeleton />
+              <CartProductSkeleton />
+              <CartProductSkeleton />
+            </div>
+          </div>
+        </>
       ) : (
         <>
           <CardProductDetails

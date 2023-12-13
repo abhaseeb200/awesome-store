@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Disclosure, Transition } from "@headlessui/react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import axios from "axios";
 import { RiShoppingBag3Line } from "react-icons/ri";
 import { IoClose, IoMenu } from "react-icons/io5";
 import { FaRegUser } from "react-icons/fa";
@@ -29,20 +30,10 @@ const Navbar = ({
 
   const dispatch = useDispatch();
 
-  const { productData } = useSelector((state) => state.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
 
   const location = useLocation();
-
-  const handleNavigation = () => {
-    let navTemp = [];
-    Object.keys(productData).map((item) => {
-      let temp = { name: item, to: item };
-      navTemp.push(temp);
-    });
-    setNavigation(navTemp);
-  };
 
   const handleLogout = async () => {
     try {
@@ -63,9 +54,26 @@ const Navbar = ({
     setShowSideNav(!showSideNav);
   };
 
+  const handleNavigation = async () => {
+    try {
+      let response = await axios.get(
+        "https://dummyjson.com/products/categories"
+      );
+      let navTemp = [];
+      let data = response.data.slice(0, 6);
+      data.map((item) => {
+        let temp = { name: item, to: item };
+        navTemp.push(temp);
+      });
+      setNavigation(navTemp);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     handleNavigation();
-  }, [productData]);
+  }, []);
 
   return (
     <>

@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import CartProduct from "../../components/cardProduct";
+import CartProductSkeleton from "../../components/cardProduct/skeleton";
 import Modal from "../../components/modal";
 import CardProductDetails from "../../components/cardProductDetails";
-import Loader from "../../components/loader";
 import { removeFromFavouriteAction } from "../../redux/actions/favouriteAction";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import { deleteFavourite } from "../../config/services/firebase/favourite";
@@ -120,11 +120,16 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
   }, [open]);
 
   return (
-    <div className="px-4 md:p-8 lg:p-10 flex-1 min-h-[700px]">
+    <div className="myPadding flex-1 min-h-[700px]">
       <h2 className="font-medium text-3xl sm:py-10 pt-5 ">Favourite</h2>
       <div className="flex flex-wrap -mx-4">
         {loaderfavourite ? (
-          <Loader className="justify-center w-full" />
+          <>
+            <CartProductSkeleton />
+            <CartProductSkeleton />
+            <CartProductSkeleton />
+            <CartProductSkeleton />
+          </>
         ) : favourite.length > 0 ? (
           favourite.map((product, index) => {
             return (
@@ -140,7 +145,7 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
             );
           })
         ) : (
-          <p>No items added to favourite</p>
+          <p className="mx-4">No items added to favourite</p>
         )}
       </div>
       <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>

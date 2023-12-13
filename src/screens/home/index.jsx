@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import HeroSection from "../../components/heroSection";
+import HeroSectionSkeleton from "../../components/heroSection/skeleton";
 import CartProduct from "../../components/cardProduct";
 import CartProductSkeleton from "../../components/cardProduct/skeleton";
 import CardProductDetails from "../../components/cardProductDetails";
@@ -157,7 +158,14 @@ const Home = ({ loaderFetchAPI, currentUserID }) => {
 
   return (
     <>
-      <HeroSection title="We have 50% discounts" backgroundImage={homeBannar} />
+      {loaderFetchAPI ? (
+        <HeroSectionSkeleton />
+      ) : (
+        <HeroSection
+          title="We have 50% discounts"
+          backgroundImage={homeBannar}
+        />
+      )}
       <div className="px-4 md:p-8 lg:p-10">
         {loaderFetchAPI ? (
           <>

@@ -1,27 +1,10 @@
-import { DATA } from "../types/dataType";
+import { generateRandomColors } from "../../config/services/randomGenerators/randomGenerates";
+import Login from "../../screens/login";
+import { DATA, MANUALLYDATA } from "../types/dataType";
 
 const initialState = {
   productData: {},
 };
-
-let colors = ['FloralWhite', 'LightSkyBlue', 'DodgerBlue', 'Tomato', 'LightGray'];
-
-const generateRandomColors = () => {
-  let maxLength = Math.floor(Math.random() * 5) + 1;
-  let randomColors = [];
-
-  while (randomColors.length < maxLength) {
-    let randomIndex = Math.floor(Math.random() * colors.length);
-    let randomColor = colors[randomIndex];
-
-    // Check if the color is not already in the array
-    if (!randomColors.includes(randomColor)) {
-      randomColors.push(randomColor);
-    }
-  }
-
-  return randomColors;
-}
 
 const dataReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -39,6 +22,16 @@ const dataReducer = (state = initialState, action) => {
       }
       return {
         productData: { ...action.data },
+      };
+    case MANUALLYDATA:
+      let categoryname = action.currentName 
+      let temp = {
+        ...action.data,
+        'categoryName': [...action.currentData]
+      }
+      console.log(action.currentName,"_____________");
+      return {
+        productData: { ...temp },
       };
     default:
       return state;

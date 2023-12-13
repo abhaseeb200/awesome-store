@@ -1,4 +1,4 @@
-import { DATA } from "../types/dataType"
+import { DATA, MANUALLYDATA } from "../types/dataType"
 
 const dataAction = (data) => {
     return {
@@ -7,4 +7,13 @@ const dataAction = (data) => {
     }
 }
 
-export { dataAction }
+const munallyDataAction = (data,currentData,currentName) => {
+    return {
+        type: MANUALLYDATA,
+        data: data,
+        currentData: currentData,
+        currentName: currentName,
+    }
+}
+
+export { dataAction, munallyDataAction }
