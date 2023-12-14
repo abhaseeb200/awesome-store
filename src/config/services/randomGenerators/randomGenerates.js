@@ -17,4 +17,28 @@ const generateRandomColors = () => {
   return randomColors;
 }
 
-export { generateRandomColors }
+const getRandomSizes = (price) => {
+  let sizes = {};
+
+  if (Math.random() < 0.5) {
+    sizes.small = price
+  }
+
+  if (Math.random() < 0.5) {
+    sizes.medium = (price * 0.1) + price;
+  }
+
+  if (Math.random() < 0.5) {
+    sizes.large = (price * 0.2) + price;
+  }
+
+  // If sizes is still empty, set a default value (e.g., medium)
+  if (Object.keys(sizes).length === 0) {
+    sizes.small = price;
+  }
+
+  return sizes;
+}
+
+
+export { generateRandomColors, getRandomSizes }

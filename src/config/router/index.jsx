@@ -23,6 +23,7 @@ import { authState } from "../services/firebase/auth";
 import { getCart } from "../services/firebase/cart";
 import { getFavourite } from "../services/firebase/favourite";
 import "react-toastify/dist/ReactToastify.css";
+import { generateRandomColors, getRandomSizes } from "../services/randomGenerators/randomGenerates";
 
 const Main = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -31,12 +32,15 @@ const Main = () => {
   const [loaderCart, setLoaderCart] = useState(true);
   const [loaderfavourite, setLoaderfavourite] = useState(true);
   const [currentUserID, setCurrentUserID] = useState("");
-  const [categoriesName, setCategoriesName] = useState([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [productsWithoutStore, setProductsWithoutStore] = useState({});
+  const [index, setIndex] = useState(10);
+  const [items, setItems] = useState({});
+  const [hasMore, setHasMore] = useState(true);
 
   const cancelButtonRef = useRef(null);
-
   const dispatch = useDispatch();
-
+  
   const { productData } = useSelector((state) => state.data);
 
   const handleFetch = async () => {
@@ -51,8 +55,48 @@ const Main = () => {
       });
       dispatch(dataAction(tempCategoryProduct));
       setLoaderFetchAPI(false);
+      // console.log(response.data.total,"-=======");
+      setTotalProducts(response.data.total)
     } catch (error) {
       setLoaderFetchAPI(false);
+    }
+  };
+
+  const handleFetchMoreData = async () => {
+    if (index < totalProducts) {
+      try {
+        
+        let response = await axios.get(
+          `https://dummyjson.com/products?limit=5&skip=${index}`
+        );
+        let currentProductData = response?.data?.products;
+        let currentCategoryName = currentProductData[0].category;
+        let updateCurrentProductData = currentProductData.map((item)=>{
+          return {
+            ...item,
+            sizes: getRandomSizes(item.price),
+            quantity: 0,
+            colors: generateRandomColors(),
+          }
+        })
+        let temp = {
+          [currentCategoryName]: updateCurrentProductData,
+        };
+        let combinedObjects = { ...items, ...temp };
+        setItems(combinedObjects);
+        // dispatch(
+        //   munallyDataAction(
+        //     productData,
+        //     updateCurrentProductData,
+        //     currentCategoryName
+        //   )
+        // );
+      } catch (error) {
+        console.log(error);
+      }
+      setIndex((prevIndex) => prevIndex + 10);
+    } else {
+      setHasMore(false);
     }
   };
 
@@ -155,6 +199,10 @@ const Main = () => {
               <Home
                 loaderFetchAPI={loaderFetchAPI}
                 currentUserID={currentUserID}
+                items={items}
+                handleFetchMoreData={handleFetchMoreData}
+                hasMore={hasMore}
+              
               />
             }
           />
@@ -164,6 +212,8 @@ const Main = () => {
               <ProductDetail
                 loaderFetchAPI={loaderFetchAPI}
                 currentUserID={currentUserID}
+                productsWithoutStore={productsWithoutStore}
+                setProductsWithoutStore={setProductsWithoutStore}
               />
             }
           />
@@ -173,6 +223,8 @@ const Main = () => {
               <Category
                 loaderFetchAPI={loaderFetchAPI}
                 currentUserID={currentUserID}
+                productsWithoutStore={productsWithoutStore}
+                setProductsWithoutStore={setProductsWithoutStore}
               />
             }
           />

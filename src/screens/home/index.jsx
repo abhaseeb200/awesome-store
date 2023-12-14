@@ -20,8 +20,18 @@ import {
 } from "../../config/services/firebase/favourite";
 import { setCart } from "../../config/services/firebase/cart";
 import homeBannar from "../../assets/home-bannar.jpg";
+import axios from "axios";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { munallyDataAction } from "../../redux/actions/dataAction";
+import { generateRandomColors, getRandomSizes } from "../../config/services/randomGenerators/randomGenerates";
 
-const Home = ({ loaderFetchAPI, currentUserID }) => {
+const Home = ({
+  loaderFetchAPI,
+  currentUserID,
+  handleFetchMoreData,
+  items,
+  hasMore,
+}) => {
   const [open, setOpen] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
   const [addToCartLoader, setAddToCartLoader] = useState(false);
@@ -29,6 +39,8 @@ const Home = ({ loaderFetchAPI, currentUserID }) => {
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
+  // const [items, setItems] = useState({});
+  // const [hasMore, setHasMore] = useState(true);
 
   const cancelButtonRef = useRef(null);
 
@@ -37,6 +49,44 @@ const Home = ({ loaderFetchAPI, currentUserID }) => {
   const { productData } = useSelector((state) => state.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
+
+  // const handleFetchMoreData = async () => {
+  //   if (index < totalProducts) {
+  //     try {
+        
+  //       let response = await axios.get(
+  //         `https://dummyjson.com/products?limit=5&skip=${index}`
+  //       );
+  //       let currentProductData = response?.data?.products;
+  //       let currentCategoryName = currentProductData[0].category;
+  //       let updateCurrentProductData = currentProductData.map((item)=>{
+  //         return {
+  //           ...item,
+  //           sizes: getRandomSizes(item.price),
+  //           quantity: 0,
+  //           colors: generateRandomColors(),
+  //         }
+  //       })
+  //       let temp = {
+  //         [currentCategoryName]: updateCurrentProductData,
+  //       };
+  //       let combinedObjects = { ...items, ...temp };
+  //       setItems(combinedObjects);
+  //       // dispatch(
+  //       //   munallyDataAction(
+  //       //     productData,
+  //       //     updateCurrentProductData,
+  //       //     currentCategoryName
+  //       //   )
+  //       // );
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //     setIndex((prevIndex) => prevIndex + 10);
+  //   } else {
+  //     setHasMore(false);
+  //   }
+  // };
 
   const handleModal = (productData) => {
     setCurrentProductData(productData);
@@ -215,19 +265,75 @@ const Home = ({ loaderFetchAPI, currentUserID }) => {
             );
           })
         )}
-
-        <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
-          <CardProductDetails
-            currentProductData={currentProductData}
-            handleCurrentSizes={handleCurrentSizes}
-            hanldeCurrentColor={hanldeCurrentColor}
-            handleAddToCart={handleAddToCart}
-            handleSetCart={handleSetCart}
-            currentPrice={currentPrice}
-            currentColor={currentColor}
-          />
-        </Modal>
       </div>
+
+      <div className="px-4 md:p-8 lg:px-10 myCustomPadding">
+        <InfiniteScroll
+          dataLength={Object.keys(items).length}
+          next={handleFetchMoreData}
+          hasMore={hasMore}
+          loader={
+            <>
+              <SingleDetailCardSkeleton />
+              <div className="flex flex-wrap -mx-4">
+                <CartProductSkeleton />
+                <CartProductSkeleton />
+                <CartProductSkeleton />
+                <CartProductSkeleton />
+              </div>
+            </>
+          }
+        >
+          {Object.keys(items).map((category, ind) => {
+            return (
+              <div key={ind} className="space-y-4 mb-16">
+                <h2 className="font-bold md:text-3xl text-lg capitalize pb-3">
+                  {category}
+                </h2>
+                <SingleDetailCard
+                  productData={items[category]}
+                  favourite={favourite}
+                  addToFavouriteLoader={addToFavouriteLoader}
+                  handleModal={handleModal}
+                  handleFavourite={handleFavourite}
+                  handleRemoveFavourite={handleRemoveFavourite}
+                />
+                <div className="flex flex-wrap -mx-4">
+                  {items[category].slice(1).map((product, productIND) => {
+                    return (
+                      <div
+                        className="w-full sm:w-1/2 md:w-1/4 px-4"
+                        key={productIND}
+                      >
+                        <CartProduct
+                          productData={product}
+                          favourite={favourite}
+                          addToFavouriteLoader={addToFavouriteLoader}
+                          handleModal={handleModal}
+                          handleFavourite={handleFavourite}
+                          handleRemoveFavourite={handleRemoveFavourite}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </InfiniteScroll>
+      </div>
+
+      <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
+        <CardProductDetails
+          currentProductData={currentProductData}
+          handleCurrentSizes={handleCurrentSizes}
+          hanldeCurrentColor={hanldeCurrentColor}
+          handleAddToCart={handleAddToCart}
+          handleSetCart={handleSetCart}
+          currentPrice={currentPrice}
+          currentColor={currentColor}
+        />
+      </Modal>
     </>
   );
 };

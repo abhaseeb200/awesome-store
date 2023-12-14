@@ -79,7 +79,7 @@ const SingleDetailCard = ({
           <div className="flex gap-x-2 items-center">
             <p className="font-semibold text-sm md:text-lg ">Size:</p>
             <p className="text-xs md:text-base">
-              {Object.keys(firstProduct.sizes).map((size, index) => {
+              {Object.keys(firstProduct?.sizes)?.map((size, index) => {
                 return (
                   <span key={index} className="mr-2">
                     {size}
@@ -90,7 +90,7 @@ const SingleDetailCard = ({
           </div>
           <div className="flex gap-x-2 items-center">
             <p className="font-semibold text-sm md:text-lg ">Color: </p>
-            {firstProduct.colors.map((color, index) => {
+            {firstProduct?.colors?.map((color, index) => {
               return (
                 <span
                   key={index}

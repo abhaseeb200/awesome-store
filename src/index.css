@@ -30,3 +30,7 @@ body {
 .validationError {
   border-color:#ef4444 ;
 }
+
+.myCustomPadding {
+  padding-top: 0 !important;
+}

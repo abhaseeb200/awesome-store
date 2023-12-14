@@ -1,5 +1,4 @@
-import { generateRandomColors } from "../../config/services/randomGenerators/randomGenerates";
-import Login from "../../screens/login";
+import { generateRandomColors, getRandomSizes } from "../../config/services/randomGenerators/randomGenerates";
 import { DATA, MANUALLYDATA } from "../types/dataType";
 
 const initialState = {
@@ -11,11 +10,12 @@ const dataReducer = (state = initialState, action) => {
     case DATA:
       for (let category in action.data) {
         action.data[category].forEach((product) => {
-          product.sizes = {
-            small: product.price,
-            medium: (product.price * 0.1) + product.price,
-            large: (product.price * 0.2) + product.price,
-          };
+          // product.sizes = {
+          //   small: product.price,
+          //   medium: (product.price * 0.1) + product.price,
+          //   large: (product.price * 0.2) + product.price,
+          // };
+          product.sizes = getRandomSizes(product.price)
           product.quantity = 0;
           product.colors = generateRandomColors();
         });
@@ -24,12 +24,11 @@ const dataReducer = (state = initialState, action) => {
         productData: { ...action.data },
       };
     case MANUALLYDATA:
-      let categoryname = action.currentName 
       let temp = {
         ...action.data,
-        'categoryName': [...action.currentData]
+        [action.currentName]: [...action.currentData]
       }
-      console.log(action.currentName,"_____________");
+      // console.log(action.currentName, "_____________");
       return {
         productData: { ...temp },
       };

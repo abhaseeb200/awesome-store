@@ -8,6 +8,7 @@ const dataAction = (data) => {
 }
 
 const munallyDataAction = (data,currentData,currentName) => {
+    // console.log(data,currentData,currentName);
     return {
         type: MANUALLYDATA,
         data: data,

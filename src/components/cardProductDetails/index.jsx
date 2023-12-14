@@ -16,10 +16,16 @@ const CardProductDetails = ({
     <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-8 px-4 md:p-8 lg:p-10 mt-5">
       <ThumbnailSlider currentProductData={currentProductData} />
       <div>
-        <h2 className="font-bold text-xl md:text-3xl">{currentProductData?.title}</h2>
+        <h2 className="font-bold text-xl md:text-3xl">
+          {currentProductData?.title}
+        </h2>
         <div className="text-1xl md:text-2xl mt-3">
           <div className="font-semibold">
-            ${currentPrice || currentProductData?.sizes?.small}
+            $
+            {currentPrice ||
+              currentProductData?.sizes?.small ||
+              currentProductData?.sizes?.medium ||
+              currentProductData?.sizes?.large}
           </div>
         </div>
         <hr className="my-6" />
@@ -70,8 +76,12 @@ const CardProductDetails = ({
         </div>
         {currentColor && currentPrice ? (
           addToCartLoader ? (
-            <Button disabled style={{width:"122px",height:"48px"}} className="justify-center">
-              <TbLoader2 size="1.3rem" className="animate-spin"  />
+            <Button
+              disabled
+              style={{ width: "122px", height: "48px" }}
+              className="justify-center"
+            >
+              <TbLoader2 size="1.3rem" className="animate-spin" />
             </Button>
           ) : (
             <Button
@@ -80,10 +90,7 @@ const CardProductDetails = ({
             />
           )
         ) : (
-          <Button
-            disabled="disabled"
-            name="Add to cart"
-          ></Button>
+          <Button disabled="disabled" name="Add to cart"></Button>
         )}
       </div>
     </div>

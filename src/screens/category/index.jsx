@@ -21,10 +21,16 @@ import {
   setFavourite,
 } from "../../config/services/firebase/favourite";
 import { setCart } from "../../config/services/firebase/cart";
-import { generateRandomColors } from "../../config/services/randomGenerators/randomGenerates";
-import { munallyDataAction } from "../../redux/actions/dataAction";
+import {
+  generateRandomColors,
+  getRandomSizes,
+} from "../../config/services/randomGenerators/randomGenerates";
 
-const Category = ({ currentUserID }) => {
+const Category = ({
+  currentUserID,
+  productsWithoutStore,
+  setProductsWithoutStore,
+}) => {
   const [open, setOpen] = useState(false);
   const [currentSizeTab, setCurrentSizeTab] = useState("");
   const [currentColorTab, setCurrentColorTab] = useState("");
@@ -38,7 +44,6 @@ const Category = ({ currentUserID }) => {
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentColors, setCurrentColors] = useState([]);
   const [currentProducts, setCurrentProducts] = useState([]);
-  const [allProducts, setAllProducts] = useState([]); //use for find repeated categories api
   const [sizes] = useState(["small", "medium", "large"]);
   const [colors] = useState([
     "FloralWhite",
@@ -56,11 +61,10 @@ const Category = ({ currentUserID }) => {
   const { productData } = useSelector((state) => state?.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
-  console.log(productData, "STORE");
 
   const categoryProductsFetch = async () => {
     setLoaderFetchAPI(true);
-    let isAlreadyCategory = Object.keys(productData).find(
+    let isAlreadyCategory = Object.keys(productsWithoutStore).find(
       (category) => category === title
     );
     if (!isAlreadyCategory) {
@@ -72,42 +76,34 @@ const Category = ({ currentUserID }) => {
         let updateData = data.map((item) => {
           return {
             ...item,
-            sizes: {
-              small: item.price,
-              medium: item.price * 0.1 + item.price,
-              large: item.price * 0.2 + item.price,
-            },
+            sizes: getRandomSizes(item.price),
+            // sizes: {
+            //   small: item.price,
+            //   medium: item.price * 0.1 + item.price,
+            //   large: item.price * 0.2 + item.price,
+            // },
             quantity: 0,
             colors: generateRandomColors(),
           };
         });
-        console.log(updateData);
+        let temp = {
+          [data[0].category]: updateData,
+        };
+        let combinedData = { ...productsWithoutStore, ...temp };
+        setProductsWithoutStore(combinedData);
         setCurrentProducts(updateData);
-        dispatch(munallyDataAction(productData,updateData,title))
-
-        // let tempProduct = [...updateData, ...allProducts];
-        // setAllProducts(tempProduct);
+        // dispatch(munallyDataAction(productData,updateData,title))
         setLoaderFetchAPI(false);
       } catch (error) {
         console.log(error);
         setLoaderFetchAPI(false);
       }
     } else {
-      setCurrentProducts(productData[title]);
+      console.log(productsWithoutStore, "__________");
+      setCurrentProducts(productsWithoutStore[title]);
       setLoaderFetchAPI(false);
     }
   };
-
-  // const currentCategoryProductsFetch = () => {
-  //   let currentCategoryProducts = productData[title];
-  //   setCurrentProducts(currentCategoryProducts);
-  //   let categoryColors = [];
-  //   currentCategoryProducts?.map((product) =>
-  //     categoryColors?.push(...product.colors)
-  //   );
-  //   let removeDuplicationCurrentColors = [...new Set(categoryColors)]; //remove the duplicate colors in array
-  //   setCurrentColors(removeDuplicationCurrentColors);
-  // };
 
   const handleModal = (productData) => {
     setCurrentProductData(productData);
@@ -119,11 +115,20 @@ const Category = ({ currentUserID }) => {
     setCurrentSize(size);
   };
 
-  const handleSizeTab = (title) => {
-    if (title === currentSizeTab) {
+  const handleSizeTab = (size) => {
+    console.log(size);
+    if (size === currentSizeTab) {
       setCurrentSizeTab("");
+      setFilterProducts([]);
     } else {
-      setCurrentSizeTab(title);
+      let filtered = currentProducts.filter(
+        (product) =>
+          Object.keys(product?.sizes).includes(size) ||
+          product?.colors.includes(currentColorTab)
+      );
+      console.log(filtered, currentColorTab);
+      setFilterProducts(filtered);
+      setCurrentSizeTab(size);
     }
   };
 
@@ -136,10 +141,12 @@ const Category = ({ currentUserID }) => {
       setCurrentColorTab("");
       setFilterProducts([]);
     } else {
-      let filtered = currentProducts.filter((product) =>
-        product?.colors.includes(title)
+      let filtered = currentProducts.filter(
+        (product) =>
+          product?.colors.includes(title) ||
+          Object.keys(product?.sizes)?.includes(currentSizeTab)
       );
-      console.log(filtered);
+      console.log(filtered, currentSizeTab);
       setFilterProducts(filtered);
       setCurrentColorTab(title);
     }
@@ -244,7 +251,6 @@ const Category = ({ currentUserID }) => {
   };
 
   useEffect(() => {
-    // currentCategoryProductsFetch();
     setFilterProducts([]);
     setCurrentColorTab("");
     categoryProductsFetch();
@@ -255,10 +261,6 @@ const Category = ({ currentUserID }) => {
     setCurrentPrice("");
     setCurrentSize("");
   }, [open]);
-
-  useEffect(() => {
-    // currentCategoryProductsFetch();
-  }, [productData]);
 
   return (
     <>

@@ -18,10 +18,16 @@ import {
   deleteFavourite,
   setFavourite,
 } from "../../config/services/firebase/favourite";
-import { generateRandomColors } from "../../config/services/randomGenerators/randomGenerates";
+import { generateRandomColors, getRandomSizes } from "../../config/services/randomGenerators/randomGenerates";
+import { munallyDataAction } from "../../redux/actions/dataAction";
 
-const ProductDetail = ({ loaderFetchAPI, currentUserID }) => {
+const ProductDetail = ({
+  currentUserID,
+  productsWithoutStore,
+  setProductsWithoutStore,
+}) => {
   const [open, setOpen] = useState(false);
+  const [loaderFetchAPI, setLoaderFetchAPI] = useState(true);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [currentPrice, setCurrentPrice] = useState("");
@@ -43,27 +49,78 @@ const ProductDetail = ({ loaderFetchAPI, currentUserID }) => {
   const { id } = useParams();
 
   const handleFetchProduct = async () => {
-    try {
-      let response = await axios.get(`https://dummyjson.com/products/${id}`);
-      let data = response.data;
-      console.log(data);
-      let updateData = {
-        ...data,
-        sizes: {
-          small: data.price,
-          medium: data.price * 0.1 + data.price,
-          large: data.price * 0.2 + data.price,
-        },
-        quantity: 0,
-        colors: generateRandomColors(),
-      };
-      setCurrentProduct(updateData);
+    setLoaderFetchAPI(true);
+    let foundProduct;
+    Object.keys(productsWithoutStore).forEach((category) => {
+      let isProduct = productsWithoutStore[category].find(
+        (product) => product.id == id
+      );
+      if (isProduct) {
+        foundProduct = isProduct;
+        return;
+      }
+    });
 
-      // let tempProduct = [{...updateData}, {...allProducts}]
-      // console.log(tempProduct);
-      // setAllProducts(tempProduct)
-    } catch (error) {
-      console.log(error);
+    if (foundProduct) {
+      setCurrentProduct(foundProduct);
+      let relatedProductsTemp = productsWithoutStore[
+        foundProduct.category
+      ]?.filter((i) => {
+        return i.id !== +id;
+      });
+      setRelatedProducts(relatedProductsTemp);
+      setLoaderFetchAPI(false);
+    } else {
+      //if product is not found in productsWithoutStore, then hit new api to get product.
+      //then get their category for related products
+      try {
+        console.log("NEW API. .................");
+        let response = await axios.get(`https://dummyjson.com/products/${id}`);
+        let dataProduct = response.data;
+        let responseCategoryProduct = await axios.get(
+          `https://dummyjson.com/products/category/${dataProduct.category}`
+        );
+        let updatedCategoryData = responseCategoryProduct.data.products.map(
+          (product) => {
+            return {
+              ...product,
+              sizes: getRandomSizes(product.price),
+              // sizes: {
+              //   small: product.price,
+              //   medium: product.price * 0.1 + product.price,
+              //   large: product.price * 0.2 + product.price,
+              // },
+              quantity: 0,
+              colors: generateRandomColors(),
+            };
+          }
+        );
+        let relatedProductsTemp = updatedCategoryData.filter(
+          (i) => i.id !== +id
+        );
+        let currentProductTemp = updatedCategoryData.find((i) => {
+          return (i) => i.id == +id;
+        });
+        setCurrentProduct(currentProductTemp);
+        setRelatedProducts(relatedProductsTemp);
+        let temp = {
+          [dataProduct.category]: updatedCategoryData,
+        };
+        let combinedData = { ...productsWithoutStore, ...temp };
+        setProductsWithoutStore(combinedData);
+        setLoaderFetchAPI(false);
+        // dispatch(
+        //   munallyDataAction(
+        //     productData,
+        //     updatedCategoryData,
+        //     dataProduct.category
+        //   )
+        // );
+      } catch (error) {
+        console.log(error);
+        setLoaderFetchAPI(false);
+
+      }
     }
   };
 
@@ -168,7 +225,6 @@ const ProductDetail = ({ loaderFetchAPI, currentUserID }) => {
           currentUserID,
           favourite
         );
-        console.log(response);
         dispatch(addToFavouriteAction(currentProductData));
         setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {
@@ -215,12 +271,9 @@ const ProductDetail = ({ loaderFetchAPI, currentUserID }) => {
   useEffect(() => {
     setCurrentPrice("");
     setCurrentColor("");
+    window.scrollTo(0, 0);
     handleFetchProduct();
   }, [id]);
-
-  useEffect(() => {
-    // handleFetchProduct();
-  }, [productData]);
 
   useEffect(() => {
     setCurrentColor("");
