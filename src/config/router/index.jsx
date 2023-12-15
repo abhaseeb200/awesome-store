@@ -9,6 +9,7 @@ import Home from "../../screens/home";
 import Cart from "../../screens/cart";
 import ProductDetail from "../../screens/productDetail";
 import Category from "../../screens/category";
+import Search from "../../screens/search";
 import Favourite from "../../screens/favourite";
 import { dataAction } from "../../redux/actions/dataAction";
 import {
@@ -22,8 +23,11 @@ import {
 import { authState } from "../services/firebase/auth";
 import { getCart } from "../services/firebase/cart";
 import { getFavourite } from "../services/firebase/favourite";
+import {
+  generateRandomColors,
+  getRandomSizes,
+} from "../services/randomGenerators/randomGenerates";
 import "react-toastify/dist/ReactToastify.css";
-import { generateRandomColors, getRandomSizes } from "../services/randomGenerators/randomGenerates";
 
 const Main = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -40,12 +44,14 @@ const Main = () => {
 
   const cancelButtonRef = useRef(null);
   const dispatch = useDispatch();
-  
+
   const { productData } = useSelector((state) => state.data);
 
   const handleFetch = async () => {
     try {
-      let response = await axios.get("https://dummyjson.com/products?limit=10&skip=0");
+      let response = await axios.get(
+        "https://dummyjson.com/products?limit=10&skip=0"
+      );
       let tempCategoryProduct = {};
       response.data.products.map((item) => {
         if (!tempCategoryProduct[item.category]) {
@@ -56,7 +62,7 @@ const Main = () => {
       dispatch(dataAction(tempCategoryProduct));
       setLoaderFetchAPI(false);
       // console.log(response.data.total,"-=======");
-      setTotalProducts(response.data.total)
+      setTotalProducts(response.data.total);
     } catch (error) {
       setLoaderFetchAPI(false);
     }
@@ -65,32 +71,24 @@ const Main = () => {
   const handleFetchMoreData = async () => {
     if (index < totalProducts) {
       try {
-        
         let response = await axios.get(
           `https://dummyjson.com/products?limit=5&skip=${index}`
         );
         let currentProductData = response?.data?.products;
         let currentCategoryName = currentProductData[0].category;
-        let updateCurrentProductData = currentProductData.map((item)=>{
+        let updateCurrentProductData = currentProductData.map((item) => {
           return {
             ...item,
             sizes: getRandomSizes(item.price),
             quantity: 0,
             colors: generateRandomColors(),
-          }
-        })
+          };
+        });
         let temp = {
           [currentCategoryName]: updateCurrentProductData,
         };
         let combinedObjects = { ...items, ...temp };
         setItems(combinedObjects);
-        // dispatch(
-        //   munallyDataAction(
-        //     productData,
-        //     updateCurrentProductData,
-        //     currentCategoryName
-        //   )
-        // );
       } catch (error) {
         console.log(error);
       }
@@ -202,7 +200,6 @@ const Main = () => {
                 items={items}
                 handleFetchMoreData={handleFetchMoreData}
                 hasMore={hasMore}
-              
               />
             }
           />
@@ -247,6 +244,15 @@ const Main = () => {
               <Favourite
                 currentUserID={currentUserID}
                 loaderfavourite={loaderfavourite}
+              />
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <Search
+                currentUserID={currentUserID}
+                loaderFetchAPI={loaderFetchAPI}
               />
             }
           />

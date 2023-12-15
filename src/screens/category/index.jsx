@@ -116,19 +116,18 @@ const Category = ({
   };
 
   const handleSizeTab = (size) => {
-    console.log(size);
     if (size === currentSizeTab) {
       setCurrentSizeTab("");
       setFilterProducts([]);
+      // console.log(filtered);
     } else {
       let filtered = currentProducts.filter(
         (product) =>
           Object.keys(product?.sizes).includes(size) ||
           product?.colors.includes(currentColorTab)
       );
-      console.log(filtered, currentColorTab);
-      setFilterProducts(filtered);
       setCurrentSizeTab(size);
+      setFilterProducts(filtered);
     }
   };
 
@@ -141,13 +140,22 @@ const Category = ({
       setCurrentColorTab("");
       setFilterProducts([]);
     } else {
-      let filtered = currentProducts.filter(
-        (product) =>
-          product?.colors.includes(title) ||
-          Object.keys(product?.sizes)?.includes(currentSizeTab)
-      );
-      console.log(filtered, currentSizeTab);
-      setFilterProducts(filtered);
+      if (filterProducts.length > 0) {
+        let filtered = filterProducts.filter(
+          (product) =>
+            product?.colors.includes(title) &&
+            Object.keys(product?.sizes)?.includes(currentSizeTab)
+        );
+        console.log(filtered);
+        setFilterProducts(filtered);
+      } else {
+        let filtered = currentProducts.filter(
+          (product) =>
+            product?.colors.includes(title) ||
+            Object.keys(product?.sizes)?.includes(currentSizeTab)
+        );
+        setFilterProducts(filtered);
+      }
       setCurrentColorTab(title);
     }
   };

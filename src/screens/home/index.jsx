@@ -9,6 +9,8 @@ import CardProductDetails from "../../components/cardProductDetails";
 import SingleDetailCardSkeleton from "./component/skeleton";
 import Modal from "../../components/modal";
 import SingleDetailCard from "./component/index";
+import InfiniteScroll from "react-infinite-scroll-component";
+import SearchBar from "../../components/searchBar";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import {
   addToFavouriteAction,
@@ -20,10 +22,6 @@ import {
 } from "../../config/services/firebase/favourite";
 import { setCart } from "../../config/services/firebase/cart";
 import homeBannar from "../../assets/home-bannar.jpg";
-import axios from "axios";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { munallyDataAction } from "../../redux/actions/dataAction";
-import { generateRandomColors, getRandomSizes } from "../../config/services/randomGenerators/randomGenerates";
 
 const Home = ({
   loaderFetchAPI,
@@ -39,8 +37,6 @@ const Home = ({
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
-  // const [items, setItems] = useState({});
-  // const [hasMore, setHasMore] = useState(true);
 
   const cancelButtonRef = useRef(null);
 
@@ -50,43 +46,7 @@ const Home = ({
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
 
-  // const handleFetchMoreData = async () => {
-  //   if (index < totalProducts) {
-  //     try {
-        
-  //       let response = await axios.get(
-  //         `https://dummyjson.com/products?limit=5&skip=${index}`
-  //       );
-  //       let currentProductData = response?.data?.products;
-  //       let currentCategoryName = currentProductData[0].category;
-  //       let updateCurrentProductData = currentProductData.map((item)=>{
-  //         return {
-  //           ...item,
-  //           sizes: getRandomSizes(item.price),
-  //           quantity: 0,
-  //           colors: generateRandomColors(),
-  //         }
-  //       })
-  //       let temp = {
-  //         [currentCategoryName]: updateCurrentProductData,
-  //       };
-  //       let combinedObjects = { ...items, ...temp };
-  //       setItems(combinedObjects);
-  //       // dispatch(
-  //       //   munallyDataAction(
-  //       //     productData,
-  //       //     updateCurrentProductData,
-  //       //     currentCategoryName
-  //       //   )
-  //       // );
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //     setIndex((prevIndex) => prevIndex + 10);
-  //   } else {
-  //     setHasMore(false);
-  //   }
-  // };
+  console.log(productData);
 
   const handleModal = (productData) => {
     setCurrentProductData(productData);
@@ -211,12 +171,15 @@ const Home = ({
       {loaderFetchAPI ? (
         <HeroSectionSkeleton />
       ) : (
-        <HeroSection
-          title="We have 50% discounts"
-          backgroundImage={homeBannar}
-        />
+        <>
+          <HeroSection
+            title="We have 50% discounts"
+            backgroundImage={homeBannar}
+          />
+          <SearchBar />
+        </>
       )}
-      <div className="px-4 md:p-8 lg:p-10">
+      <div className="px-4 md:p-8 lg:p-10 pt-5">
         {loaderFetchAPI ? (
           <>
             <SingleDetailCardSkeleton />

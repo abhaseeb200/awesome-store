@@ -151,7 +151,7 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal }) => {
   // };
 
   return (
-    <div className="myPadding flex-1 h-screen">
+    <div className="myPadding flex-1 min-h-[700px]">
       {/* <Elements stripe={stripePromise}>
         <CheckoutForm />
       </Elements> */}

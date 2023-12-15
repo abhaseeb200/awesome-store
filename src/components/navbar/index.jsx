@@ -229,7 +229,7 @@ const SlideOverLayer = ({ handleShowSideNav, children }) => (
     leaveTo="translate-x-full"
   >
     <div
-      className="fixed inset-0 overflow-hidden z-20"
+      className="fixed inset-0 overflow-hidden z-40"
       onClick={() => handleShowSideNav()}
     >
       <div className="absolute inset-0 overflow-hidden">
