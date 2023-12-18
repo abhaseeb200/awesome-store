@@ -16,6 +16,7 @@ import { emptyCarttAction } from "../../redux/actions/cartAction";
 import { emptyFavouriteAction } from "../../redux/actions/favouriteAction";
 import { authLogout } from "../../config/services/firebase/auth";
 import "./style.css";
+import SearchBar from "../searchBar";
 
 const Navbar = ({
   isUser,
@@ -103,6 +104,7 @@ const Navbar = ({
           </span>
         </SlideOverLayer>
       </Transition.Root>
+      <SearchBar/>
       <Disclosure as="nav" className="bg-white/70 hover:bg-white border-b">
         {({ open }) => (
           <>
@@ -129,7 +131,7 @@ const Navbar = ({
                         <NavLink
                           key={index}
                           to={`/category/${item.to}`}
-                          className="py-2 text-sm font-medium px-4 py-3 flex-shrink-0 capitalize text-gray-300 text-neutral-500 hover:text-black"
+                          className="py-2 text-sm font-medium px-2.5 py-3 flex-shrink-0 capitalize text-gray-300 text-neutral-500 hover:text-black"
                           aria-current={item.current ? "page" : undefined}
                         >
                           {item.name}
@@ -141,7 +143,7 @@ const Navbar = ({
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 lg:static lg:inset-auto lg:ml-6 lg:pr-0">
                   <Link
                     to="/favourite"
-                    className="sm:mr-4 mr-1 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition sm:px-4 sm:py-2 px-2 py-1.5 flex items-center justify-center"
+                    className="sm:mr-2.5 mr-1 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition sm:px-4 sm:py-2 px-2 py-1.5 flex items-center justify-center"
                   >
                     <span className="cursor-pointer">
                       <IoMdHeartEmpty size="1.25rem" />
@@ -152,7 +154,7 @@ const Navbar = ({
                   </Link>
                   <Link
                     to="/cart"
-                    className="sm:mr-4 mr-1 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition sm:px-4 sm:py-2 px-2 py-1.5 flex items-center justify-center"
+                    className="sm:mr-2.5 mr-1 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition sm:px-4 sm:py-2 px-2 py-1.5 flex items-center justify-center"
                   >
                     <span className="">
                       <RiShoppingBag3Line size="1.25rem" />

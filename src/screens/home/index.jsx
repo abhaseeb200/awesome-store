@@ -10,7 +10,6 @@ import SingleDetailCardSkeleton from "./component/skeleton";
 import Modal from "../../components/modal";
 import SingleDetailCard from "./component/index";
 import InfiniteScroll from "react-infinite-scroll-component";
-import SearchBar from "../../components/searchBar";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import {
   addToFavouriteAction,
@@ -176,7 +175,6 @@ const Home = ({
             title="We have 50% discounts"
             backgroundImage={homeBannar}
           />
-          <SearchBar />
         </>
       )}
       <div className="px-4 md:p-8 lg:p-10 pt-5">

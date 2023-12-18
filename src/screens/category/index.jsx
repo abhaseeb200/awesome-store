@@ -11,6 +11,7 @@ import CardProductDetails from "../../components/cardProductDetails";
 import Modal from "../../components/modal";
 import FilterTab from "./component";
 import FilterTabSkeleton from "./component/skeleton";
+import SortingProducts from "../../components/sortingProducts";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import {
   addToFavouriteAction,
@@ -35,6 +36,7 @@ const Category = ({
   const [currentSizeTab, setCurrentSizeTab] = useState("");
   const [currentColorTab, setCurrentColorTab] = useState("");
   const [filterProducts, setFilterProducts] = useState([]);
+  const [filterProductsBackUP, setFilterProductsBackUP] = useState([]);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [loaderFetchAPI, setLoaderFetchAPI] = useState(true);
@@ -44,14 +46,19 @@ const Category = ({
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentColors, setCurrentColors] = useState([]);
   const [currentProducts, setCurrentProducts] = useState([]);
+  const [sortingProducts, setSortingProducts] = useState([]);
+  const [sortingValue, setSortingValue] = useState([]);
+  const [selectIndex, setSelectIndex] = useState(null);
   const [sizes] = useState(["small", "medium", "large"]);
-  const [colors] = useState([
-    "FloralWhite",
-    "LightSkyBlue",
-    "DodgerBlue",
-    "Tomato",
-    "LightGray",
-  ]);
+  // const [colors] = useState([
+  //   "FloralWhite",
+  //   "LightSkyBlue",
+  //   "DodgerBlue",
+  //   "Tomato",
+  //   "LightGray",
+  // ]);
+  let colors = ["white", "yellow", "pink", "Tomato", "gray"];
+
   const cancelButtonRef = useRef(null);
 
   const { title } = useParams();
@@ -92,6 +99,7 @@ const Category = ({
         let combinedData = { ...productsWithoutStore, ...temp };
         setProductsWithoutStore(combinedData);
         setCurrentProducts(updateData);
+        setFilterProducts(updateData);
         // dispatch(munallyDataAction(productData,updateData,title))
         setLoaderFetchAPI(false);
       } catch (error) {
@@ -101,6 +109,7 @@ const Category = ({
     } else {
       console.log(productsWithoutStore, "__________");
       setCurrentProducts(productsWithoutStore[title]);
+      setFilterProducts(productsWithoutStore[title]);
       setLoaderFetchAPI(false);
     }
   };
@@ -116,19 +125,34 @@ const Category = ({
   };
 
   const handleSizeTab = (size) => {
+    // setSelectIndex(0);
+    let filtered;
     if (size === currentSizeTab) {
       setCurrentSizeTab("");
-      setFilterProducts([]);
-      // console.log(filtered);
-    } else {
-      let filtered = currentProducts.filter(
-        (product) =>
-          Object.keys(product?.sizes).includes(size) ||
+      if (currentColorTab) {
+        filtered = currentProducts.filter((product) =>
           product?.colors.includes(currentColorTab)
-      );
+        );
+      } else {
+        filtered = currentProducts;
+      }
+    } else {
+      if (currentColorTab) {
+        filtered = filterProducts.filter(
+          (product) =>
+            Object.keys(product?.sizes).includes(size) &&
+            product?.colors.includes(currentColorTab)
+        );
+      } else {
+        filtered = currentProducts.filter((product) =>
+          Object.keys(product?.sizes).includes(size)
+        );
+      }
       setCurrentSizeTab(size);
-      setFilterProducts(filtered);
     }
+    console.log(filtered);
+    setFilterProducts(filtered);
+    setFilterProductsBackUP(filtered)
   };
 
   const hanldeCurrentColor = (color) => {
@@ -136,28 +160,34 @@ const Category = ({
   };
 
   const handleColorTab = (title) => {
+    let filtered;
     if (title === currentColorTab) {
       setCurrentColorTab("");
-      setFilterProducts([]);
+      if (currentSizeTab) {
+        filtered = currentProducts.filter((product) =>
+          Object.keys(product?.sizes).includes(currentSizeTab)
+        );
+      } else {
+        filtered = currentProducts;
+      }
     } else {
-      if (filterProducts.length > 0) {
-        let filtered = filterProducts.filter(
+      if (currentSizeTab) {
+        filtered = currentProducts.filter(
           (product) =>
             product?.colors.includes(title) &&
-            Object.keys(product?.sizes)?.includes(currentSizeTab)
+            Object.keys(product?.sizes).includes(currentSizeTab)
         );
-        console.log(filtered);
-        setFilterProducts(filtered);
       } else {
-        let filtered = currentProducts.filter(
-          (product) =>
-            product?.colors.includes(title) ||
-            Object.keys(product?.sizes)?.includes(currentSizeTab)
+        filtered = currentProducts.filter((product) =>
+          product?.colors.includes(title)
         );
-        setFilterProducts(filtered);
+        console.log("No Current Size");
       }
       setCurrentColorTab(title);
     }
+    console.log(filtered);
+    setFilterProducts(filtered);
+    setFilterProductsBackUP(filtered)
   };
 
   const handleFavourite = async (currentProductData) => {
@@ -258,9 +288,39 @@ const Category = ({
     }
   };
 
+  const handleSorting = (e) => {
+    let val = e.target.value;
+    // setSortingValue(val)
+    // let currentProducts = [...productsData];
+    let sortData;
+    console.log(val);
+    if (val === "lowToHighPrice") {
+      sortData = [...filterProducts].sort((a, b) => a.price - b.price);
+    } else if (val === "highToLowPrice") {
+      sortData = [...filterProducts].sort((a, b) => b.price - a.price);
+    } else if (val === "AToZ") {
+      sortData = [...filterProducts].sort((a, b) => {
+        let textA = a.title.toUpperCase();
+        let textB = b.title.toUpperCase();
+        return textA < textB ? -1 : textA > textB ? 1 : 0;
+      });
+    } else if (val === "ZToA") {
+      sortData = [...filterProducts].sort((a, b) => {
+        let textA = a.title.toUpperCase();
+        let textB = b.title.toUpperCase();
+        return textA < textB ? 1 : textA > textB ? -1 : 0;
+      });
+    } else {
+      sortData = [...filterProductsBackUP];
+    }
+    console.log(sortData, "SORTING,....");
+    setSortingProducts(sortData);
+  };
+
   useEffect(() => {
     setFilterProducts([]);
     setCurrentColorTab("");
+    setCurrentSizeTab("");
     categoryProductsFetch();
   }, [title]);
 
@@ -269,6 +329,11 @@ const Category = ({
     setCurrentPrice("");
     setCurrentSize("");
   }, [open]);
+
+  useEffect(() => {
+    setFilterProducts(sortingProducts);
+    handleSorting
+  }, [sortingProducts]);
 
   return (
     <>
@@ -327,6 +392,15 @@ const Category = ({
                 })
               )}
             </div>
+            {filterProducts.length > 1 && (
+              <>
+                <h2 className="sm:text-xl text-md font-semibold mt-10">
+                  Sorting
+                </h2>
+                <hr className="my-2" />
+                <SortingProducts handleSorting={handleSorting} />
+              </>
+            )}
           </div>
           <div className="w-full md:w-3/4 flex flex-wrap">
             {loaderFetchAPI ? (
@@ -352,20 +426,7 @@ const Category = ({
                 );
               })
             ) : (
-              currentProducts?.map((product, index) => {
-                return (
-                  <div key={index} className="w-full sm:w-1/2 md:w-1/3 px-3">
-                    <CardProduct
-                      productData={product}
-                      handleModal={handleModal}
-                      favourite={favourite}
-                      handleFavourite={handleFavourite}
-                      handleRemoveFavourite={handleRemoveFavourite}
-                      addToFavouriteLoader={addToFavouriteLoader}
-                    />
-                  </div>
-                );
-              })
+              <p className="justify-center flex w-full items-center">No results found</p>
             )}
           </div>
         </div>

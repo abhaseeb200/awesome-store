@@ -1,4 +1,5 @@
-let colors = ['FloralWhite', 'LightSkyBlue', 'DodgerBlue', 'Tomato', 'LightGray'];
+// let colors = ['FloralWhite', 'LightSkyBlue', 'DodgerBlue', 'Tomato', 'LightGray'];
+let colors = ['white', 'yellow', 'pink', 'Tomato', 'gray'];
 
 const generateRandomColors = () => {
   let maxLength = Math.floor(Math.random() * 5) + 1;

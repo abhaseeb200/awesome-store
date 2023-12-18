@@ -2,15 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import CartProduct from "../../components/cardProduct";
-import Select from "../../components/select";
 import Modal from "../../components/modal";
 import CardProductDetails from "../../components/cardProductDetails";
-import { addToFavouriteAction, removeFromFavouriteAction } from "../../redux/actions/favouriteAction";
+import SortingProducts from "../../components/sortingProducts";
+import {
+  addToFavouriteAction,
+  removeFromFavouriteAction,
+} from "../../redux/actions/favouriteAction";
 import { addToCartAction } from "../../redux/actions/cartAction";
-import { deleteFavourite, setFavourite } from "../../config/services/firebase/favourite";
+import {
+  deleteFavourite,
+  setFavourite,
+} from "../../config/services/firebase/favourite";
 import { setCart } from "../../config/services/firebase/cart";
 
-const Search = ({currentUserID}) => {
+const Search = ({ currentUserID }) => {
   const [sortingProducts, setSortingProducts] = useState([]);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
@@ -19,14 +25,14 @@ const Search = ({currentUserID}) => {
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
   const [open, setOpen] = useState(false);
-  
+
   const cancelButtonRef = useRef(null);
 
   const { searchProducts } = useSelector((state) => state.search);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
   const { cart } = useSelector((stata) => stata.addToCart);
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const handleCurrentSearch = () => {
     let currentURL = searchProducts.url;
@@ -191,7 +197,7 @@ const Search = ({currentUserID}) => {
 
   useEffect(() => {
     setSortingProducts(searchProducts.products);
-  }, []);
+  }, [searchProducts]);
 
   return (
     <div className="myPadding flex-1 min-h-[700px]">
@@ -199,16 +205,10 @@ const Search = ({currentUserID}) => {
         Search Results for {handleCurrentSearch()}
       </h2>
       {sortingProducts?.length > 1 && (
-        <div className="pb-5">
-          <Select onChange={handleSorting}>
-            <option value="0" select="select">
-              Relevance
-            </option>
-            <option value="lowToHighPrice">Price Low - High</option>
-            <option value="highToLowPrice">Price High - Low</option>
-            <option value="AToZ">A - Z</option>
-            <option value="ZToA">Z - A</option>
-          </Select>
+        <div className="pb-4 flex items-center justify-end">
+          <div className="md:w-1/3 w-full">
+            <SortingProducts handleSorting={handleSorting} />
+          </div>
         </div>
       )}
       <div className="flex flex-wrap -mx-4">

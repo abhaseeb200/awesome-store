@@ -2,11 +2,15 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { TbLoader2 } from "react-icons/tb";
+import { HiOutlineSearch } from "react-icons/hi";
 import axios from "axios";
 import Button from "../button";
 import Input from "../input/index";
 import addToSearchAction from "../../redux/actions/searchAction";
-import { generateRandomColors, getRandomSizes } from "../../config/services/randomGenerators/randomGenerates";
+import {
+  generateRandomColors,
+  getRandomSizes,
+} from "../../config/services/randomGenerators/randomGenerates";
 
 const SearchBar = () => {
   const [search, setSearch] = useState("");
@@ -18,7 +22,6 @@ const SearchBar = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (search.trim() !== "") {
-      console.log(search, "----");
       handleQueryFetch();
     }
   };
@@ -41,6 +44,7 @@ const SearchBar = () => {
       console.log(updateData);
       navigate("/search");
       dispatch(addToSearchAction(updateData, response.config.url));
+      setSearch("")
       setSearchLoader(false);
     } catch (error) {
       console.log(error);
@@ -49,11 +53,11 @@ const SearchBar = () => {
 
   return (
     <div
-      className="px-4 md:p-8 lg:px-10"
+      className="px-4 md:p-3 lg:px-10"
       style={{ paddingBottom: "0", paddingTop: "10px" }}
     >
       <form className="flex items-center">
-        <div className="relative w-2/3 mr-2">
+        <div className="relative w-5/6 mr-2">
           <Input
             type="text"
             placeholder="Search Products..."
@@ -62,22 +66,27 @@ const SearchBar = () => {
             style={{ marginTop: "0" }}
           />
         </div>
-        <div className="w-1/3">
-          {searchLoader ? (
-            <Button
-              className="inline-flex w-full items-center justify-center py-2.5 px-3 text-sm font-medium text-white border mt-0"
-              disabled
-            >
-              <TbLoader2 size="1.3rem" className="animate-spin" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              name="Search"
-              className="inline-flex w-full items-center justify-center py-2.5 px-3 text-sm font-medium text-white border mt-0"
-            />
-          )}
-        </div>
+        {
+          <div className="w-1/6">
+            {searchLoader ? (
+              <Button
+                className="inline-flex w-full items-center justify-center py-2.5 px-3 text-sm font-medium text-white border mt-0"
+                disabled
+                style={{ marginTop: "0" }}
+              >
+                <TbLoader2 size="1.2rem" className="animate-spin" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSubmit}
+                className="inline-flex w-full items-center justify-center py-2.5 px-2 text-sm font-medium text-white border"
+                style={{ marginTop: "0" }}
+              >
+                <HiOutlineSearch size="1.2rem" />
+              </Button>
+            )}
+          </div>
+        }
       </form>
     </div>
   );
