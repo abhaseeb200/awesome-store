@@ -9,6 +9,7 @@ const Modal = ({
   customMaxWidth,
   setIsLogin,
   children,
+  isCloseIcon
 }) => {
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -44,7 +45,7 @@ const Modal = ({
               <Dialog.Panel
                 className={`relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 max-w-3xl w-full ${customMaxWidth}`}
               >
-                <span
+                {!isCloseIcon && <span
                   onClick={() => {
                     setOpen(false);
                     setTimeout(() => {
@@ -57,7 +58,7 @@ const Modal = ({
                     className="absolute top-5 right-5 cursor-pointer"
                     size="1.5rem"
                   />
-                </span>
+                </span>}
                 <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                   {children}
                 </div>

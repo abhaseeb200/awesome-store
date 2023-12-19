@@ -1,10 +1,11 @@
 import { ADDTOSEARCH } from "../types/searchType";
 
-const addToSearchAction = (products, url) => {
+const addToSearchAction = (products, url, currentSearch) => {
     return {
         type: ADDTOSEARCH,
         products: products,
-        currentURL: url
+        currentURL: url,
+        currentSearch: currentSearch,
     };
 };
 

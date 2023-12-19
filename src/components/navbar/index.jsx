@@ -1,22 +1,26 @@
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { Disclosure, Transition } from "@headlessui/react";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import axios from "axios";
+import { CiCircleMore, CiSettings } from "react-icons/ci";
+import { FiMoreHorizontal } from "react-icons/fi";
 import { RiShoppingBag3Line } from "react-icons/ri";
-import { IoClose, IoMenu } from "react-icons/io5";
-import { FaRegUser } from "react-icons/fa";
+import { CgMoreO } from "react-icons/cg";
+import { IoClose, IoMenu, IoSearch } from "react-icons/io5";
+import { LuHeart } from "react-icons/lu";
+import { FaRegHeart, FaRegUser } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
 import { IoMdHeartEmpty } from "react-icons/io";
 import Modal from "../modal";
+import SearchBar from "../searchBar";
 import Login from "../../screens/login";
 import Register from "../../screens/register";
 import { emptyCarttAction } from "../../redux/actions/cartAction";
 import { emptyFavouriteAction } from "../../redux/actions/favouriteAction";
 import { authLogout } from "../../config/services/firebase/auth";
 import "./style.css";
-import SearchBar from "../searchBar";
 
 const Navbar = ({
   isUser,
@@ -28,6 +32,7 @@ const Navbar = ({
   const [isLogin, setIsLogin] = useState(true);
   const [navigation, setNavigation] = useState([]);
   const [showSideNav, setShowSideNav] = useState(false);
+  const [searchBarModal, setSearchBarModal] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -72,14 +77,41 @@ const Navbar = ({
     }
   };
 
+  const handleSearchBarModal = () => {
+    setSearchBarModal(true);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.ctrlKey && e.key === "y") {
+      setSearchBarModal(true);
+    }
+  };
+
   useEffect(() => {
     handleNavigation();
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
   }, []);
 
   return (
     <>
       <Transition.Root show={showSideNav}>
-        <BackgroundLayer />
+        <Transition.Child
+          enter="transition-opacity ease-in-out duration-500"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="transition-opacity ease-in-out duration-500"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+          className="relative z-10 w-full h-full block cursor-pointer"
+        >
+          <div className="fixed inset-0 bg-gray-500 opacity-75" />
+        </Transition.Child>
         <SlideOverLayer handleShowSideNav={handleShowSideNav}>
           <div className="space-y-1 px-2 pb-3 pt-2 flex flex-col mysidenav">
             <h2 className="text-foreground text-2xl font-semibold pb-4">
@@ -104,7 +136,6 @@ const Navbar = ({
           </span>
         </SlideOverLayer>
       </Transition.Root>
-      <SearchBar/>
       <Disclosure as="nav" className="bg-white/70 hover:bg-white border-b">
         {({ open }) => (
           <>
@@ -141,40 +172,67 @@ const Navbar = ({
                   </div>
                 </div>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 lg:static lg:inset-auto lg:ml-6 lg:pr-0">
-                  <Link
-                    to="/favourite"
-                    className="sm:mr-2.5 mr-1 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition sm:px-4 sm:py-2 px-2 py-1.5 flex items-center justify-center"
-                  >
-                    <span className="cursor-pointer">
-                      <IoMdHeartEmpty size="1.25rem" />
-                    </span>
-                    <span className="ml-2 text-sm text-white">
-                      {favourite.length}
-                    </span>
-                  </Link>
-                  <Link
-                    to="/cart"
-                    className="sm:mr-2.5 mr-1 w-auto disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition sm:px-4 sm:py-2 px-2 py-1.5 flex items-center justify-center"
-                  >
-                    <span className="">
-                      <RiShoppingBag3Line size="1.25rem" />
-                    </span>
-                    <span className="ml-2 text-sm text-white">
-                      {cart.length}
-                    </span>
-                  </Link>
-                  <span className="cursor-pointer w-auto flex items-center justify-center disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition">
+                  <div className="relative">
+                    <Menu>
+                      <Menu.Button
+                        style={{ width: "45px", height: "35px" }}
+                        className="bg-black text-white rounded-full cursor-pointer w-auto flex items-center justify-center disabled:bg-neutral-500 border-transparent hover:opacity-75 disabled:opacity-50 transition"
+                      >
+                        <FiMoreHorizontal size="1.4rem" />
+                      </Menu.Button>
+                      <Menu.Items className="z-30 absolute mt-2 w-56 right-0 origin-top-right divide-y divide-gray-100 overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none transform opacity-100 scale-100">
+                        <Menu.Item>
+                          <Link
+                            className={`text-gray-900 group flex w-full items-center px-2.5 py-2 text-sm block hover:bg-gray-200`}
+                            to="/favourite"
+                          >
+                            <span>
+                              <LuHeart size="1rem" />
+                            </span>
+                            <span className="ml-1">
+                              Favourite {`(${favourite.length})`}
+                            </span>
+                          </Link>
+                        </Menu.Item>
+                        <Menu.Item>
+                          <Link
+                            className={`text-gray-900 group flex w-full items-center px-2.5 py-2 text-sm block hover:bg-gray-200`}
+                            to="/cart"
+                          >
+                            <span>
+                              <RiShoppingBag3Line size="1rem" />
+                            </span>
+                            <span className="ml-1">
+                              Cart {`(${cart.length})`}
+                            </span>
+                          </Link>
+                        </Menu.Item>
+                        <Menu.Item>
+                          <span
+                            className="cursor-pointer text-gray-900 group flex w-full items-center px-2.5 py-2 text-sm block hover:bg-gray-200"
+                            onClick={handleSearchBarModal}
+                          >
+                            <IoSearch size="1rem" />
+                            <span className="ml-1">Search (Ctrl + Y)</span>
+                          </span>
+                        </Menu.Item>
+                      </Menu.Items>
+                    </Menu>
+                  </div>
+                  <span className="ml-2 cursor-pointer w-auto flex disabled:bg-neutral-500 rounded-full bg-black text-white border-transparent font-semibold hover:opacity-75 disabled:opacity-50 transition">
                     {isUser ? (
                       <span
-                        className="sm:px-4 sm:py-2.5 px-3 py-2"
                         onClick={handleLogout}
+                        className="flex justify-center items-center"
+                        style={{ width: "45px", height: "35px" }}
                       >
                         <MdLogout />
                       </span>
                     ) : (
                       <span
                         onClick={handleModal}
-                        className="sm:px-4 sm:py-2.5 px-3 py-2"
+                        className="flex justify-center items-center"
+                        style={{ width: "45px", height: "35px" }}
                       >
                         <FaRegUser />
                       </span>
@@ -200,25 +258,20 @@ const Navbar = ({
           <Register setIsLogin={setIsLogin} setOpenModal={setOpenModal} />
         )}
       </Modal>
+
+      <Modal
+        open={searchBarModal}
+        setOpen={setSearchBarModal}
+        customMaxWidth="searchFullScreen"
+        isCloseIcon={true}
+      >
+        <SearchBar setSearchBarModal={setSearchBarModal} />
+      </Modal>
     </>
   );
 };
 
 export default Navbar;
-
-const BackgroundLayer = () => (
-  <Transition.Child
-    enter="transition-opacity ease-in-out duration-500"
-    enterFrom="opacity-0"
-    enterTo="opacity-100"
-    leave="transition-opacity ease-in-out duration-500"
-    leaveFrom="opacity-100"
-    leaveTo="opacity-0"
-    className="relative z-10 w-full h-full block cursor-pointer"
-  >
-    <div className="fixed inset-0 bg-gray-500 opacity-75" />
-  </Transition.Child>
-);
 
 const SlideOverLayer = ({ handleShowSideNav, children }) => (
   <Transition.Child

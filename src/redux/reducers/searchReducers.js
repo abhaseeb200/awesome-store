@@ -7,7 +7,7 @@ const initialState = {
 const searchReducers = (state = initialState, action) => {
     switch (action.type) {
         case ADDTOSEARCH:
-            return { searchProducts: { products: action.products, url: action.currentURL } }
+            return { searchProducts: { products: action.products, url: action.currentURL, currentSearche: [action.currentSearch, ...state.searchProducts.currentSearch ] } }
         default:
             return state
     }

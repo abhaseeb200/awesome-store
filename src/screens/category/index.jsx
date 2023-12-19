@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -65,9 +65,18 @@ const Category = ({
 
   const dispatch = useDispatch();
 
+  const location = useLocation();
+
   const { productData } = useSelector((state) => state?.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
+
+  const currentParams = new URLSearchParams(location.search);
+  const sizeParams = new URLSearchParams(location.search).get("size");
+  const colorParams = new URLSearchParams(location.search).get("color");
+  const sortingParams = new URLSearchParams(location.search).get("sorting");
+
+  console.log("________", sizeParams, colorParams, sortingParams);
 
   const categoryProductsFetch = async () => {
     setLoaderFetchAPI(true);
@@ -125,10 +134,11 @@ const Category = ({
   };
 
   const handleSizeTab = (size) => {
-    // setSelectIndex(0);
+    // console.log(size,"SIZE<<<<<");
     let filtered;
     if (size === currentSizeTab) {
       setCurrentSizeTab("");
+      // currentParams.delete("size");
       if (currentColorTab) {
         filtered = currentProducts.filter((product) =>
           product?.colors.includes(currentColorTab)
@@ -149,10 +159,16 @@ const Category = ({
         );
       }
       setCurrentSizeTab(size);
+      // currentParams.set("size", size);
     }
     console.log(filtered);
     setFilterProducts(filtered);
     setFilterProductsBackUP(filtered)
+    history.replaceState(
+      {},
+      "",
+      `${location.pathname}?${currentParams.toString()}`
+    );
   };
 
   const hanldeCurrentColor = (color) => {
@@ -162,6 +178,7 @@ const Category = ({
   const handleColorTab = (title) => {
     let filtered;
     if (title === currentColorTab) {
+      // currentParams.delete("color");
       setCurrentColorTab("");
       if (currentSizeTab) {
         filtered = currentProducts.filter((product) =>
@@ -183,11 +200,17 @@ const Category = ({
         );
         console.log("No Current Size");
       }
+      // currentParams.set("color", title);
       setCurrentColorTab(title);
     }
     console.log(filtered);
     setFilterProducts(filtered);
     setFilterProductsBackUP(filtered)
+    history.replaceState(
+      {},
+      "",
+      `${location.pathname}?${currentParams.toString()}`
+    );
   };
 
   const handleFavourite = async (currentProductData) => {
@@ -317,6 +340,27 @@ const Category = ({
     setSortingProducts(sortData);
   };
 
+  const handleParams = (color,size) => {
+    console.log("++++++++++++++++++++++++++++++++++"); 
+    if (size) {
+      currentParams.set("size", size);
+    } else {
+      currentParams.delete("size");
+    }
+
+    if (color) {
+      currentParams.set("color", color);
+    } else {
+      currentParams.delete("color");
+    }
+
+    history.replaceState(
+      {},
+      "",
+      `${location.pathname}?${currentParams.toString()}`
+    );
+  };
+
   useEffect(() => {
     setFilterProducts([]);
     setCurrentColorTab("");
@@ -332,8 +376,18 @@ const Category = ({
 
   useEffect(() => {
     setFilterProducts(sortingProducts);
-    handleSorting
   }, [sortingProducts]);
+
+  useEffect(() => {
+    handleParams(currentColorTab,currentSizeTab);
+  }, [currentColorTab, currentSizeTab]);
+
+  useEffect(() => {
+    console.log("-------------------________________-");
+    handleParams(colorParams,sizeParams);
+    // handleColorTab(colorParams)
+    // handleSizeTab(sizeParams)
+  }, [productData]);
 
   return (
     <>
@@ -426,7 +480,9 @@ const Category = ({
                 );
               })
             ) : (
-              <p className="justify-center flex w-full items-center">No results found</p>
+              <p className="justify-center flex w-full items-center">
+                No results found
+              </p>
             )}
           </div>
         </div>

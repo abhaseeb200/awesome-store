@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { TbLoader2 } from "react-icons/tb";
 import { HiOutlineSearch } from "react-icons/hi";
@@ -12,10 +12,11 @@ import {
   getRandomSizes,
 } from "../../config/services/randomGenerators/randomGenerates";
 
-const SearchBar = () => {
+const SearchBar = ({ setSearchBarModal }) => {
   const [search, setSearch] = useState("");
   const [searchLoader, setSearchLoader] = useState(false);
 
+  const { searchProducts } = useSelector((state) => state.search);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -25,6 +26,8 @@ const SearchBar = () => {
       handleQueryFetch();
     }
   };
+
+  console.log(searchProducts, "_________________--");
 
   const handleQueryFetch = async () => {
     setSearchLoader(true);
@@ -43,19 +46,21 @@ const SearchBar = () => {
       });
       console.log(updateData);
       navigate("/search");
-      dispatch(addToSearchAction(updateData, response.config.url));
-      setSearch("")
+      dispatch(
+        addToSearchAction(updateData, response.config.url, search.trim())
+      );
+      setSearch("");
+      setSearchBarModal(false);
       setSearchLoader(false);
     } catch (error) {
       console.log(error);
+      setSearchLoader(false);
+      setSearchBarModal(false);
     }
   };
 
   return (
-    <div
-      className="px-4 md:p-3 lg:px-10"
-      style={{ paddingBottom: "0", paddingTop: "10px" }}
-    >
+    <div className="">
       <form className="flex items-center">
         <div className="relative w-5/6 mr-2">
           <Input
@@ -65,29 +70,59 @@ const SearchBar = () => {
             onChange={(e) => setSearch(e.target.value)}
             style={{ marginTop: "0" }}
           />
-        </div>
-        {
-          <div className="w-1/6">
+          <div className="absolute top-3 right-3">
             {searchLoader ? (
-              <Button
-                className="inline-flex w-full items-center justify-center py-2.5 px-3 text-sm font-medium text-white border mt-0"
-                disabled
-                style={{ marginTop: "0" }}
-              >
+              <span>
                 <TbLoader2 size="1.2rem" className="animate-spin" />
-              </Button>
+              </span>
             ) : (
-              <Button
-                onClick={handleSubmit}
-                className="inline-flex w-full items-center justify-center py-2.5 px-2 text-sm font-medium text-white border"
-                style={{ marginTop: "0" }}
-              >
+              <button onClick={handleSubmit} className="cursor-pointer">
                 <HiOutlineSearch size="1.2rem" />
-              </Button>
+              </button>
             )}
           </div>
-        }
+        </div>
+        <div className="w-1/6 relative">
+          <Button
+            style={{ marginTop: "0", padding: "10px 0" }}
+            className="w-full justify-center"
+            onClick={(e) => {
+              e.preventDefault();
+              setSearchBarModal(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
       </form>
+
+      <div className="mt-5">
+        <h2 className="font-medium text-xl">Recent Searched</h2>
+        <div className="mt-2">
+          {/* {searchProducts?.RecentSearched?.map((item) => {
+            return (
+              <div className="flex items-center gap-2">
+                <span>
+                  <HiOutlineSearch />
+                </span>
+                <span>{item}</span>
+              </div>
+            );
+          })} */}
+          <div className="flex items-center gap-2">
+            <span>
+              <HiOutlineSearch />
+            </span>
+            <span>Laptop</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span>
+              <HiOutlineSearch />
+            </span>
+            <span>Mobiles</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
