@@ -6,11 +6,15 @@ import { HiOutlineSearch } from "react-icons/hi";
 import axios from "axios";
 import Button from "../button";
 import Input from "../input/index";
-import addToSearchAction from "../../redux/actions/searchAction";
+import {
+  addToSearchAction,
+  removeToSearchAction,
+} from "../../redux/actions/searchAction";
 import {
   generateRandomColors,
   getRandomSizes,
 } from "../../config/services/randomGenerators/randomGenerates";
+import { IoClose } from "react-icons/io5";
 
 const SearchBar = ({ setSearchBarModal }) => {
   const [search, setSearch] = useState("");
@@ -23,17 +27,17 @@ const SearchBar = ({ setSearchBarModal }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (search.trim() !== "") {
-      handleQueryFetch();
+      handleQueryFetch(search);
     }
   };
 
-  console.log(searchProducts, "_________________--");
-
-  const handleQueryFetch = async () => {
+  const handleQueryFetch = async (currentSearch) => {
     setSearchLoader(true);
     try {
       let response = await axios.get(
-        `https://dummyjson.com/products/search?q=${search.trim()}`
+        `https://dummyjson.com/products/search?q=${currentSearch
+          .trim()
+          .toLowerCase()}`
       );
       let products = response.data.products;
       let updateData = products.map((item) => {
@@ -44,14 +48,19 @@ const SearchBar = ({ setSearchBarModal }) => {
           colors: generateRandomColors(),
         };
       });
-      console.log(updateData);
       navigate("/search");
-      dispatch(
-        addToSearchAction(updateData, response.config.url, search.trim())
-      );
       setSearch("");
       setSearchBarModal(false);
       setSearchLoader(false);
+      setTimeout(() => {
+        dispatch(
+          addToSearchAction(
+            updateData,
+            response.config.url,
+            currentSearch.trim().toLowerCase()
+          )
+        );
+      }, 500);
     } catch (error) {
       console.log(error);
       setSearchLoader(false);
@@ -59,10 +68,19 @@ const SearchBar = ({ setSearchBarModal }) => {
     }
   };
 
+  const handleRemoveSearch = (currentSearch) => {
+    dispatch(removeToSearchAction(currentSearch));
+  };
+
+  const handleRecentSearched = (currentSearch) => {
+    setSearch(currentSearch);
+    handleQueryFetch(currentSearch)
+  };
+
   return (
     <div className="">
       <form className="flex items-center">
-        <div className="relative w-5/6 mr-2">
+        <div className="relative w-3/4 sm:w-5/6 mr-2">
           <Input
             type="text"
             placeholder="Search Products..."
@@ -82,7 +100,7 @@ const SearchBar = ({ setSearchBarModal }) => {
             )}
           </div>
         </div>
-        <div className="w-1/6 relative">
+        <div className="relative w-1/4 sm:w-1/6">
           <Button
             style={{ marginTop: "0", padding: "10px 0" }}
             className="w-full justify-center"
@@ -96,31 +114,33 @@ const SearchBar = ({ setSearchBarModal }) => {
         </div>
       </form>
 
-      <div className="mt-5">
+      <div className="mt-7">
         <h2 className="font-medium text-xl">Recent Searched</h2>
-        <div className="mt-2">
-          {/* {searchProducts?.RecentSearched?.map((item) => {
+        <div className="mt-4">
+          {searchProducts.recentSearched.map((item, index) => {
             return (
-              <div className="flex items-center gap-2">
-                <span>
-                  <HiOutlineSearch />
-                </span>
-                <span>{item}</span>
+              <div
+                className="flex items-center justify-between py-1 px-2 hover:bg-gray-300"
+                key={index}
+              >
+                <div
+                  className="flex gap-3 items-center w-full cursor-pointer"
+                  onClick={() => handleRecentSearched(item)}
+                >
+                  <span>
+                    <HiOutlineSearch size="1.1rem" />
+                  </span>
+                  <span className="capitalize">{item}</span>
+                </div>
+                <div className="cursor-pointer hover:bg-black hover:text-white p-0.5">
+                  <IoClose
+                    size="1.1rem"
+                    onClick={() => handleRemoveSearch(item)}
+                  />
+                </div>
               </div>
             );
-          })} */}
-          <div className="flex items-center gap-2">
-            <span>
-              <HiOutlineSearch />
-            </span>
-            <span>Laptop</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>
-              <HiOutlineSearch />
-            </span>
-            <span>Mobiles</span>
-          </div>
+          })}
         </div>
       </div>
     </div>

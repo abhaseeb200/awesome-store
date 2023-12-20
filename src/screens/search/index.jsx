@@ -5,6 +5,7 @@ import CartProduct from "../../components/cardProduct";
 import Modal from "../../components/modal";
 import CardProductDetails from "../../components/cardProductDetails";
 import SortingProducts from "../../components/sortingProducts";
+import CartProductSkeleton from "../../components/cardProduct/skeleton";
 import {
   addToFavouriteAction,
   removeFromFavouriteAction,
@@ -18,12 +19,14 @@ import { setCart } from "../../config/services/firebase/cart";
 
 const Search = ({ currentUserID }) => {
   const [sortingProducts, setSortingProducts] = useState([]);
+  const [fetchLoader, setFetchLoader] = useState(false);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
+  const [sortingValue, setSortingValue] = useState("");
   const [open, setOpen] = useState(false);
 
   const cancelButtonRef = useRef(null);
@@ -42,6 +45,7 @@ const Search = ({ currentUserID }) => {
 
   const handleSorting = (e) => {
     let val = e.target.value;
+    setSortingValue(val);
     let currentProducts = searchProducts.products;
     let sortData;
     console.log(val);
@@ -50,21 +54,12 @@ const Search = ({ currentUserID }) => {
     } else if (val === "highToLowPrice") {
       sortData = [...currentProducts].sort((a, b) => b.price - a.price);
     } else if (val === "AToZ") {
-      sortData = [...currentProducts].sort((a, b) => {
-        let textA = a.title.toUpperCase();
-        let textB = b.title.toUpperCase();
-        return textA < textB ? -1 : textA > textB ? 1 : 0;
-      });
+      sortData = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
     } else if (val === "ZToA") {
-      sortData = [...currentProducts].sort((a, b) => {
-        let textA = a.title.toUpperCase();
-        let textB = b.title.toUpperCase();
-        return textA < textB ? 1 : textA > textB ? -1 : 0;
-      });
+      sortData = [...filtered].sort((a, b) => b.title.localeCompare(a.title));
     } else {
       sortData = currentProducts;
     }
-    console.log(sortData, "SORTING,....");
     setSortingProducts(sortData);
   };
 
@@ -197,38 +192,58 @@ const Search = ({ currentUserID }) => {
 
   useEffect(() => {
     setSortingProducts(searchProducts.products);
+    setSortingValue("");
   }, [searchProducts]);
 
   return (
-    <div className="myPadding flex-1 min-h-[700px]">
-      <h2 className="font-medium text-3xl py-10">
-        Search Results for {handleCurrentSearch()}
-      </h2>
-      {sortingProducts?.length > 1 && (
-        <div className="pb-4 flex items-center justify-end">
-          <div className="md:w-1/3 w-full">
-            <SortingProducts handleSorting={handleSorting} />
-          </div>
-        </div>
-      )}
-      <div className="flex flex-wrap -mx-4">
-        {sortingProducts?.length > 0 ? (
-          sortingProducts?.map((product, index) => {
-            return (
-              <div className="w-full sm:w-1/2 md:w-1/4 px-4" key={index}>
-                <CartProduct
-                  productData={product}
-                  favourite={favourite}
-                  addToFavouriteLoader={addToFavouriteLoader}
-                  handleModal={handleModal}
-                  handleFavourite={handleFavourite}
-                  handleRemoveFavourite={handleRemoveFavourite}
-                />
-              </div>
-            );
-          })
+    <>
+      <div className="myPadding flex-1 min-h-[700px]">
+        {fetchLoader ? (
+          <>
+            <div className="animate-pulse bg-gray-300 p-5 mt-9"></div>
+            <div className="flex flex-wrap -mx-4 mt-2">
+              <CartProductSkeleton />
+              <CartProductSkeleton />
+              <CartProductSkeleton />
+              <CartProductSkeleton />
+            </div>
+          </>
         ) : (
-          <p className="mx-4">No search items is found</p>
+          <>
+            <h2 className="font-medium text-3xl py-10">
+              Search Results for {handleCurrentSearch()}
+            </h2>
+            {sortingProducts?.length > 1 && (
+              <div className="pb-4 flex items-center justify-end">
+                <div className="md:w-1/3 w-full">
+                  <SortingProducts
+                    handleSorting={handleSorting}
+                    sortingValue={sortingValue}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="flex flex-wrap -mx-4">
+              {sortingProducts?.length > 0 ? (
+                sortingProducts?.map((product, index) => {
+                  return (
+                    <div className="w-full sm:w-1/2 md:w-1/4 px-4" key={index}>
+                      <CartProduct
+                        productData={product}
+                        favourite={favourite}
+                        addToFavouriteLoader={addToFavouriteLoader}
+                        handleModal={handleModal}
+                        handleFavourite={handleFavourite}
+                        handleRemoveFavourite={handleRemoveFavourite}
+                      />
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="mx-4">No search items is found</p>
+              )}
+            </div>
+          </>
         )}
       </div>
 
@@ -245,7 +260,7 @@ const Search = ({ currentUserID }) => {
           addToCartLoader={addToCartLoader}
         />
       </Modal>
-    </div>
+    </>
   );
 };
 

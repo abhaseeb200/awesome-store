@@ -36,7 +36,7 @@ const Category = ({
   const [currentSizeTab, setCurrentSizeTab] = useState("");
   const [currentColorTab, setCurrentColorTab] = useState("");
   const [filterProducts, setFilterProducts] = useState([]);
-  const [filterProductsBackUP, setFilterProductsBackUP] = useState([]);
+  // const [filterProductsBackUP, setFilterProductsBackUP] = useState([]);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [loaderFetchAPI, setLoaderFetchAPI] = useState(true);
@@ -44,20 +44,20 @@ const Category = ({
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
   const [currentProductData, setCurrentProductData] = useState({});
-  const [currentColors, setCurrentColors] = useState([]);
+  // const [currentColors, setCurrentColors] = useState([]);
   const [currentProducts, setCurrentProducts] = useState([]);
-  const [sortingProducts, setSortingProducts] = useState([]);
-  const [sortingValue, setSortingValue] = useState([]);
-  const [selectIndex, setSelectIndex] = useState(null);
+  // const [sortingProducts, setSortingProducts] = useState([]);
+  const [sortingValue, setSortingValue] = useState("");
+  // const [selectIndex, setSelectIndex] = useState(null);
   const [sizes] = useState(["small", "medium", "large"]);
-  // const [colors] = useState([
-  //   "FloralWhite",
-  //   "LightSkyBlue",
-  //   "DodgerBlue",
-  //   "Tomato",
-  //   "LightGray",
-  // ]);
-  let colors = ["white", "yellow", "pink", "Tomato", "gray"];
+  const colors = useState([
+    "FloralWhite",
+    "LightSkyBlue",
+    "DodgerBlue",
+    "Tomato",
+    "LightGray",
+  ]);
+  // let colors = ["white", "yellow", "pink", "Tomato", "gray"];
 
   const cancelButtonRef = useRef(null);
 
@@ -75,8 +75,6 @@ const Category = ({
   const sizeParams = new URLSearchParams(location.search).get("size");
   const colorParams = new URLSearchParams(location.search).get("color");
   const sortingParams = new URLSearchParams(location.search).get("sorting");
-
-  console.log("________", sizeParams, colorParams, sortingParams);
 
   const categoryProductsFetch = async () => {
     setLoaderFetchAPI(true);
@@ -107,8 +105,9 @@ const Category = ({
         };
         let combinedData = { ...productsWithoutStore, ...temp };
         setProductsWithoutStore(combinedData);
-        setCurrentProducts(updateData);
         setFilterProducts(updateData);
+        // setFilterProductsBackUP(updateData);
+        setCurrentProducts(updateData);
         // dispatch(munallyDataAction(productData,updateData,title))
         setLoaderFetchAPI(false);
       } catch (error) {
@@ -116,9 +115,10 @@ const Category = ({
         setLoaderFetchAPI(false);
       }
     } else {
-      console.log(productsWithoutStore, "__________");
+      console.log(productsWithoutStore, "__________ productsWithoutStore");
       setCurrentProducts(productsWithoutStore[title]);
       setFilterProducts(productsWithoutStore[title]);
+      // setFilterProductsBackUP(productsWithoutStore[title]);
       setLoaderFetchAPI(false);
     }
   };
@@ -134,41 +134,11 @@ const Category = ({
   };
 
   const handleSizeTab = (size) => {
-    // console.log(size,"SIZE<<<<<");
-    let filtered;
     if (size === currentSizeTab) {
       setCurrentSizeTab("");
-      // currentParams.delete("size");
-      if (currentColorTab) {
-        filtered = currentProducts.filter((product) =>
-          product?.colors.includes(currentColorTab)
-        );
-      } else {
-        filtered = currentProducts;
-      }
     } else {
-      if (currentColorTab) {
-        filtered = filterProducts.filter(
-          (product) =>
-            Object.keys(product?.sizes).includes(size) &&
-            product?.colors.includes(currentColorTab)
-        );
-      } else {
-        filtered = currentProducts.filter((product) =>
-          Object.keys(product?.sizes).includes(size)
-        );
-      }
       setCurrentSizeTab(size);
-      // currentParams.set("size", size);
     }
-    console.log(filtered);
-    setFilterProducts(filtered);
-    setFilterProductsBackUP(filtered)
-    history.replaceState(
-      {},
-      "",
-      `${location.pathname}?${currentParams.toString()}`
-    );
   };
 
   const hanldeCurrentColor = (color) => {
@@ -176,41 +146,11 @@ const Category = ({
   };
 
   const handleColorTab = (title) => {
-    let filtered;
     if (title === currentColorTab) {
-      // currentParams.delete("color");
       setCurrentColorTab("");
-      if (currentSizeTab) {
-        filtered = currentProducts.filter((product) =>
-          Object.keys(product?.sizes).includes(currentSizeTab)
-        );
-      } else {
-        filtered = currentProducts;
-      }
     } else {
-      if (currentSizeTab) {
-        filtered = currentProducts.filter(
-          (product) =>
-            product?.colors.includes(title) &&
-            Object.keys(product?.sizes).includes(currentSizeTab)
-        );
-      } else {
-        filtered = currentProducts.filter((product) =>
-          product?.colors.includes(title)
-        );
-        console.log("No Current Size");
-      }
-      // currentParams.set("color", title);
       setCurrentColorTab(title);
     }
-    console.log(filtered);
-    setFilterProducts(filtered);
-    setFilterProductsBackUP(filtered)
-    history.replaceState(
-      {},
-      "",
-      `${location.pathname}?${currentParams.toString()}`
-    );
   };
 
   const handleFavourite = async (currentProductData) => {
@@ -313,35 +253,10 @@ const Category = ({
 
   const handleSorting = (e) => {
     let val = e.target.value;
-    // setSortingValue(val)
-    // let currentProducts = [...productsData];
-    let sortData;
-    console.log(val);
-    if (val === "lowToHighPrice") {
-      sortData = [...filterProducts].sort((a, b) => a.price - b.price);
-    } else if (val === "highToLowPrice") {
-      sortData = [...filterProducts].sort((a, b) => b.price - a.price);
-    } else if (val === "AToZ") {
-      sortData = [...filterProducts].sort((a, b) => {
-        let textA = a.title.toUpperCase();
-        let textB = b.title.toUpperCase();
-        return textA < textB ? -1 : textA > textB ? 1 : 0;
-      });
-    } else if (val === "ZToA") {
-      sortData = [...filterProducts].sort((a, b) => {
-        let textA = a.title.toUpperCase();
-        let textB = b.title.toUpperCase();
-        return textA < textB ? 1 : textA > textB ? -1 : 0;
-      });
-    } else {
-      sortData = [...filterProductsBackUP];
-    }
-    console.log(sortData, "SORTING,....");
-    setSortingProducts(sortData);
+    setSortingValue(val);
   };
 
-  const handleParams = (color,size) => {
-    console.log("++++++++++++++++++++++++++++++++++"); 
+  const handleParams = (color, size, sorting) => {
     if (size) {
       currentParams.set("size", size);
     } else {
@@ -354,11 +269,44 @@ const Category = ({
       currentParams.delete("color");
     }
 
-    history.replaceState(
-      {},
-      "",
-      `${location.pathname}?${currentParams.toString()}`
-    );
+    if (sorting && sorting !== "0") {
+      currentParams.set("sorting", sorting);
+    } else {
+      currentParams.delete("sorting");
+    }
+
+    const newURL = currentParams.toString()
+      ? `${location.pathname}?${currentParams.toString()}`
+      : location.pathname;
+
+    history.replaceState({}, "", newURL);
+
+    //applying filteres
+    const filtered = currentProducts.filter((product) => {
+      if (color && !product.colors.includes(color)) {
+        return false;
+      }
+      if (size && !Object.keys(product.sizes).includes(size)) {
+        return false;
+      }
+      // Product passes all filters
+      return true;
+    });
+
+    // Apply sorting based on the selected sorting option
+    let sortedData;
+    if (sorting === "lowToHighPrice") {
+      sortedData = [...filtered].sort((a, b) => a.price - b.price);
+    } else if (sorting === "highToLowPrice") {
+      sortedData = [...filtered].sort((a, b) => b.price - a.price);
+    } else if (sorting === "AToZ") {
+      sortedData = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sorting === "ZToA") {
+      sortedData = [...filtered].sort((a, b) => b.title.localeCompare(a.title));
+    } else {
+      sortedData = [...filtered];
+    }
+    setFilterProducts(sortedData);
   };
 
   useEffect(() => {
@@ -375,19 +323,15 @@ const Category = ({
   }, [open]);
 
   useEffect(() => {
-    setFilterProducts(sortingProducts);
-  }, [sortingProducts]);
+    handleParams(colorParams, sizeParams, sortingParams);
+    setCurrentColorTab(colorParams);
+    setCurrentSizeTab(sizeParams);
+    setSortingValue(sortingParams);
+  }, [currentProducts]);
 
   useEffect(() => {
-    handleParams(currentColorTab,currentSizeTab);
-  }, [currentColorTab, currentSizeTab]);
-
-  useEffect(() => {
-    console.log("-------------------________________-");
-    handleParams(colorParams,sizeParams);
-    // handleColorTab(colorParams)
-    // handleSizeTab(sizeParams)
-  }, [productData]);
+    handleParams(currentColorTab, currentSizeTab, sortingValue);
+  }, [currentColorTab, currentSizeTab, sortingValue]);
 
   return (
     <>
@@ -446,15 +390,12 @@ const Category = ({
                 })
               )}
             </div>
-            {filterProducts.length > 1 && (
-              <>
-                <h2 className="sm:text-xl text-md font-semibold mt-10">
-                  Sorting
-                </h2>
-                <hr className="my-2" />
-                <SortingProducts handleSorting={handleSorting} />
-              </>
-            )}
+            <h2 className="sm:text-xl text-md font-semibold mt-10">Sorting</h2>
+            <hr className="my-2" />
+            <SortingProducts
+              handleSorting={handleSorting}
+              sortingValue={sortingValue}
+            />
           </div>
           <div className="w-full md:w-3/4 flex flex-wrap">
             {loaderFetchAPI ? (

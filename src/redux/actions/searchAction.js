@@ -1,4 +1,4 @@
-import { ADDTOSEARCH } from "../types/searchType";
+import { ADDTOSEARCH, REMOVETOSEARCH } from "../types/searchType";
 
 const addToSearchAction = (products, url, currentSearch) => {
     return {
@@ -9,4 +9,11 @@ const addToSearchAction = (products, url, currentSearch) => {
     };
 };
 
-export default addToSearchAction
+const removeToSearchAction = (currentSearch) => {
+    return {
+        type: REMOVETOSEARCH,
+        currentSearch: currentSearch
+    };
+};
+
+export { addToSearchAction, removeToSearchAction }

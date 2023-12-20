@@ -1,9 +1,9 @@
 import Select from "../select";
 
-const SortingProducts = ({ handleSorting }) => {
+const SortingProducts = ({ handleSorting,sortingValue }) => {
   
   return (
-    <Select onChange={handleSorting}>
+    <Select onChange={handleSorting} value={sortingValue || ""}>
       <option value="0" select="select">
         Relevance
       </option>
