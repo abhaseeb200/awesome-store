@@ -46,7 +46,7 @@ const Category = ({
   const [currentProducts, setCurrentProducts] = useState([]);
   const [sortingValue, setSortingValue] = useState("");
   const [sizes] = useState(["small", "medium", "large"]);
-  const colors = useState([
+  const [colors] = useState([
     "FloralWhite",
     "LightSkyBlue",
     "DodgerBlue",
