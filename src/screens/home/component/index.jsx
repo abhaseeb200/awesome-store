@@ -22,7 +22,7 @@ const SingleDetailCard = ({
         to={`/product/${firstProduct?.id}`}
         className="absolute top-0 lef-0 w-full h-full z-20"
       ></Link>
-      <div className="z-20 flex items-center justify-center gap-x-8 md:gap-x-14 absolute w-full h-full sm:h-auto items-center sm:bottom-16 group-hover:-translate-y-2 sm:group-hover:-translate-y-8 duration-300 opacity-0 group-hover:opacity-100 transition pointer-events-none group-hover:pointer-events-auto">
+      <div className="absolute top-0 left-0 flex justify-center items-center w-full h-full gap-5 z-20 group-hover:-translate-y-1 sm:group-hover:-translate-y-4 duration-300 opacity-0 group-hover:opacity-100 transition pointer-events-none group-hover:pointer-events-auto">
         <span
           className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
           onClick={(e) => {

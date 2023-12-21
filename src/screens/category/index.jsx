@@ -12,6 +12,7 @@ import Modal from "../../components/modal";
 import FilterTab from "./component";
 import FilterTabSkeleton from "./component/skeleton";
 import SortingProducts from "../../components/sortingProducts";
+import SortingProductsSkeleton from "../../components/sortingProducts/skeleton";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import {
   addToFavouriteAction,
@@ -71,6 +72,7 @@ const Category = ({
   const sortingParams = new URLSearchParams(location.search).get("sorting");
 
   const categoryProductsFetch = async () => {
+    //Product Without Store purpose: no hit already api
     setLoaderFetchAPI(true);
     let isAlreadyCategory = Object.keys(productsWithoutStore).find(
       (category) => category === title
@@ -102,7 +104,6 @@ const Category = ({
         setLoaderFetchAPI(false);
       }
     } else {
-      console.log(productsWithoutStore, "__________ productsWithoutStore");
       setCurrentProducts(productsWithoutStore[title]);
       setFilterProducts(productsWithoutStore[title]);
       setLoaderFetchAPI(false);
@@ -379,10 +380,14 @@ const Category = ({
             </div>
             <h2 className="sm:text-xl text-md font-semibold mt-10">Sorting</h2>
             <hr className="my-2" />
-            <SortingProducts
-              handleSorting={handleSorting}
-              sortingValue={sortingValue}
-            />
+            {loaderFetchAPI ? (
+              <SortingProductsSkeleton />
+            ) : (
+              <SortingProducts
+                handleSorting={handleSorting}
+                sortingValue={sortingValue}
+              />
+            )}
           </div>
           <div className="w-full md:w-3/4 flex flex-wrap">
             {loaderFetchAPI ? (

@@ -45,8 +45,6 @@ const Home = ({
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
 
-  console.log(productData);
-
   const handleModal = (productData) => {
     setCurrentProductData(productData);
     setOpen(true);
@@ -286,11 +284,12 @@ const Home = ({
 
       <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
         <CardProductDetails
-          currentProductData={currentProductData}
           handleCurrentSizes={handleCurrentSizes}
           hanldeCurrentColor={hanldeCurrentColor}
           handleAddToCart={handleAddToCart}
           handleSetCart={handleSetCart}
+          currentProductData={currentProductData}
+          addToCartLoader={addToCartLoader}
           currentPrice={currentPrice}
           currentColor={currentColor}
         />

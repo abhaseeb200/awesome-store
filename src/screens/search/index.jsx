@@ -48,7 +48,6 @@ const Search = ({ currentUserID }) => {
     setSortingValue(val);
     let currentProducts = searchProducts.products;
     let sortData;
-    console.log(val);
     if (val === "lowToHighPrice") {
       sortData = [...currentProducts].sort((a, b) => a.price - b.price);
     } else if (val === "highToLowPrice") {

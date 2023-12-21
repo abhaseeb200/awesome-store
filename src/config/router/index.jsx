@@ -61,7 +61,6 @@ const Main = () => {
       });
       dispatch(dataAction(tempCategoryProduct));
       setLoaderFetchAPI(false);
-      // console.log(response.data.total,"-=======");
       setTotalProducts(response.data.total);
     } catch (error) {
       setLoaderFetchAPI(false);

@@ -19,7 +19,10 @@ import {
   deleteFavourite,
   setFavourite,
 } from "../../config/services/firebase/favourite";
-import { generateRandomColors, getRandomSizes } from "../../config/services/randomGenerators/randomGenerates";
+import {
+  generateRandomColors,
+  getRandomSizes,
+} from "../../config/services/randomGenerators/randomGenerates";
 
 const ProductDetail = ({
   currentUserID,
@@ -47,6 +50,7 @@ const ProductDetail = ({
   const { id } = useParams();
 
   const handleFetchProduct = async () => {
+    //Product Without Store purpose: no hit already api
     setLoaderFetchAPI(true);
     let foundProduct;
     Object.keys(productsWithoutStore).forEach((category) => {
@@ -72,7 +76,6 @@ const ProductDetail = ({
       //if product is not found in productsWithoutStore, then hit new api to get product.
       //then get their category for related products
       try {
-        console.log("NEW API. .................");
         let response = await axios.get(`https://dummyjson.com/products/${id}`);
         let dataProduct = response.data;
         let responseCategoryProduct = await axios.get(
@@ -83,22 +86,13 @@ const ProductDetail = ({
             return {
               ...product,
               sizes: getRandomSizes(product.price),
-              // sizes: {
-              //   small: product.price,
-              //   medium: product.price * 0.1 + product.price,
-              //   large: product.price * 0.2 + product.price,
-              // },
               quantity: 0,
               colors: generateRandomColors(),
             };
           }
         );
-        let relatedProductsTemp = updatedCategoryData.filter(
-          (i) => i.id !== +id
-        );
-        let currentProductTemp = updatedCategoryData.find((i) => {
-          return (i) => i.id == +id;
-        });
+        let relatedProductsTemp = updatedCategoryData.filter((i) => i.id !== +id);
+        let currentProductTemp = updatedCategoryData.find((i) => i.id == +id);
         setCurrentProduct(currentProductTemp);
         setRelatedProducts(relatedProductsTemp);
         let temp = {
@@ -107,17 +101,9 @@ const ProductDetail = ({
         let combinedData = { ...productsWithoutStore, ...temp };
         setProductsWithoutStore(combinedData);
         setLoaderFetchAPI(false);
-        // dispatch(
-        //   munallyDataAction(
-        //     productData,
-        //     updatedCategoryData,
-        //     dataProduct.category
-        //   )
-        // );
       } catch (error) {
         console.log(error);
         setLoaderFetchAPI(false);
-
       }
     }
   };
@@ -195,11 +181,7 @@ const ProductDetail = ({
       });
     } else {
       if (currentUserID) {
-        await setFavourite(
-          currentProductData,
-          currentUserID,
-          favourite
-        );
+        await setFavourite(currentProductData, currentUserID, favourite);
         dispatch(addToFavouriteAction(currentProductData));
         setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {

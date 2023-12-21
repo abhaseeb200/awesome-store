@@ -10,11 +10,6 @@ const dataReducer = (state = initialState, action) => {
     case DATA:
       for (let category in action.data) {
         action.data[category].forEach((product) => {
-          // product.sizes = {
-          //   small: product.price,
-          //   medium: (product.price * 0.1) + product.price,
-          //   large: (product.price * 0.2) + product.price,
-          // };
           product.sizes = getRandomSizes(product.price)
           product.quantity = 0;
           product.colors = generateRandomColors();
@@ -28,7 +23,6 @@ const dataReducer = (state = initialState, action) => {
         ...action.data,
         [action.currentName]: [...action.currentData]
       }
-      // console.log(action.currentName, "_____________");
       return {
         productData: { ...temp },
       };
