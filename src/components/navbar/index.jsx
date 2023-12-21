@@ -6,6 +6,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import axios from "axios";
 import { CiCircleMore, CiSettings } from "react-icons/ci";
 import { FiMoreHorizontal } from "react-icons/fi";
+import { TbFileInvoice } from "react-icons/tb";
 import { RiShoppingBag3Line } from "react-icons/ri";
 import { CgMoreO } from "react-icons/cg";
 import { IoClose, IoMenu, IoSearch } from "react-icons/io5";
@@ -13,6 +14,7 @@ import { LuHeart } from "react-icons/lu";
 import { FaRegHeart, FaRegUser } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
 import { IoMdHeartEmpty } from "react-icons/io";
+import { LiaFileInvoiceSolid } from "react-icons/lia";
 import Modal from "../modal";
 import SearchBar from "../searchBar";
 import Login from "../../screens/login";
@@ -58,6 +60,7 @@ const Navbar = ({
 
   const handleShowSideNav = () => {
     setShowSideNav(!showSideNav);
+    document.body.classList.toggle("overflow-hidden");
   };
 
   const handleNavigation = async () => {
@@ -204,6 +207,14 @@ const Navbar = ({
                             </span>
                             <span className="ml-1">
                               Cart {`(${cart.length})`}
+                            </span>
+                          </Link>
+                        </Menu.Item>
+                        <Menu.Item>
+                          <Link to="/orders">
+                            <span className="cursor-pointer text-gray-900 group flex w-full items-center px-2.5 py-2 text-sm block hover:bg-gray-200">
+                              <LiaFileInvoiceSolid size="1rem" />
+                              <span className="ml-1">My Order</span>
                             </span>
                           </Link>
                         </Menu.Item>

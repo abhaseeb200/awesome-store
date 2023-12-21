@@ -30,17 +30,8 @@ const deleteCart = (currentUserID, currentProductData, currentCartData) => {
     })
 };
 
-const orderProcess = (products, currentUserID) => {
-    return db.collection("orders").add({
-        userId: currentUserID,
-        timeStamp: Date.now(),
-        products: [...products],
-        status: "pending",
-    })
-}
-
 const emptryCart = (currentUserID) => {
     return db.collection("carts").doc(currentUserID).delete()
 }
 
-export { setCart, getCart, deleteCart, updateCart, orderProcess, emptryCart }
+export { setCart, getCart, deleteCart, updateCart, emptryCart }

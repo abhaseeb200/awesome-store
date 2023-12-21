@@ -7,6 +7,7 @@ import CartListCard from "../../components/cartListCard/index.";
 import CartListCardSkeleton from "../../components/cartListCard/skeleton";
 import CheckoutSection from "../../components/checkoutSection";
 import CheckoutSectionSkeleton from "../../components/checkoutSection/skeleton";
+import { orderProcess } from "../../config/services/firebase/order";
 import {
   decrementAction,
   emptyCarttAction,
@@ -16,12 +17,11 @@ import {
 import {
   deleteCart,
   emptryCart,
-  orderProcess,
   updateCart,
 } from "../../config/services/firebase/cart";
 // import CheckoutForm from "../../components/checkoutForm";
 
-const Cart = ({ loaderCart, currentUserID, setOpenModal }) => {
+const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
   const [checkoutLoader, setCheckoutLoader] = useState(false);
   const [incrementLoader, setIncrementLoader] = useState(false);
   const [decrementLoader, setDecrementLoader] = useState(false);
@@ -62,6 +62,7 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal }) => {
     if (cart.length > 0) {
       if (currentUserID) {
         handleFirebaseEmptyCart();
+        handleGetOrders()
       } else {
         toast.error("Please Login!", {
           autoClose: 1500,

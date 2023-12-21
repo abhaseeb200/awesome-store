@@ -11,6 +11,8 @@ import ProductDetail from "../../screens/productDetail";
 import Category from "../../screens/category";
 import Search from "../../screens/search";
 import Favourite from "../../screens/favourite";
+import Orders from "../../screens/orders";
+import OrderProducts from "../../screens/orderProducts";
 import { dataAction } from "../../redux/actions/dataAction";
 import {
   addToCartAction,
@@ -23,6 +25,7 @@ import {
 import { authState } from "../services/firebase/auth";
 import { getCart } from "../services/firebase/cart";
 import { getFavourite } from "../services/firebase/favourite";
+import { getOrder } from "../services/firebase/order";
 import {
   generateRandomColors,
   getRandomSizes,
@@ -35,12 +38,14 @@ const Main = () => {
   const [isUser, setIsUser] = useState(false);
   const [loaderCart, setLoaderCart] = useState(true);
   const [loaderfavourite, setLoaderfavourite] = useState(true);
+  const [loaderOrder, setLoaderOrder] = useState(true);
   const [currentUserID, setCurrentUserID] = useState("");
   const [totalProducts, setTotalProducts] = useState(0);
   const [productsWithoutStore, setProductsWithoutStore] = useState({});
   const [index, setIndex] = useState(10);
   const [items, setItems] = useState({});
   const [hasMore, setHasMore] = useState(true);
+  const [productsOrder, setProductsOrder] = useState([]);
 
   const cancelButtonRef = useRef(null);
   const dispatch = useDispatch();
@@ -163,6 +168,22 @@ const Main = () => {
     }
   };
 
+  const handleGetOrders = async () => {
+    try {
+      let response = await getOrder(currentUserID);
+      let temp = [];
+      response.forEach((product) => {
+        temp.push(product.data());
+        console.log(temp,"TEMPPPP");
+        setProductsOrder(temp);
+      });
+      setLoaderOrder(false);
+    } catch (error) {
+      setLoaderOrder(false);
+      console.log(error);
+    }
+  };
+
   const handleModal = () => {
     setOpenModal(true);
   };
@@ -175,6 +196,7 @@ const Main = () => {
   useEffect(() => {
     handleGetCart();
     handleGetFavourite();
+    handleGetOrders();
   }, [currentUserID]);
 
   return (
@@ -232,8 +254,10 @@ const Main = () => {
                 loaderCart={loaderCart}
                 openModal={openModal}
                 cancelButtonRef={cancelButtonRef}
+                setProductsOrder={setProductsOrder}
                 handleModal={handleModal}
                 setOpenModal={setOpenModal}
+                handleGetOrders={handleGetOrders}
               />
             }
           />
@@ -252,6 +276,28 @@ const Main = () => {
               <Search
                 currentUserID={currentUserID}
                 loaderFetchAPI={loaderFetchAPI}
+              />
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <Orders
+                currentUserID={currentUserID}
+                loaderFetchAPI={loaderFetchAPI}
+                productsOrder={productsOrder}
+                loaderOrder={loaderOrder}
+              />
+            }
+          />
+          <Route
+            path="/orders/:orderID"
+            element={
+              <OrderProducts
+                currentUserID={currentUserID}
+                loaderFetchAPI={loaderFetchAPI}
+                productsOrder={productsOrder}
+                loaderOrder={loaderOrder}
               />
             }
           />
