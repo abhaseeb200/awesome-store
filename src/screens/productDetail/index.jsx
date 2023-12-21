@@ -9,6 +9,7 @@ import CartProduct from "../../components/cardProduct";
 import CartProductSkeleton from "../../components/cardProduct/skeleton";
 import Modal from "../../components/modal";
 import { addToCartAction } from "../../redux/actions/cartAction";
+import { munallyDataAction } from "../../redux/actions/dataAction";
 import {
   addToFavouriteAction,
   removeFromFavouriteAction,
@@ -19,7 +20,6 @@ import {
   setFavourite,
 } from "../../config/services/firebase/favourite";
 import { generateRandomColors, getRandomSizes } from "../../config/services/randomGenerators/randomGenerates";
-import { munallyDataAction } from "../../redux/actions/dataAction";
 
 const ProductDetail = ({
   currentUserID,
@@ -36,13 +36,11 @@ const ProductDetail = ({
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentProduct, setCurrentProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
-  // const [allProducts, setAllProducts] = useState([]);
 
   const cancelButtonRef = useRef(null);
 
   const dispatch = useDispatch();
 
-  const { productData } = useSelector((stata) => stata.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
 
@@ -124,29 +122,6 @@ const ProductDetail = ({
     }
   };
 
-  // const handleFetchProduct = () => {
-  //   let currentCategory = "";
-  //   Object.keys(productData).forEach((category) => {
-  //     const foundProduct = productData[category].find(
-  //       (product) => product.id == id
-  //     );
-  //     if (foundProduct) {
-  //       setCurrentProduct(foundProduct);
-  //       currentCategory = category;
-  //       return;
-  //     }
-  //   });
-
-  //   if (currentCategory) {
-  //     let relatedProductsTemp = productData[currentCategory].filter(
-  //       (product) => {
-  //         return product.id !== +id;
-  //       }
-  //     );
-  //     setRelatedProducts(relatedProductsTemp);
-  //   }
-  // };
-
   const handleCurrentSizes = (price, size) => {
     setCurrentPrice(price);
     setCurrentSize(size);
@@ -220,7 +195,7 @@ const ProductDetail = ({
       });
     } else {
       if (currentUserID) {
-        let response = await setFavourite(
+        await setFavourite(
           currentProductData,
           currentUserID,
           favourite

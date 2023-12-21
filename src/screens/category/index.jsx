@@ -36,7 +36,6 @@ const Category = ({
   const [currentSizeTab, setCurrentSizeTab] = useState("");
   const [currentColorTab, setCurrentColorTab] = useState("");
   const [filterProducts, setFilterProducts] = useState([]);
-  // const [filterProductsBackUP, setFilterProductsBackUP] = useState([]);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [loaderFetchAPI, setLoaderFetchAPI] = useState(true);
@@ -44,11 +43,8 @@ const Category = ({
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
   const [currentProductData, setCurrentProductData] = useState({});
-  // const [currentColors, setCurrentColors] = useState([]);
   const [currentProducts, setCurrentProducts] = useState([]);
-  // const [sortingProducts, setSortingProducts] = useState([]);
   const [sortingValue, setSortingValue] = useState("");
-  // const [selectIndex, setSelectIndex] = useState(null);
   const [sizes] = useState(["small", "medium", "large"]);
   const colors = useState([
     "FloralWhite",
@@ -57,7 +53,6 @@ const Category = ({
     "Tomato",
     "LightGray",
   ]);
-  // let colors = ["white", "yellow", "pink", "Tomato", "gray"];
 
   const cancelButtonRef = useRef(null);
 
@@ -67,7 +62,6 @@ const Category = ({
 
   const location = useLocation();
 
-  const { productData } = useSelector((state) => state?.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
 
@@ -91,11 +85,6 @@ const Category = ({
           return {
             ...item,
             sizes: getRandomSizes(item.price),
-            // sizes: {
-            //   small: item.price,
-            //   medium: item.price * 0.1 + item.price,
-            //   large: item.price * 0.2 + item.price,
-            // },
             quantity: 0,
             colors: generateRandomColors(),
           };
@@ -106,9 +95,7 @@ const Category = ({
         let combinedData = { ...productsWithoutStore, ...temp };
         setProductsWithoutStore(combinedData);
         setFilterProducts(updateData);
-        // setFilterProductsBackUP(updateData);
         setCurrentProducts(updateData);
-        // dispatch(munallyDataAction(productData,updateData,title))
         setLoaderFetchAPI(false);
       } catch (error) {
         console.log(error);
@@ -118,7 +105,6 @@ const Category = ({
       console.log(productsWithoutStore, "__________ productsWithoutStore");
       setCurrentProducts(productsWithoutStore[title]);
       setFilterProducts(productsWithoutStore[title]);
-      // setFilterProductsBackUP(productsWithoutStore[title]);
       setLoaderFetchAPI(false);
     }
   };
@@ -293,7 +279,7 @@ const Category = ({
       return true;
     });
 
-    // Apply sorting based on the selected sorting option
+    // apply sorting based on the selected sorting option
     let sortedData;
     if (sorting === "lowToHighPrice") {
       sortedData = [...filtered].sort((a, b) => a.price - b.price);
@@ -323,6 +309,7 @@ const Category = ({
   }, [open]);
 
   useEffect(() => {
+    //on reload, if filter params has
     handleParams(colorParams, sizeParams, sortingParams);
     setCurrentColorTab(colorParams);
     setCurrentSizeTab(sizeParams);

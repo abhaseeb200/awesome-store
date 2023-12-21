@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { TbLoader2 } from "react-icons/tb";
 import { HiOutlineSearch } from "react-icons/hi";
+import { IoClose } from "react-icons/io5";
 import axios from "axios";
 import Button from "../button";
 import Input from "../input/index";
@@ -14,7 +15,6 @@ import {
   generateRandomColors,
   getRandomSizes,
 } from "../../config/services/randomGenerators/randomGenerates";
-import { IoClose } from "react-icons/io5";
 
 const SearchBar = ({ setSearchBarModal }) => {
   const [search, setSearch] = useState("");

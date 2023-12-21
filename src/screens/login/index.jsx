@@ -5,8 +5,6 @@ import { FcGoogle } from "react-icons/fc";
 import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button";
 import Input from "../../components/input";
-import { emptyFavouriteAction } from "../../redux/actions/favouriteAction";
-import { emptyCarttAction } from "../../redux/actions/cartAction";
 import {
   authSignIn,
   authWithGoogle,
@@ -100,7 +98,7 @@ const Login = ({ setIsLogin, setOpenModal }) => {
     }
   };
 
-  // const dispatch = useDispatch()
+  const dispatch = useDispatch()
 
   const signInHandler = async (e) => {
     e.preventDefault();
@@ -131,8 +129,6 @@ const Login = ({ setIsLogin, setOpenModal }) => {
         const user = userCredential.user;
         setLoader(false);
         setOpenModal(false);
-        // dispatch(emptyFavouriteAction());
-        // dispatch(emptyCarttAction());
         toast.success("Login successfully!", {
           autoClose: 1500,
         });
@@ -150,8 +146,6 @@ const Login = ({ setIsLogin, setOpenModal }) => {
     try {
       await authWithGoogle();
       setOpenModal(false);
-      // dispatch(emptyFavouriteAction());
-      // dispatch(emptyCarttAction());
       toast.success("Login successfully!", {
         autoClose: 1500,
       });

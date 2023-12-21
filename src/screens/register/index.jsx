@@ -5,8 +5,6 @@ import { FcGoogle } from "react-icons/fc";
 import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button";
 import Input from "../../components/input";
-import { emptyFavouriteAction } from "../../redux/actions/favouriteAction";
-import { emptyCarttAction } from "../../redux/actions/cartAction";
 import {
   authSignUp,
   authWithGoogle,
@@ -35,8 +33,6 @@ const Register = ({ setIsLogin, setOpenModal }) => {
     isError: false,
     messageError: "",
   });
-
-  // const dispatch = useDispatch()
 
   const handleEmail = (e) => {
     let emailVal = e.target.value.trim();
@@ -233,8 +229,6 @@ const Register = ({ setIsLogin, setOpenModal }) => {
         );
         const user = userCredential.user;
         await setUsers(email.value.trim(), fullName.value.trim(), user.uid);
-        // dispatch(emptyFavouriteAction());
-        // dispatch(emptyCarttAction());
         setLoader(false);
         setOpenModal(false);
         toast.success("Register account successfully!", {
@@ -258,8 +252,6 @@ const Register = ({ setIsLogin, setOpenModal }) => {
     try {
       await authWithGoogle();
       setOpenModal(false);
-      // dispatch(emptyFavouriteAction());
-      // dispatch(emptyCarttAction());
       toast.success("SignUp successfully!", {
         autoClose: 1500,
       });
