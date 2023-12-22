@@ -24,11 +24,7 @@ import {
   getRandomSizes,
 } from "../../config/services/randomGenerators/randomGenerates";
 
-const ProductDetail = ({
-  currentUserID,
-  productsWithoutStore,
-  setProductsWithoutStore,
-}) => {
+const ProductDetail = ({ productsWithoutStore, setProductsWithoutStore }) => {
   const [open, setOpen] = useState(false);
   const [loaderFetchAPI, setLoaderFetchAPI] = useState(true);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
@@ -46,6 +42,7 @@ const ProductDetail = ({
 
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
+  const { userID } = useSelector((state) => state.user);
 
   const { id } = useParams();
 
@@ -91,7 +88,9 @@ const ProductDetail = ({
             };
           }
         );
-        let relatedProductsTemp = updatedCategoryData.filter((i) => i.id !== +id);
+        let relatedProductsTemp = updatedCategoryData.filter(
+          (i) => i.id !== +id
+        );
         let currentProductTemp = updatedCategoryData.find((i) => i.id == +id);
         setCurrentProduct(currentProductTemp);
         setRelatedProducts(relatedProductsTemp);
@@ -142,7 +141,7 @@ const ProductDetail = ({
         currentColor: currentColor,
         currentPrice: currentPrice,
       };
-      if (currentUserID) {
+      if (userID) {
         //user is login
         handleSetCart(updatedData);
       } else {
@@ -158,7 +157,7 @@ const ProductDetail = ({
   const handleSetCart = async (updatedData) => {
     setAddToCartLoader(true);
     try {
-      await setCart(updatedData, currentUserID, cart);
+      await setCart(updatedData, userID, cart);
       dispatch(addToCartAction(updatedData));
       setAddToCartLoader(false);
       toast.success("Cart add successfully!", {
@@ -180,8 +179,8 @@ const ProductDetail = ({
         autoClose: 1500,
       });
     } else {
-      if (currentUserID) {
-        await setFavourite(currentProductData, currentUserID, favourite);
+      if (userID) {
+        await setFavourite(currentProductData, userID, favourite);
         dispatch(addToFavouriteAction(currentProductData));
         setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {
@@ -199,12 +198,12 @@ const ProductDetail = ({
 
   const handleRemoveFavourite = async (currentProductData) => {
     setAddToFavouriteLoader(true);
-    if (currentUserID) {
+    if (userID) {
       //user is login
       try {
         let result = await deleteFavourite(
           currentProductData,
-          currentUserID,
+          userID,
           favourite
         );
         dispatch(removeFromFavouriteAction(currentProductData.id));

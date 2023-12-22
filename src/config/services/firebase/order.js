@@ -16,4 +16,8 @@ const getOrder = (currentUserID) => {
         .get();
 }
 
-export { orderProcess, getOrder }
+const getOrderProductDoc = (docID) => {
+    return db.collection("orders").doc(docID).get()
+}
+
+export { orderProcess, getOrder, getOrderProductDoc }

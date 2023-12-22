@@ -28,11 +28,7 @@ import {
   getRandomSizes,
 } from "../../config/services/randomGenerators/randomGenerates";
 
-const Category = ({
-  currentUserID,
-  productsWithoutStore,
-  setProductsWithoutStore,
-}) => {
+const Category = ({ productsWithoutStore, setProductsWithoutStore }) => {
   const [open, setOpen] = useState(false);
   const [currentSizeTab, setCurrentSizeTab] = useState("");
   const [currentColorTab, setCurrentColorTab] = useState("");
@@ -65,6 +61,7 @@ const Category = ({
 
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
+  const { userID } = useSelector((state) => state.user);
 
   const currentParams = new URLSearchParams(location.search);
   const sizeParams = new URLSearchParams(location.search).get("size");
@@ -150,8 +147,8 @@ const Category = ({
         autoClose: 1500,
       });
     } else {
-      if (currentUserID) {
-        await setFavourite(currentProductData, currentUserID, favourite);
+      if (userID) {
+        await setFavourite(currentProductData, userID, favourite);
         dispatch(addToFavouriteAction(currentProductData));
         setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {
@@ -169,9 +166,9 @@ const Category = ({
 
   const handleRemoveFavourite = async (currentProductData) => {
     setAddToFavouriteLoader(true);
-    if (currentUserID) {
+    if (userID) {
       try {
-        await deleteFavourite(currentProductData, currentUserID, favourite);
+        await deleteFavourite(currentProductData, userID, favourite);
         dispatch(removeFromFavouriteAction(currentProductData.id));
         setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {
@@ -210,7 +207,7 @@ const Category = ({
         currentColor: currentColor,
         currentPrice: currentPrice,
       };
-      if (currentUserID) {
+      if (userID) {
         //user is login
         handleSetCart(updatedData);
       } else {
@@ -226,7 +223,7 @@ const Category = ({
   const handleSetCart = async (updatedData) => {
     setAddToCartLoader(true);
     try {
-      await setCart(updatedData, currentUserID, cart);
+      await setCart(updatedData, userID, cart);
       dispatch(addToCartAction(updatedData));
       setAddToCartLoader(false);
       toast.success("Cart add successfully!", {

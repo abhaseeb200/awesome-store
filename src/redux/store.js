@@ -3,6 +3,7 @@ import cartReducers from "./reducers/cartReducers";
 import dataReducer from "./reducers/dataReducer";
 import favouriteReducers from "./reducers/favouriteReducers";
 import searchReducers from "./reducers/searchReducers";
+import userReducers from "./reducers/userReducers";
 import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 import autoMergeLevel2 from "redux-persist/es/stateReconciler/autoMergeLevel2";
@@ -12,6 +13,7 @@ const combinedReducer = combineReducers({
     addToCart: cartReducers,
     addToFavourite: favouriteReducers,
     search: searchReducers,
+    user: userReducers,
 })
 
 const persistConfig = {

@@ -21,6 +21,7 @@ import Login from "../../screens/login";
 import Register from "../../screens/register";
 import { emptyCarttAction } from "../../redux/actions/cartAction";
 import { emptyFavouriteAction } from "../../redux/actions/favouriteAction";
+import { currentUserAction } from "../../redux/actions/userAction";
 import { authLogout } from "../../config/services/firebase/auth";
 import "./style.css";
 
@@ -35,11 +36,13 @@ const Navbar = ({
   const [navigation, setNavigation] = useState([]);
   const [showSideNav, setShowSideNav] = useState(false);
   const [searchBarModal, setSearchBarModal] = useState(false);
+  // const [isUser, setIsUser] = useState(false);
 
   const dispatch = useDispatch();
 
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
+  const { userID } = useSelector((state) => state.user);
 
   const location = useLocation();
 
@@ -49,6 +52,7 @@ const Navbar = ({
       toast.success("LogOut successfully!", {
         autoClose: 1500,
       });
+      dispatch(currentUserAction(""))
       dispatch(emptyCarttAction());
       dispatch(emptyFavouriteAction());
     } catch (error) {

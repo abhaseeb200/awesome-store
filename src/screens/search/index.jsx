@@ -17,7 +17,7 @@ import {
 } from "../../config/services/firebase/favourite";
 import { setCart } from "../../config/services/firebase/cart";
 
-const Search = ({ currentUserID }) => {
+const Search = () => {
   const [sortingProducts, setSortingProducts] = useState([]);
   const [fetchLoader, setFetchLoader] = useState(false);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
@@ -34,6 +34,7 @@ const Search = ({ currentUserID }) => {
   const { searchProducts } = useSelector((state) => state.search);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
   const { cart } = useSelector((stata) => stata.addToCart);
+  const { userID } = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
 
@@ -96,7 +97,7 @@ const Search = ({ currentUserID }) => {
         currentColor: currentColor,
         currentPrice: currentPrice,
       };
-      if (currentUserID) {
+      if (userID) {
         //user is login
         handleSetCart(updatedData);
       } else {
@@ -112,7 +113,7 @@ const Search = ({ currentUserID }) => {
   const handleSetCart = async (updatedData) => {
     setAddToCartLoader(true);
     try {
-      await setCart(updatedData, currentUserID, cart);
+      await setCart(updatedData, userID, cart);
       dispatch(addToCartAction(updatedData));
       setAddToCartLoader(false);
       toast.success("Cart add successfully!", {
@@ -134,10 +135,10 @@ const Search = ({ currentUserID }) => {
         autoClose: 1500,
       });
     } else {
-      if (currentUserID) {
+      if (userID) {
         let response = await setFavourite(
           currentProductData,
-          currentUserID,
+          userID,
           favourite
         );
         dispatch(addToFavouriteAction(currentProductData));
@@ -157,12 +158,12 @@ const Search = ({ currentUserID }) => {
 
   const handleRemoveFavourite = async (currentProductData) => {
     setAddToFavouriteLoader(true);
-    if (currentUserID) {
+    if (userID) {
       //user is login
       try {
         let result = await deleteFavourite(
           currentProductData,
-          currentUserID,
+          userID,
           favourite
         );
         dispatch(removeFromFavouriteAction(currentProductData.id));

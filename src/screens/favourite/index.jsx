@@ -5,14 +5,22 @@ import CartProduct from "../../components/cardProduct";
 import CartProductSkeleton from "../../components/cardProduct/skeleton";
 import Modal from "../../components/modal";
 import CardProductDetails from "../../components/cardProductDetails";
-import { removeFromFavouriteAction } from "../../redux/actions/favouriteAction";
+import {
+  addToFavouriteAction,
+  emptyFavouriteAction,
+  removeFromFavouriteAction,
+} from "../../redux/actions/favouriteAction";
 import { addToCartAction } from "../../redux/actions/cartAction";
-import { deleteFavourite } from "../../config/services/firebase/favourite";
+import {
+  deleteFavourite,
+  getFavourite,
+} from "../../config/services/firebase/favourite";
 import { setCart } from "../../config/services/firebase/cart";
 
-const Favourite = ({ currentUserID, loaderfavourite }) => {
+const Favourite = () => {
   const [open, setOpen] = useState(false);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
+  const [mainLoader, setMainLoader] = useState(true);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentPrice, setCurrentPrice] = useState("");
@@ -23,15 +31,17 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
 
   const dispatch = useDispatch();
 
+  const { userID } = useSelector((state) => state.user);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
   const { cart } = useSelector((stata) => stata.addToCart);
+  const { productData } = useSelector((state) => state.data);
 
   const handleRemoveFavourite = async (currentProductData) => {
     setAddToFavouriteLoader(true);
-    if (currentUserID) {
+    if (userID) {
       //user is login
       try {
-        await deleteFavourite(currentProductData, currentUserID, favourite);
+        await deleteFavourite(currentProductData, userID, favourite);
         dispatch(removeFromFavouriteAction(currentProductData.id));
         setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {
@@ -85,7 +95,7 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
         currentColor: currentColor,
         currentPrice: currentPrice,
       };
-      if (currentUserID) {
+      if (userID) {
         //user is login
         handleSetCart(updatedData);
       } else {
@@ -101,7 +111,7 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
   const handleSetCart = async (updatedData) => {
     setAddToCartLoader(true);
     try {
-      await setCart(updatedData, currentUserID, cart);
+      await setCart(updatedData, userID, cart);
       dispatch(addToCartAction(updatedData));
       setAddToCartLoader(false);
       toast.success("Cart add successfully!", {
@@ -113,17 +123,55 @@ const Favourite = ({ currentUserID, loaderfavourite }) => {
     }
   };
 
+  const handleGetFavourite = async () => {
+    setMainLoader(true);
+    try {
+      let result = await getFavourite(userID);
+      if (result.exists) {
+        dispatch(emptyFavouriteAction())
+        // If the document exists, extract the data
+        let productsID = result.data().productsID;
+        console.log(productsID);
+        //Products ID are in firebase, that why we need to filter with redux products
+        Object.keys(productData).forEach((category) => {
+          productsID?.forEach((itemID) => {
+            let obj = productData[category]?.find(
+              (product) => product.id === itemID
+            );
+
+            if (obj) {
+              console.log(obj,"OBJECts");
+              dispatch(addToFavouriteAction(obj));
+            }
+          });
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setMainLoader(false);
+    }
+  };
+
   useEffect(() => {
     setCurrentColor("");
     setCurrentPrice("");
     setCurrentSize("");
   }, [open]);
 
+  useEffect(() => {
+    if (userID) {
+      handleGetFavourite();
+    } else {
+      setMainLoader(false);
+    }
+  }, [userID]);
+
   return (
     <div className="myPadding flex-1 min-h-[700px]">
       <h2 className="font-medium text-3xl sm:py-10 pt-5 ">Favourite</h2>
       <div className="flex flex-wrap -mx-4">
-        {loaderfavourite ? (
+        {mainLoader ? (
           <>
             <CartProductSkeleton />
             <CartProductSkeleton />

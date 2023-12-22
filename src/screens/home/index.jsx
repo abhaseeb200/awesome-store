@@ -21,14 +21,14 @@ import {
 } from "../../config/services/firebase/favourite";
 import { setCart } from "../../config/services/firebase/cart";
 import homeBannar from "../../assets/home-bannar.jpg";
+import { dataAction } from "../../redux/actions/dataAction";
+import axios from "axios";
+import {
+  generateRandomColors,
+  getRandomSizes,
+} from "../../config/services/randomGenerators/randomGenerates";
 
-const Home = ({
-  loaderFetchAPI,
-  currentUserID,
-  handleFetchMoreData,
-  items,
-  hasMore,
-}) => {
+const Home = () => {
   const [open, setOpen] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
   const [addToCartLoader, setAddToCartLoader] = useState(false);
@@ -36,6 +36,11 @@ const Home = ({
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
+  const [index, setIndex] = useState(10);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [items, setItems] = useState({});
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const cancelButtonRef = useRef(null);
 
@@ -44,6 +49,7 @@ const Home = ({
   const { productData } = useSelector((state) => state.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
+  const { userID } = useSelector((state) => state.user);
 
   const handleModal = (productData) => {
     setCurrentProductData(productData);
@@ -79,7 +85,7 @@ const Home = ({
         currentColor: currentColor,
         currentPrice: currentPrice,
       };
-      if (currentUserID) {
+      if (userID) {
         //user is login
         handleSetCart(updatedData);
       } else {
@@ -95,7 +101,7 @@ const Home = ({
   const handleSetCart = async (updatedData) => {
     setAddToCartLoader(true);
     try {
-      await setCart(updatedData, currentUserID, cart);
+      await setCart(updatedData, userID, cart);
       dispatch(addToCartAction(updatedData));
       setAddToCartLoader(false);
       toast.success("Cart add successfully!", {
@@ -116,9 +122,9 @@ const Home = ({
         autoClose: 1500,
       });
     } else {
-      if (currentUserID) {
+      if (userID) {
         setAddToFavouriteLoader(true);
-        await setFavourite(currentProductData, currentUserID, favourite);
+        await setFavourite(currentProductData, userID, favourite);
         dispatch(addToFavouriteAction(currentProductData));
         toast.success("Favourite successfully!", {
           autoClose: 1500,
@@ -135,10 +141,10 @@ const Home = ({
 
   const handleRemoveFavourite = async (currentProductData) => {
     setAddToFavouriteLoader(true);
-    if (currentUserID) {
+    if (userID) {
       //user is login
       try {
-        await deleteFavourite(currentProductData, currentUserID, favourite);
+        await deleteFavourite(currentProductData, userID, favourite);
         dispatch(removeFromFavouriteAction(currentProductData.id));
         setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {
@@ -157,15 +163,70 @@ const Home = ({
     }
   };
 
+  const handleFetch = async () => {
+    try {
+      let response = await axios.get(
+        "https://dummyjson.com/products?limit=10&skip=0"
+      );
+      let tempCategoryProduct = {};
+      response.data.products.map((item) => {
+        if (!tempCategoryProduct[item.category]) {
+          tempCategoryProduct[item.category] = [];
+        }
+        tempCategoryProduct[item.category].push(item);
+      });
+      dispatch(dataAction(tempCategoryProduct));
+      setTotalProducts(response.data.total);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  const handleFetchMoreData = async () => {
+    if (index < totalProducts) {
+      try {
+        let response = await axios.get(
+          `https://dummyjson.com/products?limit=5&skip=${index}`
+        );
+        let currentProductData = response?.data?.products;
+        let currentCategoryName = currentProductData[0].category;
+        let updateCurrentProductData = currentProductData.map((item) => {
+          return {
+            ...item,
+            sizes: getRandomSizes(item.price),
+            quantity: 0,
+            colors: generateRandomColors(),
+          };
+        });
+        let temp = {
+          [currentCategoryName]: updateCurrentProductData,
+        };
+        let combinedObjects = { ...items, ...temp };
+        setItems(combinedObjects);
+        // setIndex((prevIndex) => prevIndex + 10);
+      } catch (error) {
+        console.log(error);
+      }
+      setIndex((prevIndex) => prevIndex + 10);
+    } else {
+      setHasMore(false);
+    }
+  };
+
   useEffect(() => {
     setCurrentColor("");
     setCurrentPrice("");
     setCurrentSize("");
   }, [open]);
 
+  useEffect(() => {
+    handleFetch();
+  }, []);
+
   return (
     <>
-      {loaderFetchAPI ? (
+      {loading ? (
         <HeroSectionSkeleton />
       ) : (
         <>
@@ -176,7 +237,7 @@ const Home = ({
         </>
       )}
       <div className="px-4 md:p-8 lg:p-10 pt-5">
-        {loaderFetchAPI ? (
+        {loading ? (
           <>
             <SingleDetailCardSkeleton />
             <div className="flex flex-wrap -mx-4">

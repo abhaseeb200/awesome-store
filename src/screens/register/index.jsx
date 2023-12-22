@@ -10,6 +10,7 @@ import {
   authWithGoogle,
 } from "../../config/services/firebase/auth";
 import { setUsers } from "../../config/services/firebase/users";
+import { currentUserAction } from "../../redux/actions/userAction";
 
 const Register = ({ setIsLogin, setOpenModal }) => {
   const [loader, setLoader] = useState(false);
@@ -33,6 +34,8 @@ const Register = ({ setIsLogin, setOpenModal }) => {
     isError: false,
     messageError: "",
   });
+
+  const dispatch = useDispatch();
 
   const handleEmail = (e) => {
     let emailVal = e.target.value.trim();
@@ -229,6 +232,7 @@ const Register = ({ setIsLogin, setOpenModal }) => {
         );
         const user = userCredential.user;
         await setUsers(email.value.trim(), fullName.value.trim(), user.uid);
+        dispatch(currentUserAction(user.uid));
         setLoader(false);
         setOpenModal(false);
         toast.success("Register account successfully!", {

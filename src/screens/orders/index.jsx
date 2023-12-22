@@ -2,19 +2,46 @@ import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { HiOutlineSearch } from "react-icons/hi";
 import Input from "../../components/input";
+import { getOrder } from "../../config/services/firebase/order";
+import { useSelector } from "react-redux";
 
-const Orders = ({ loaderOrder, productsOrder }) => {
+const Orders = () => {
   const [search, setSearch] = useState("");
+  const [productsOrder, setProductsOrder] = useState([]);
+  const [loader, setLoader] = useState(true);
+  const [productDocID, setProductDocID] = useState([]);
   const [productsOrderBackUP, setProductsOrderBackUP] = useState([]);
 
+  const { userID } = useSelector((state) => state.user);
+
+  const handleGetOrders = async () => {
+    setLoader(true)
+    try {
+      let response = await getOrder(userID);
+      let temp = [];
+      response.forEach((product) => {
+        // console.log(product.id);
+        temp.push({ ...product.data(), docID: product.id });
+      });
+      console.log(temp, "TEMPPPP");
+      setProductsOrder(temp);
+      setProductsOrderBackUP(temp);
+      setLoader(false);
+    } catch (error) {
+      setLoader(false);
+      console.log(error);
+    }
+  };
+
   const handleSearchOrderID = (e) => {
-    let val = e.target.value.trim().toLowerCase();
+    let val = e.target.value.trim();
     setSearch(e.target.value);
     if (val !== "") {
       let findOrder = productsOrder.filter(
-        (order) => order.timeStamp == val || order.status === val
+        (order) =>
+          order.docID.includes(val) ||
+          order.status.toLowerCase().includes(val.toLowerCase())
       );
-      // console.log(findOrder, "____");
       setProductsOrderBackUP(findOrder);
     } else {
       setProductsOrderBackUP(productsOrder);
@@ -22,9 +49,8 @@ const Orders = ({ loaderOrder, productsOrder }) => {
   };
 
   useEffect(() => {
-    console.log(productsOrder,"-----");
-    setProductsOrderBackUP(productsOrder);
-  }, [productsOrder]);
+    handleGetOrders();
+  }, [userID]);
 
   return (
     <div className="myPadding flex-1 min-h-[700px]">
@@ -48,14 +74,14 @@ const Orders = ({ loaderOrder, productsOrder }) => {
           </form>
         </div>
       </div>
-      {loaderOrder ? (
+      {loader ? (
         <div className="animate-pulse">
           <div className="bg-gray-300 p-4"></div>
           <div className="bg-gray-300 p-4 mt-2"></div>
           <div className="bg-gray-300 p-4 mt-2"></div>
           <div className="bg-gray-300 p-4 mt-2"></div>
         </div>
-      ) : productsOrderBackUP?.length > 0 ? (
+      ) : productsOrderBackUP.length ? (
         <table className="border-collapse border border-slate-500 w-full">
           <thead>
             <tr>
@@ -76,14 +102,14 @@ const Orders = ({ loaderOrder, productsOrder }) => {
                 <Fragment key={index}>
                   <tr>
                     <td className="border border-slate-700 py-2 sm:px-4 px-2 text-sm sm:text-base">
-                      {order.timeStamp}
+                      {order.docID}
                     </td>
                     <td className="border border-slate-700 py-2 sm:px-4 px-2 capitalize text-sm sm:text-base">
                       {order.status}
                     </td>
                     <td className="border border-slate-700 py-2 sm:px-4 px-2">
                       <Link
-                        to={`/orders/${order.timeStamp}`}
+                        to={`/orders/${order.docID}`}
                         className="hover:underline underline-offset-4 decoration-2 text-sm sm:text-base"
                       >
                         View Products

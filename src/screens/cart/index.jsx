@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 // import { Elements } from "@stripe/react-stripe-js";
@@ -9,6 +9,7 @@ import CheckoutSection from "../../components/checkoutSection";
 import CheckoutSectionSkeleton from "../../components/checkoutSection/skeleton";
 import { orderProcess } from "../../config/services/firebase/order";
 import {
+  addToCartAction,
   decrementAction,
   emptyCarttAction,
   incrementAction,
@@ -17,11 +18,12 @@ import {
 import {
   deleteCart,
   emptryCart,
+  getCart,
   updateCart,
 } from "../../config/services/firebase/cart";
-// import CheckoutForm from "../../components/checkoutForm";
 
-const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
+const Cart = ({ setOpenModal }) => {
+  const [mainLoader, setMainLoader] = useState(true);
   const [checkoutLoader, setCheckoutLoader] = useState(false);
   const [incrementLoader, setIncrementLoader] = useState(false);
   const [decrementLoader, setDecrementLoader] = useState(false);
@@ -32,11 +34,12 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
   const dispatch = useDispatch();
 
   const { cart } = useSelector((stata) => stata.addToCart);
+  const { userID } = useSelector((state) => state.user);
 
   const handleDelete = async (currentProductData) => {
-    if (currentUserID) {
+    if (userID) {
       try {
-        await deleteCart(currentUserID, currentProductData, cart);
+        await deleteCart(userID, currentProductData, cart);
         dispatch(removeFromCartAction(currentProductData));
         toast.success("Remove successfully!", {
           autoClose: 1500,
@@ -60,9 +63,9 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
 
   const handleCheckout = async () => {
     if (cart.length > 0) {
-      if (currentUserID) {
+      if (userID) {
         handleFirebaseEmptyCart();
-        handleGetOrders()
+        // handleGetOrders()
       } else {
         toast.error("Please Login!", {
           autoClose: 1500,
@@ -79,8 +82,8 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
   const handleFirebaseEmptyCart = async () => {
     try {
       setCheckoutLoader(true);
-      await orderProcess(cart, currentUserID);
-      await emptryCart(currentUserID);
+      await orderProcess(cart, userID);
+      await emptryCart(userID);
       dispatch(emptyCarttAction());
       setCheckoutLoader(false);
       toast.success("CheckOut successfully!", {
@@ -96,15 +99,10 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
     setCurrentColor(currentProductData?.currentColor);
     setCurrentSize(currentProductData?.currentSize);
     setIncrementLoader(true);
-    if (currentUserID) {
+    if (userID) {
       try {
         let updateQuantity = currentProductData.quantity + 1;
-        await updateCart(
-          updateQuantity,
-          currentProductData,
-          currentUserID,
-          cart
-        );
+        await updateCart(updateQuantity, currentProductData, userID, cart);
         setIncrementLoader(false);
       } catch (error) {
         console.log(error);
@@ -121,16 +119,11 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
     setCurrentColor(currentProductData?.currentColor);
     setCurrentSize(currentProductData?.currentSize);
     setDecrementLoader(true);
-    if (currentUserID) {
+    if (userID) {
       try {
         let updateQuantity =
           currentProductData.quantity > 1 ? currentProductData.quantity - 1 : 1;
-        await updateCart(
-          updateQuantity,
-          currentProductData,
-          currentUserID,
-          cart
-        );
+        await updateCart(updateQuantity, currentProductData, userID, cart);
         setDecrementLoader(false);
       } catch (error) {
         console.log(error);
@@ -141,6 +134,32 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
       setDecrementLoader(false);
     }
   };
+
+  const handleGetCart = async () => {
+    setMainLoader(true);
+    try {
+      let result = await getCart(userID);
+      if (result.exists) {
+        dispatch(emptyCarttAction());
+        let response = await result.data().productData;
+        response.forEach((item) => {
+          dispatch(addToCartAction(item));
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setMainLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userID) {
+      handleGetCart();
+    } else {
+      setMainLoader(false);
+    }
+  }, [userID]);
 
   // const stripePromise = loadStripe(
   //   "pk_test_51OKLsnGLwqlmQwFXPS6HETbf0TcWBycqYGxwYQLNhY0w0KM9e4syhKjScfb3UmrZZy5aHAAk17yxrmcCIIAb3CBr00b9WBNNSx"
@@ -159,7 +178,7 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
       <h2 className="font-medium text-3xl py-10">Shopping Cart</h2>
       <div className="lg:grid lg:grid-cols-12 lg:items-start gap-x-12 ">
         <div className="lg:col-span-7">
-          {loaderCart ? (
+          {mainLoader ? (
             <>
               <CartListCardSkeleton />
               <CartListCardSkeleton />
@@ -186,11 +205,11 @@ const Cart = ({ loaderCart, currentUserID, setOpenModal,handleGetOrders }) => {
             <p>No items added to cart</p>
           )}
         </div>
-        {loaderCart ? (
+        {mainLoader ? (
           <CheckoutSectionSkeleton />
         ) : (
           <CheckoutSection
-            loaderCart={loaderCart}
+            mainLoader={mainLoader}
             checkoutLoader={checkoutLoader}
             orderTotal={orderTotal}
             handleCheckout={handleCheckout}

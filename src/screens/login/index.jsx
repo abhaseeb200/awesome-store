@@ -5,6 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button";
 import Input from "../../components/input";
+import { currentUserAction } from "../../redux/actions/userAction";
 import {
   authSignIn,
   authWithGoogle,
@@ -127,6 +128,7 @@ const Login = ({ setIsLogin, setOpenModal }) => {
         setLoader(true);
         const userCredential = await authSignIn(email.value, password.value);
         const user = userCredential.user;
+        dispatch(currentUserAction(user.uid))
         setLoader(false);
         setOpenModal(false);
         toast.success("Login successfully!", {
