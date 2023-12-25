@@ -25,18 +25,13 @@ import { currentUserAction } from "../../redux/actions/userAction";
 import { authLogout } from "../../config/services/firebase/auth";
 import "./style.css";
 
-const Navbar = ({
-  isUser,
-  handleModal,
-  openModal,
-  setOpenModal,
-  cancelButtonRef,
-}) => {
+const Navbar = () => {
+  const [openModal, setOpenModal] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [navigation, setNavigation] = useState([]);
   const [showSideNav, setShowSideNav] = useState(false);
   const [searchBarModal, setSearchBarModal] = useState(false);
-  // const [isUser, setIsUser] = useState(false);
+  const [isUser, setIsUser] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -52,7 +47,7 @@ const Navbar = ({
       toast.success("LogOut successfully!", {
         autoClose: 1500,
       });
-      dispatch(currentUserAction(""))
+      dispatch(currentUserAction(""));
       dispatch(emptyCarttAction());
       dispatch(emptyFavouriteAction());
     } catch (error) {
@@ -60,6 +55,10 @@ const Navbar = ({
         autoClose: 1500,
       });
     }
+  };
+
+  const handleModal = () => {
+    setOpenModal(true);
   };
 
   const handleShowSideNav = () => {
@@ -96,14 +95,19 @@ const Navbar = ({
 
   useEffect(() => {
     handleNavigation();
-  }, []);
-
-  useEffect(() => {
     document.addEventListener("keydown", handleKeyPress);
     return () => {
       document.removeEventListener("keydown", handleKeyPress);
     };
   }, []);
+
+  useEffect(() => {
+    if (userID) {
+      setIsUser(true);
+    } else {
+      setIsUser(false);
+    }
+  }, [userID]);
 
   return (
     <>
@@ -263,7 +267,6 @@ const Navbar = ({
       <Modal
         open={openModal}
         setOpen={setOpenModal}
-        cancelButtonRef={cancelButtonRef}
         setIsLogin={setIsLogin}
         customMaxWidth="custom-max-width"
       >

@@ -36,9 +36,7 @@ const Home = () => {
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
-  const [index, setIndex] = useState(10);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [items, setItems] = useState({});
+  const [currentID, setCurrentID] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -47,9 +45,13 @@ const Home = () => {
   const dispatch = useDispatch();
 
   const { productData } = useSelector((state) => state.data);
+  const { skipData } = useSelector((state) => state.data);
+  const { totalData } = useSelector((state) => state.data);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
   const { userID } = useSelector((state) => state.user);
+
+  // console.log(totalData,"---");
 
   const handleModal = (productData) => {
     setCurrentProductData(productData);
@@ -114,6 +116,7 @@ const Home = () => {
   };
 
   const handleFavourite = async (currentProductData) => {
+    setCurrentID(currentProductData.id)
     let isAlreadyProduct = favourite.find(
       (product) => product.id === currentProductData.id
     );
@@ -140,6 +143,7 @@ const Home = () => {
   };
 
   const handleRemoveFavourite = async (currentProductData) => {
+    setCurrentID(currentProductData.id)
     setAddToFavouriteLoader(true);
     if (userID) {
       //user is login
@@ -175,8 +179,8 @@ const Home = () => {
         }
         tempCategoryProduct[item.category].push(item);
       });
-      dispatch(dataAction(tempCategoryProduct));
-      setTotalProducts(response.data.total);
+      // console.log(response);
+      dispatch(dataAction(tempCategoryProduct,response.data.skip,response.data.total));
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -184,10 +188,10 @@ const Home = () => {
   };
 
   const handleFetchMoreData = async () => {
-    if (index < totalProducts) {
+    if (skipData < totalData) {
       try {
         let response = await axios.get(
-          `https://dummyjson.com/products?limit=5&skip=${index}`
+          `https://dummyjson.com/products?limit=5&skip=${skipData}`
         );
         let currentProductData = response?.data?.products;
         let currentCategoryName = currentProductData[0].category;
@@ -202,13 +206,11 @@ const Home = () => {
         let temp = {
           [currentCategoryName]: updateCurrentProductData,
         };
-        let combinedObjects = { ...items, ...temp };
-        setItems(combinedObjects);
-        // setIndex((prevIndex) => prevIndex + 10);
+        let combinedObjects = { ...productData, ...temp };
+        dispatch(dataAction(combinedObjects, response.data.skip,response.data.total))
       } catch (error) {
         console.log(error);
       }
-      setIndex((prevIndex) => prevIndex + 10);
     } else {
       setHasMore(false);
     }
@@ -221,9 +223,13 @@ const Home = () => {
   }, [open]);
 
   useEffect(() => {
-    handleFetch();
+    if (skipData === 0 ) {
+      handleFetch();
+    }
   }, []);
 
+
+  // console.log(productData,"-----");
   return (
     <>
       {loading ? (
@@ -236,19 +242,25 @@ const Home = () => {
           />
         </>
       )}
+
       <div className="px-4 md:p-8 lg:p-10 pt-5">
-        {loading ? (
-          <>
-            <SingleDetailCardSkeleton />
-            <div className="flex flex-wrap -mx-4">
-              <CartProductSkeleton />
-              <CartProductSkeleton />
-              <CartProductSkeleton />
-              <CartProductSkeleton />
-            </div>
-          </>
-        ) : (
-          Object.keys(productData).map((category, ind) => {
+        <InfiniteScroll
+          dataLength={Object.keys(productData).length}
+          next={handleFetchMoreData}
+          hasMore={hasMore}
+          loader={
+            <>
+              <SingleDetailCardSkeleton />
+              <div className="flex flex-wrap -mx-4">
+                <CartProductSkeleton />
+                <CartProductSkeleton />
+                <CartProductSkeleton />
+                <CartProductSkeleton />
+              </div>
+            </>
+          }
+        >
+          {Object.keys(productData).map((category, ind) => {
             return (
               <div key={ind} className="space-y-4 mb-16">
                 <h2 className="font-bold md:text-3xl text-lg capitalize pb-3">
@@ -258,6 +270,7 @@ const Home = () => {
                   productData={productData[category]}
                   favourite={favourite}
                   addToFavouriteLoader={addToFavouriteLoader}
+                  currentID={currentID}
                   handleModal={handleModal}
                   handleFavourite={handleFavourite}
                   handleRemoveFavourite={handleRemoveFavourite}
@@ -273,62 +286,7 @@ const Home = () => {
                           productData={product}
                           favourite={favourite}
                           addToFavouriteLoader={addToFavouriteLoader}
-                          handleModal={handleModal}
-                          handleFavourite={handleFavourite}
-                          handleRemoveFavourite={handleRemoveFavourite}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-
-      <div className="px-4 md:p-8 lg:px-10 myCustomPadding">
-        <InfiniteScroll
-          dataLength={Object.keys(items).length}
-          next={handleFetchMoreData}
-          hasMore={hasMore}
-          loader={
-            <>
-              <SingleDetailCardSkeleton />
-              <div className="flex flex-wrap -mx-4">
-                <CartProductSkeleton />
-                <CartProductSkeleton />
-                <CartProductSkeleton />
-                <CartProductSkeleton />
-              </div>
-            </>
-          }
-        >
-          {Object.keys(items).map((category, ind) => {
-            return (
-              <div key={ind} className="space-y-4 mb-16">
-                <h2 className="font-bold md:text-3xl text-lg capitalize pb-3">
-                  {category}
-                </h2>
-                <SingleDetailCard
-                  productData={items[category]}
-                  favourite={favourite}
-                  addToFavouriteLoader={addToFavouriteLoader}
-                  handleModal={handleModal}
-                  handleFavourite={handleFavourite}
-                  handleRemoveFavourite={handleRemoveFavourite}
-                />
-                <div className="flex flex-wrap -mx-4">
-                  {items[category].slice(1).map((product, productIND) => {
-                    return (
-                      <div
-                        className="w-full sm:w-1/2 md:w-1/4 px-4"
-                        key={productIND}
-                      >
-                        <CartProduct
-                          productData={product}
-                          favourite={favourite}
-                          addToFavouriteLoader={addToFavouriteLoader}
+                          currentID={currentID}
                           handleModal={handleModal}
                           handleFavourite={handleFavourite}
                           handleRemoveFavourite={handleRemoveFavourite}

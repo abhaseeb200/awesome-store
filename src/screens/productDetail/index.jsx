@@ -9,7 +9,7 @@ import CartProduct from "../../components/cardProduct";
 import CartProductSkeleton from "../../components/cardProduct/skeleton";
 import Modal from "../../components/modal";
 import { addToCartAction } from "../../redux/actions/cartAction";
-import { munallyDataAction } from "../../redux/actions/dataAction";
+import { categoryDataAction } from "../../redux/actions/categoryDataAction";
 import {
   addToFavouriteAction,
   removeFromFavouriteAction,
@@ -24,11 +24,12 @@ import {
   getRandomSizes,
 } from "../../config/services/randomGenerators/randomGenerates";
 
-const ProductDetail = ({ productsWithoutStore, setProductsWithoutStore }) => {
+const ProductDetail = () => {
   const [open, setOpen] = useState(false);
   const [loaderFetchAPI, setLoaderFetchAPI] = useState(true);
   const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
+  const [currentID, setCurrentID] = useState(null);
   const [currentPrice, setCurrentPrice] = useState("");
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
@@ -40,6 +41,7 @@ const ProductDetail = ({ productsWithoutStore, setProductsWithoutStore }) => {
 
   const dispatch = useDispatch();
 
+  const { productData } = useSelector((state) => state.categoryData);
   const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
   const { userID } = useSelector((state) => state.user);
@@ -50,10 +52,8 @@ const ProductDetail = ({ productsWithoutStore, setProductsWithoutStore }) => {
     //Product Without Store purpose: no hit already api
     setLoaderFetchAPI(true);
     let foundProduct;
-    Object.keys(productsWithoutStore).forEach((category) => {
-      let isProduct = productsWithoutStore[category].find(
-        (product) => product.id == id
-      );
+    Object.keys(productData).forEach((category) => {
+      let isProduct = productData[category].find((product) => product.id == id);
       if (isProduct) {
         foundProduct = isProduct;
         return;
@@ -62,11 +62,11 @@ const ProductDetail = ({ productsWithoutStore, setProductsWithoutStore }) => {
 
     if (foundProduct) {
       setCurrentProduct(foundProduct);
-      let relatedProductsTemp = productsWithoutStore[
-        foundProduct.category
-      ]?.filter((i) => {
-        return i.id !== +id;
-      });
+      let relatedProductsTemp = productData[foundProduct.category]?.filter(
+        (i) => {
+          return i.id !== +id;
+        }
+      );
       setRelatedProducts(relatedProductsTemp);
       setLoaderFetchAPI(false);
     } else {
@@ -97,8 +97,8 @@ const ProductDetail = ({ productsWithoutStore, setProductsWithoutStore }) => {
         let temp = {
           [dataProduct.category]: updatedCategoryData,
         };
-        let combinedData = { ...productsWithoutStore, ...temp };
-        setProductsWithoutStore(combinedData);
+        let combinedData = { ...productData, ...temp };
+        dispatch(categoryDataAction(combinedData));
         setLoaderFetchAPI(false);
       } catch (error) {
         console.log(error);
@@ -170,6 +170,7 @@ const ProductDetail = ({ productsWithoutStore, setProductsWithoutStore }) => {
   };
 
   const handleFavourite = async (currentProductData) => {
+    setCurrentID(currentProductData.id)
     setAddToFavouriteLoader(true);
     let isAlreadyProduct = favourite.find(
       (product) => product.id === currentProductData.id
@@ -197,6 +198,7 @@ const ProductDetail = ({ productsWithoutStore, setProductsWithoutStore }) => {
   };
 
   const handleRemoveFavourite = async (currentProductData) => {
+    setCurrentID(currentProductData.id)
     setAddToFavouriteLoader(true);
     if (userID) {
       //user is login
@@ -275,6 +277,7 @@ const ProductDetail = ({ productsWithoutStore, setProductsWithoutStore }) => {
                     <CartProduct
                       handleModal={handleModal}
                       handleFavourite={handleFavourite}
+                      currentID={currentID}
                       handleRemoveFavourite={handleRemoveFavourite}
                       favourite={favourite}
                       productData={product}

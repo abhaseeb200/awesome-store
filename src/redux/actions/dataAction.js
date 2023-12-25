@@ -1,19 +1,12 @@
-import { DATA, MANUALLYDATA } from "../types/dataType"
+import { DATA } from "../types/dataType";
 
-const dataAction = (data) => {
-    return {
-        type: DATA,
-        data: data,
-    }
-}
+const dataAction = (data,skip,total) => {
+  return {
+    type: DATA,
+    data: data,
+    skip: skip,
+    total: total
+  };
+};
 
-const munallyDataAction = (data,currentData,currentName) => {
-    return {
-        type: MANUALLYDATA,
-        data: data,
-        currentData: currentData,
-        currentName: currentName,
-    }
-}
-
-export { dataAction, munallyDataAction }
+export { dataAction };

@@ -21,12 +21,18 @@ import {
   getCart,
   updateCart,
 } from "../../config/services/firebase/cart";
+import Modal from "../../components/modal";
+import Login from "../login";
+import Register from "../register";
 
-const Cart = ({ setOpenModal }) => {
+const Cart = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
   const [mainLoader, setMainLoader] = useState(true);
   const [checkoutLoader, setCheckoutLoader] = useState(false);
-  const [incrementLoader, setIncrementLoader] = useState(false);
+  const [incrementLoader, setIncrementLoader] = useState(true);
   const [decrementLoader, setDecrementLoader] = useState(false);
+  const [deleteLoader, setDeleteLoader] = useState(false);
   const [currentID, setCurrentID] = useState(null);
   const [currentColor, setCurrentColor] = useState("");
   const [currentSize, setCurrentSize] = useState("");
@@ -37,6 +43,10 @@ const Cart = ({ setOpenModal }) => {
   const { userID } = useSelector((state) => state.user);
 
   const handleDelete = async (currentProductData) => {
+    setCurrentID(currentProductData?.id);
+    setCurrentColor(currentProductData?.currentColor);
+    setCurrentSize(currentProductData?.currentSize);
+    setDeleteLoader(true)
     if (userID) {
       try {
         await deleteCart(userID, currentProductData, cart);
@@ -44,14 +54,17 @@ const Cart = ({ setOpenModal }) => {
         toast.success("Remove successfully!", {
           autoClose: 1500,
         });
+        setDeleteLoader(false)
       } catch (error) {
         console.log(error);
+        setDeleteLoader(false)
       }
     } else {
       dispatch(removeFromCartAction(currentProductData));
       toast.success("Remove successfully!", {
         autoClose: 1500,
       });
+      setDeleteLoader(false)
     }
   };
 
@@ -194,6 +207,7 @@ const Cart = ({ setOpenModal }) => {
                     handleQuantityDecrement={handleQuantityDecrement}
                     incrementLoader={incrementLoader}
                     decrementLoader={decrementLoader}
+                    deleteLoader={deleteLoader}
                     currentID={currentID}
                     currentColor={currentColor}
                     currentSize={currentSize}
@@ -216,6 +230,19 @@ const Cart = ({ setOpenModal }) => {
           />
         )}
       </div>
+
+      <Modal
+        open={openModal}
+        setOpen={setOpenModal}
+        setIsLogin={setIsLogin}
+        customMaxWidth="custom-max-width"
+      >
+        {isLogin ? (
+          <Login setIsLogin={setIsLogin} setOpenModal={setOpenModal} />
+        ) : (
+          <Register setIsLogin={setIsLogin} setOpenModal={setOpenModal} />
+        )}
+      </Modal>
     </div>
   );
 };

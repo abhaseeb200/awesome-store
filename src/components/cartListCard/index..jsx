@@ -9,6 +9,7 @@ const CartListCard = ({
   handleQuantityDecrement,
   incrementLoader,
   decrementLoader,
+  deleteLoader,
   currentColor,
   currentSize,
   currentID,
@@ -28,13 +29,22 @@ const CartListCard = ({
             <p className="border-neutral-400 border-l pl-4 text-gray-500">
               {item?.currentSize}
             </p>
-            <span className="ml-12" onClick={() => handleDelete(item)}>
-              <AiOutlineDelete
-                className="bg-rose-500 rounded-lg p-1 hover:bg-rose-400 cursor-pointer"
-                color="#fff"
-                size="1.5rem"
-              />
-            </span>
+            {deleteLoader &&
+            item?.id === currentID &&
+            item?.currentSize === currentSize &&
+            item?.currentColor === currentColor ? (
+              <span className="bg-rose-500 rounded-lg p-1 hover:bg-rose-400 cursor-pointer ml-12">
+                <LuLoader2 size="1rem" color="#fff" className="animate-spin" />
+              </span>
+            ) : (
+              <span className="ml-12" onClick={() => handleDelete(item)}>
+                <AiOutlineDelete
+                  className="bg-rose-500 rounded-lg p-1 hover:bg-rose-400 cursor-pointer"
+                  color="#fff"
+                  size="1.5rem"
+                />
+              </span>
+            )}
           </div>
         </div>
         <div className="text-sm flex items-center gap-3">

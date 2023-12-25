@@ -12,12 +12,14 @@ const CartProduct = ({
   loaderFetchAPI,
   addToFavouriteLoader,
   handleModal,
+  currentID,
   handleFavourite,
   handleRemoveFavourite,
 }) => {
   let isfavouriteProducts = favourite?.find(
     (product) => product?.id === productData?.id
   );
+  console.log(currentID, "===", productData?.id, "====");
   return (
     <div key={index} className="relative flex flex-wrap mx-auto">
       <Link to={`/product/${productData?.id}`} className="w-full">
@@ -34,7 +36,7 @@ const CartProduct = ({
                 <AiOutlineFullscreen />
               </span>
 
-              {addToFavouriteLoader ? (
+              {addToFavouriteLoader && currentID === productData?.id ? (
                 <span
                   className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 group-hover:-translate-y-2 sm:group-hover:-translate-y-6 transition duration-300 opacity-0 group-hover:opacity-100 border p-1 sm:p-4 md:p-5"
                   onClick={(e) => e.preventDefault()}
@@ -76,10 +78,14 @@ const CartProduct = ({
               <p className="font-semibold w-full line-clamp-1 text-clip text-xm md:text-lg">
                 {productData?.title}
               </p>
-              <p className="text-sm text-gray-500">
-                {productData?.category}
+              <p className="text-sm text-gray-500">{productData?.category}</p>
+              <p
+                className={`mt-2 font-semibold text-xm md:text-lg ${
+                  loaderFetchAPI ? "bg-gray-300" : ""
+                } `}
+              >
+                ${productData?.price}
               </p>
-              <p className={`mt-2 font-semibold text-xm md:text-lg ${loaderFetchAPI ? 'bg-gray-300' : ''} `}>${productData?.price}</p>
             </div>
           </div>
         </div>

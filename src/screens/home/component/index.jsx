@@ -9,6 +9,7 @@ const SingleDetailCard = ({
   favourite,
   addToFavouriteLoader,
   handleModal,
+  currentID,
   handleFavourite,
   handleRemoveFavourite,
 }) => {
@@ -32,7 +33,7 @@ const SingleDetailCard = ({
         >
           <AiOutlineFullscreen />
         </span>
-        {addToFavouriteLoader ? (
+        {addToFavouriteLoader && currentID === firstProduct?.id ? (
           <span
             className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
             onClick={(e) => e.preventDefault()}

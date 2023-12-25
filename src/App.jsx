@@ -5,3 +5,5 @@ function App() {
 }
 
 export default App;
+
+//product modal should be componenet

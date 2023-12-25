@@ -15,7 +15,7 @@ const Orders = () => {
   const { userID } = useSelector((state) => state.user);
 
   const handleGetOrders = async () => {
-    setLoader(true)
+    setLoader(true);
     try {
       let response = await getOrder(userID);
       let temp = [];
@@ -49,14 +49,18 @@ const Orders = () => {
   };
 
   useEffect(() => {
-    handleGetOrders();
+    if (userID) {
+      handleGetOrders();
+    } else {
+      setLoader(false)
+    }
   }, [userID]);
 
   return (
     <div className="myPadding flex-1 min-h-[700px]">
       <div className="flex sm:py-10 py-5">
         <h2 className="font-medium text-3xl w-1/2">My Orders</h2>
-        <div className="w-1/2 flex">
+       {productsOrder.length > 0 && <div className="w-1/2 flex">
           <form className="flex relative w-full">
             <Input
               placeholder="Search Order..."
@@ -72,7 +76,7 @@ const Orders = () => {
               <HiOutlineSearch size="1.2rem" />
             </span>
           </form>
-        </div>
+        </div> }
       </div>
       {loader ? (
         <div className="animate-pulse">

@@ -24,6 +24,7 @@ const Favourite = () => {
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentPrice, setCurrentPrice] = useState("");
+  const [currentID, setCurrentID] = useState(null);
   const [currentSize, setCurrentSize] = useState("");
   const [currentColor, setCurrentColor] = useState("");
 
@@ -37,6 +38,7 @@ const Favourite = () => {
   const { productData } = useSelector((state) => state.data);
 
   const handleRemoveFavourite = async (currentProductData) => {
+    setCurrentID(currentProductData.id)
     setAddToFavouriteLoader(true);
     if (userID) {
       //user is login
@@ -127,23 +129,13 @@ const Favourite = () => {
     setMainLoader(true);
     try {
       let result = await getFavourite(userID);
+      // If the document exists, extract the data
       if (result.exists) {
-        dispatch(emptyFavouriteAction())
-        // If the document exists, extract the data
-        let productsID = result.data().productsID;
-        console.log(productsID);
-        //Products ID are in firebase, that why we need to filter with redux products
-        Object.keys(productData).forEach((category) => {
-          productsID?.forEach((itemID) => {
-            let obj = productData[category]?.find(
-              (product) => product.id === itemID
-            );
-
-            if (obj) {
-              console.log(obj,"OBJECts");
-              dispatch(addToFavouriteAction(obj));
-            }
-          });
+        dispatch(emptyFavouriteAction());
+        let productData = result.data().productData;
+        console.log(productData);
+        productData.forEach((item) => {
+          dispatch(addToFavouriteAction(item));
         });
       }
     } catch (error) {
@@ -186,6 +178,7 @@ const Favourite = () => {
                   productData={product}
                   favourite={favourite}
                   addToFavouriteLoader={addToFavouriteLoader}
+                  currentID={currentID}
                   handleModal={handleModal}
                   handleRemoveFavourite={handleRemoveFavourite}
                 />
