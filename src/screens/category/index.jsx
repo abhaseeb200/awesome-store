@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,13 +7,11 @@ import HeroSection from "../../components/heroSection";
 import HeroSectionSkeleton from "../../components/heroSection/skeleton";
 import CardProduct from "../../components/cardProduct";
 import CartProductSkeleton from "../../components/cardProduct/skeleton";
-import CardProductDetails from "../../components/cardProductDetails";
-import Modal from "../../components/modal";
 import FilterTab from "./component";
 import FilterTabSkeleton from "./component/skeleton";
 import SortingProducts from "../../components/sortingProducts";
 import SortingProductsSkeleton from "../../components/sortingProducts/skeleton";
-import { addToCartAction } from "../../redux/actions/cartAction";
+import ProductDetailsModal from "../../components/modal/productDetailsModal";
 import { categoryDataAction } from "../../redux/actions/categoryDataAction";
 import {
   addToFavouriteAction,
@@ -23,7 +21,6 @@ import {
   deleteFavourite,
   setFavourite,
 } from "../../config/services/firebase/favourite";
-import { setCart } from "../../config/services/firebase/cart";
 import {
   generateRandomColors,
   getRandomSizes,
@@ -34,12 +31,8 @@ const Category = () => {
   const [currentSizeTab, setCurrentSizeTab] = useState("");
   const [currentColorTab, setCurrentColorTab] = useState("");
   const [filterProducts, setFilterProducts] = useState([]);
-  const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [loaderFetchAPI, setLoaderFetchAPI] = useState(true);
-  const [currentPrice, setCurrentPrice] = useState("");
-  const [currentSize, setCurrentSize] = useState("");
-  const [currentColor, setCurrentColor] = useState("");
   const [currentID, setCurrentID] = useState(null);
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentProducts, setCurrentProducts] = useState([]);
@@ -53,8 +46,6 @@ const Category = () => {
     "LightGray",
   ]);
 
-  const cancelButtonRef = useRef(null);
-
   const { title } = useParams();
 
   const dispatch = useDispatch();
@@ -62,7 +53,6 @@ const Category = () => {
   const location = useLocation();
 
   const { productData } = useSelector((state) => state.categoryData);
-  const { cart } = useSelector((stata) => stata.addToCart);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
   const { userID } = useSelector((state) => state.user);
 
@@ -95,7 +85,7 @@ const Category = () => {
           [data[0].category]: updateData,
         };
         let combinedData = { ...productData, ...temp };
-        dispatch(categoryDataAction(combinedData))
+        dispatch(categoryDataAction(combinedData));
         setFilterProducts(updateData);
         setCurrentProducts(updateData);
         setLoaderFetchAPI(false);
@@ -115,21 +105,12 @@ const Category = () => {
     setOpen(true);
   };
 
-  const handleCurrentSizes = (price, size) => {
-    setCurrentPrice(price);
-    setCurrentSize(size);
-  };
-
   const handleSizeTab = (size) => {
     if (size === currentSizeTab) {
       setCurrentSizeTab("");
     } else {
       setCurrentSizeTab(size);
     }
-  };
-
-  const hanldeCurrentColor = (color) => {
-    setCurrentColor(color);
   };
 
   const handleColorTab = (title) => {
@@ -141,7 +122,7 @@ const Category = () => {
   };
 
   const handleFavourite = async (currentProductData) => {
-    setCurrentID(currentProductData.id)
+    setCurrentID(currentProductData.id);
     setAddToFavouriteLoader(true);
     let isAlreadyProduct = favourite.find(
       (product) => product.id === currentProductData.id
@@ -150,7 +131,6 @@ const Category = () => {
       toast.error("Item already added!", {
         autoClose: 1500,
       });
-      
     } else {
       if (userID) {
         await setFavourite(currentProductData, userID, favourite);
@@ -170,7 +150,7 @@ const Category = () => {
   };
 
   const handleRemoveFavourite = async (currentProductData) => {
-    setCurrentID(currentProductData.id)
+    setCurrentID(currentProductData.id);
     setAddToFavouriteLoader(true);
     if (userID) {
       try {
@@ -190,54 +170,6 @@ const Category = () => {
       toast.success("Remove favourite!", {
         autoClose: 1500,
       });
-    }
-  };
-
-  const handleAddToCart = (currentProductData) => {
-    let existingCartItem = cart.find(
-      (item) =>
-        item.id === currentProductData?.id &&
-        item.currentSize === currentSize &&
-        item.currentColor === currentColor
-    );
-    if (existingCartItem) {
-      toast.error("Item already in cart", {
-        autoClose: 1500,
-      });
-    } else {
-      //exist item not found
-      let updatedData = {
-        ...currentProductData,
-        quantity: 1,
-        currentSize: currentSize,
-        currentColor: currentColor,
-        currentPrice: currentPrice,
-      };
-      if (userID) {
-        //user is login
-        handleSetCart(updatedData);
-      } else {
-        //user is login out
-        dispatch(addToCartAction(updatedData));
-        toast.success("Cart add successfully!", {
-          autoClose: 1500,
-        });
-      }
-    }
-  };
-
-  const handleSetCart = async (updatedData) => {
-    setAddToCartLoader(true);
-    try {
-      await setCart(updatedData, userID, cart);
-      dispatch(addToCartAction(updatedData));
-      setAddToCartLoader(false);
-      toast.success("Cart add successfully!", {
-        autoClose: 1500,
-      });
-    } catch (error) {
-      console.log(error);
-      setAddToCartLoader(false);
     }
   };
 
@@ -305,12 +237,6 @@ const Category = () => {
     setCurrentSizeTab("");
     categoryProductsFetch();
   }, [title]);
-
-  useEffect(() => {
-    setCurrentColor("");
-    setCurrentPrice("");
-    setCurrentSize("");
-  }, [open]);
 
   useEffect(() => {
     //on reload, if filter params has
@@ -424,19 +350,11 @@ const Category = () => {
           </div>
         </div>
       </div>
-      <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
-        <CardProductDetails
-          currentProductData={currentProductData}
-          handleCurrentSizes={handleCurrentSizes}
-          hanldeCurrentColor={hanldeCurrentColor}
-          handleAddToCart={handleAddToCart}
-          handleSetCart={handleSetCart}
-          currentPrice={currentPrice}
-          currentColor={currentColor}
-          addToCartLoader={addToCartLoader}
-        />
-      </Modal>
-      ;
+      <ProductDetailsModal
+        open={open}
+        setOpen={setOpen}
+        currentProductData={currentProductData}
+      />
     </>
   );
 };

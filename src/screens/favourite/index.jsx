@@ -1,44 +1,33 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import CartProduct from "../../components/cardProduct";
 import CartProductSkeleton from "../../components/cardProduct/skeleton";
-import Modal from "../../components/modal";
-import CardProductDetails from "../../components/cardProductDetails";
+import ProductDetailsModal from "../../components/modal/productDetailsModal";
 import {
   addToFavouriteAction,
   emptyFavouriteAction,
   removeFromFavouriteAction,
 } from "../../redux/actions/favouriteAction";
-import { addToCartAction } from "../../redux/actions/cartAction";
 import {
   deleteFavourite,
   getFavourite,
 } from "../../config/services/firebase/favourite";
-import { setCart } from "../../config/services/firebase/cart";
 
 const Favourite = () => {
   const [open, setOpen] = useState(false);
-  const [addToCartLoader, setAddToCartLoader] = useState(false);
   const [mainLoader, setMainLoader] = useState(true);
   const [addToFavouriteLoader, setAddToFavouriteLoader] = useState(false);
   const [currentProductData, setCurrentProductData] = useState({});
-  const [currentPrice, setCurrentPrice] = useState("");
   const [currentID, setCurrentID] = useState(null);
-  const [currentSize, setCurrentSize] = useState("");
-  const [currentColor, setCurrentColor] = useState("");
-
-  const cancelButtonRef = useRef(null);
 
   const dispatch = useDispatch();
 
   const { userID } = useSelector((state) => state.user);
   const { favourite } = useSelector((stata) => stata.addToFavourite);
-  const { cart } = useSelector((stata) => stata.addToCart);
-  const { productData } = useSelector((state) => state.data);
 
   const handleRemoveFavourite = async (currentProductData) => {
-    setCurrentID(currentProductData.id)
+    setCurrentID(currentProductData.id);
     setAddToFavouriteLoader(true);
     if (userID) {
       //user is login
@@ -68,63 +57,6 @@ const Favourite = () => {
     setOpen(true);
   };
 
-  const handleCurrentSizes = (price, size) => {
-    setCurrentPrice(price);
-    setCurrentSize(size);
-  };
-
-  const hanldeCurrentColor = (color) => {
-    setCurrentColor(color);
-  };
-
-  const handleAddToCart = (currentProductData) => {
-    let existingCartItem = cart.find(
-      (item) =>
-        item.id === currentProductData?.id &&
-        item.currentSize === currentSize &&
-        item.currentColor === currentColor
-    );
-    if (existingCartItem) {
-      toast.error("Item already in cart", {
-        autoClose: 1500,
-      });
-    } else {
-      //exist item not found
-      let updatedData = {
-        ...currentProductData,
-        quantity: 1,
-        currentSize: currentSize,
-        currentColor: currentColor,
-        currentPrice: currentPrice,
-      };
-      if (userID) {
-        //user is login
-        handleSetCart(updatedData);
-      } else {
-        //user is login out
-        dispatch(addToCartAction(updatedData));
-        toast.success("Cart add successfully!", {
-          autoClose: 1500,
-        });
-      }
-    }
-  };
-
-  const handleSetCart = async (updatedData) => {
-    setAddToCartLoader(true);
-    try {
-      await setCart(updatedData, userID, cart);
-      dispatch(addToCartAction(updatedData));
-      setAddToCartLoader(false);
-      toast.success("Cart add successfully!", {
-        autoClose: 1500,
-      });
-    } catch (error) {
-      console.log(error);
-      setAddToCartLoader(false);
-    }
-  };
-
   const handleGetFavourite = async () => {
     setMainLoader(true);
     try {
@@ -144,12 +76,6 @@ const Favourite = () => {
       setMainLoader(false);
     }
   };
-
-  useEffect(() => {
-    setCurrentColor("");
-    setCurrentPrice("");
-    setCurrentSize("");
-  }, [open]);
 
   useEffect(() => {
     if (userID) {
@@ -189,19 +115,12 @@ const Favourite = () => {
           <p className="mx-4">No items added to favourite</p>
         )}
       </div>
-      <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
-        <CardProductDetails
-          currentProductData={currentProductData}
-          currentPrice={currentPrice}
-          currentColor={currentColor}
-          setCurrentPrice={setCurrentPrice}
-          handleCurrentSizes={handleCurrentSizes}
-          handleAddToCart={handleAddToCart}
-          hanldeCurrentColor={hanldeCurrentColor}
-          handleSetCart={handleSetCart}
-          addToCartLoader={addToCartLoader}
-        />
-      </Modal>
+
+      <ProductDetailsModal
+        open={open}
+        setOpen={setOpen}
+        currentProductData={currentProductData}
+      />
     </div>
   );
 };

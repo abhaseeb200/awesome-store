@@ -46,7 +46,7 @@ const Cart = () => {
     setCurrentID(currentProductData?.id);
     setCurrentColor(currentProductData?.currentColor);
     setCurrentSize(currentProductData?.currentSize);
-    setDeleteLoader(true)
+    setDeleteLoader(true);
     if (userID) {
       try {
         await deleteCart(userID, currentProductData, cart);
@@ -54,17 +54,17 @@ const Cart = () => {
         toast.success("Remove successfully!", {
           autoClose: 1500,
         });
-        setDeleteLoader(false)
+        setDeleteLoader(false);
       } catch (error) {
         console.log(error);
-        setDeleteLoader(false)
+        setDeleteLoader(false);
       }
     } else {
       dispatch(removeFromCartAction(currentProductData));
       toast.success("Remove successfully!", {
         autoClose: 1500,
       });
-      setDeleteLoader(false)
+      setDeleteLoader(false);
     }
   };
 

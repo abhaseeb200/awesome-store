@@ -5,6 +5,7 @@ const orderProcess = (products, currentUserID) => {
         userId: currentUserID,
         timeStamp: Date.now(),
         products: [...products],
+        dateAndTime: new Date().toString(),
         status: "pending",
     })
 }

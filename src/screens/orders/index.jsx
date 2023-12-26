@@ -33,6 +33,17 @@ const Orders = () => {
     }
   };
 
+  const handleCurrentDateAndTimeFormat = (date) => {
+    let now = new Date(date)
+    let currentDate = now.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    let time = now.toLocaleString([], { hour12: true }).split(",");
+    return currentDate + time[1]
+  };
+
   const handleSearchOrderID = (e) => {
     let val = e.target.value.trim();
     setSearch(e.target.value);
@@ -93,6 +104,9 @@ const Orders = () => {
                 Order ID
               </th>
               <th className="border border-slate-600 text-left p-2 sm:p-4 bg-gray-300">
+                Order Date
+              </th>
+              <th className="border border-slate-600 text-left p-2 sm:p-4 bg-gray-300">
                 Order Status
               </th>
               <th className="border border-slate-600 text-left p-2 sm:p-4 bg-gray-300">
@@ -106,7 +120,10 @@ const Orders = () => {
                 <Fragment key={index}>
                   <tr>
                     <td className="border border-slate-700 py-2 sm:px-4 px-2 text-sm sm:text-base">
-                      {order.docID}
+                      {order.docID} 
+                    </td>
+                    <td className="border border-slate-700 py-2 sm:px-4 px-2 text-sm sm:text-base">
+                      {handleCurrentDateAndTimeFormat(order?.dateAndTime)}
                     </td>
                     <td className="border border-slate-700 py-2 sm:px-4 px-2 capitalize text-sm sm:text-base">
                       {order.status}

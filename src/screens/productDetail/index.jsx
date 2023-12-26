@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -7,7 +7,7 @@ import CardProductDetails from "../../components/cardProductDetails";
 import CardProductDetailsSkeleton from "../../components/cardProductDetails/skeleton";
 import CartProduct from "../../components/cardProduct";
 import CartProductSkeleton from "../../components/cardProduct/skeleton";
-import Modal from "../../components/modal";
+import ProductDetailsModal from "../../components/modal/productDetailsModal";
 import { addToCartAction } from "../../redux/actions/cartAction";
 import { categoryDataAction } from "../../redux/actions/categoryDataAction";
 import {
@@ -36,8 +36,6 @@ const ProductDetail = () => {
   const [currentProductData, setCurrentProductData] = useState({});
   const [currentProduct, setCurrentProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
-
-  const cancelButtonRef = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -170,7 +168,7 @@ const ProductDetail = () => {
   };
 
   const handleFavourite = async (currentProductData) => {
-    setCurrentID(currentProductData.id)
+    setCurrentID(currentProductData.id);
     setAddToFavouriteLoader(true);
     let isAlreadyProduct = favourite.find(
       (product) => product.id === currentProductData.id
@@ -198,7 +196,7 @@ const ProductDetail = () => {
   };
 
   const handleRemoveFavourite = async (currentProductData) => {
-    setCurrentID(currentProductData.id)
+    setCurrentID(currentProductData.id);
     setAddToFavouriteLoader(true);
     if (userID) {
       //user is login
@@ -229,15 +227,10 @@ const ProductDetail = () => {
   useEffect(() => {
     setCurrentPrice("");
     setCurrentColor("");
+    setCurrentSize("");
     window.scrollTo(0, 0);
     handleFetchProduct();
   }, [id]);
-
-  useEffect(() => {
-    setCurrentColor("");
-    setCurrentPrice("");
-    setCurrentSize("");
-  }, [open]);
 
   return (
     <>
@@ -291,19 +284,11 @@ const ProductDetail = () => {
         </>
       )}
 
-      <Modal open={open} setOpen={setOpen} cancelButtonRef={cancelButtonRef}>
-        <CardProductDetails
-          currentProductData={currentProductData}
-          currentPrice={currentPrice}
-          currentColor={currentColor}
-          addToCartLoader={addToCartLoader}
-          setCurrentPrice={setCurrentPrice}
-          handleCurrentSizes={handleCurrentSizes}
-          handleAddToCart={handleAddToCart}
-          hanldeCurrentColor={hanldeCurrentColor}
-          handleSetCart={handleSetCart}
-        />
-      </Modal>
+      <ProductDetailsModal
+        open={open}
+        setOpen={setOpen}
+        currentProductData={currentProductData}
+      />
     </>
   );
 };

@@ -19,7 +19,6 @@ const CartProduct = ({
   let isfavouriteProducts = favourite?.find(
     (product) => product?.id === productData?.id
   );
-  console.log(currentID, "===", productData?.id, "====");
   return (
     <div key={index} className="relative flex flex-wrap mx-auto">
       <Link to={`/product/${productData?.id}`} className="w-full">

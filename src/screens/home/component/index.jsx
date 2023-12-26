@@ -21,47 +21,48 @@ const SingleDetailCard = ({
     <div className="flex flex-col md:flex-row items-start justify-between flex-wrap border p-4 rounded-xl cursor-pointer group relative">
       <Link
         to={`/product/${firstProduct?.id}`}
-        className="absolute top-0 lef-0 w-full h-full z-20"
-      ></Link>
-      <div className="absolute top-0 left-0 flex justify-center items-center w-full h-full gap-5 z-20 group-hover:-translate-y-1 sm:group-hover:-translate-y-4 duration-300 opacity-0 group-hover:opacity-100 transition pointer-events-none group-hover:pointer-events-auto">
-        <span
-          className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
-          onClick={(e) => {
-            e.preventDefault();
-            handleModal(firstProduct);
-          }}
-        >
-          <AiOutlineFullscreen />
-        </span>
-        {addToFavouriteLoader && currentID === firstProduct?.id ? (
+        className="absolute top-0 lef-0 w-full h-full z-30"
+      >
+        <div className="absolute top-0 left-0 flex justify-center items-center w-full h-full gap-5 group-hover:-translate-y-1 sm:group-hover:-translate-y-4 duration-300 opacity-0 group-hover:opacity-100 transition pointer-events-none group-hover:pointer-events-auto">
           <span
-            className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
-            onClick={(e) => e.preventDefault()}
-          >
-            <TbLoader2 size="1.2rem" className="animate-spin" />
-          </span>
-        ) : favouriteProducts ? (
-          <span
-            className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
+            className=" flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
             onClick={(e) => {
               e.preventDefault();
-              handleRemoveFavourite(firstProduct);
+              handleModal(firstProduct);
             }}
           >
-            <FaHeart color="#ef4444" />
+            <AiOutlineFullscreen />
           </span>
-        ) : (
-          <span
-            className="flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
-            onClick={(e) => {
-              e.preventDefault();
-              handleFavourite(firstProduct);
-            }}
-          >
-            <IoMdHeartEmpty />
-          </span>
-        )}
-      </div>
+          {addToFavouriteLoader && currentID === firstProduct?.id ? (
+            <span
+              className=" flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
+              onClick={(e) => e.preventDefault()}
+            >
+              <TbLoader2 size="1.2rem" className="animate-spin" />
+            </span>
+          ) : favouriteProducts ? (
+            <span
+              className=" flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
+              onClick={(e) => {
+                e.preventDefault();
+                handleRemoveFavourite(firstProduct);
+              }}
+            >
+              <FaHeart color="#ef4444" />
+            </span>
+          ) : (
+            <span
+              className=" flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition border p-1 sm:p-4 md:p-5"
+              onClick={(e) => {
+                e.preventDefault();
+                handleFavourite(firstProduct);
+              }}
+            >
+              <IoMdHeartEmpty />
+            </span>
+          )}
+        </div>
+      </Link>
       <div className="bg-black/0 group-hover:bg-black/40 transition rounded-xl w-full h-full absolute inset-0 z-10" />
       <div className="w-full sm:w-full md:w-1/3 relative rounded-lg overflow-hidden flex-shrink-0 mb-4 sm:mb-0 md:mb-0">
         <img
