@@ -18,9 +18,10 @@ const OrderProducts = () => {
       let response = await getOrderProductDoc(orderID);
       console.log(response.data().products, "RESPON");
       setCurrentProducts(response.data().products);
-      setLoader(false);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoader(false);
     }
   };
 
@@ -28,7 +29,8 @@ const OrderProducts = () => {
     if (userID) {
       handleGetOrderProductsDetails();
     } else {
-      console.log("User is logout...");
+      // console.log("User is logout...");
+      setLoader(false);
     }
   }, [userID]);
 

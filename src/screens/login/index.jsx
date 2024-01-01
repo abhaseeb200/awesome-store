@@ -10,6 +10,7 @@ import {
   authSignIn,
   authWithGoogle,
 } from "../../config/services/firebase/auth";
+import { setUsers } from "../../config/services/firebase/users";
 
 const Login = ({ setIsLogin, setOpenModal }) => {
   const [loader, setLoader] = useState(false);
@@ -146,18 +147,30 @@ const Login = ({ setIsLogin, setOpenModal }) => {
   const handleAuthWithGoogle = async (e) => {
     e.preventDefault();
     try {
-      await authWithGoogle();
+      setLoader(true);
+      let response = await authWithGoogle();
+      let user = response.user;
+      let isNewUser = response.additionalUserInfo.isNewUser;
+      console.log({ response }, "USER >>>>>>");
+      if (isNewUser) {
+        await setUsers(user.email, user.displayName, user.uid);
+      }
+      dispatch(currentUserAction(user.uid));
       setOpenModal(false);
       toast.success("Login successfully!", {
         autoClose: 1500,
       });
     } catch (error) {
       console.log(error);
-      toast.success(error, {
+      toast.error(error.message, {
         autoClose: 1500,
       });
+    } finally {
+      setLoader(false);
     }
   };
+
+
 
   return (
     <>

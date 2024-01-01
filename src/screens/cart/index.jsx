@@ -7,7 +7,9 @@ import CartListCard from "../../components/cartListCard/index.";
 import CartListCardSkeleton from "../../components/cartListCard/skeleton";
 import CheckoutSection from "../../components/checkoutSection";
 import CheckoutSectionSkeleton from "../../components/checkoutSection/skeleton";
-import { orderProcess } from "../../config/services/firebase/order";
+import Modal from "../../components/modal";
+import Login from "../login";
+import Register from "../register";
 import {
   addToCartAction,
   decrementAction,
@@ -15,15 +17,14 @@ import {
   incrementAction,
   removeFromCartAction,
 } from "../../redux/actions/cartAction";
+import { orderProcess } from "../../config/services/firebase/order";
 import {
   deleteCart,
   emptryCart,
   getCart,
   updateCart,
 } from "../../config/services/firebase/cart";
-import Modal from "../../components/modal";
-import Login from "../login";
-import Register from "../register";
+import { getUser } from "../../config/services/firebase/users";
 
 const Cart = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -36,6 +37,7 @@ const Cart = () => {
   const [currentID, setCurrentID] = useState(null);
   const [currentColor, setCurrentColor] = useState("");
   const [currentSize, setCurrentSize] = useState("");
+  const [userData, setUserData] = useState({});
 
   const dispatch = useDispatch();
 
@@ -95,7 +97,7 @@ const Cart = () => {
   const handleFirebaseEmptyCart = async () => {
     try {
       setCheckoutLoader(true);
-      await orderProcess(cart, userID);
+      await orderProcess(cart, userData?.fullName, userID);
       await emptryCart(userID);
       dispatch(emptyCarttAction());
       setCheckoutLoader(false);
@@ -166,9 +168,23 @@ const Cart = () => {
     }
   };
 
+  const userDataFetch = async () => {
+
+    try {
+      let response = await getUser(userID);
+      response.forEach((doc) => {
+        console.log(doc.data(), "______");
+        setUserData(doc.data())
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (userID) {
       handleGetCart();
+      userDataFetch();
     } else {
       setMainLoader(false);
     }

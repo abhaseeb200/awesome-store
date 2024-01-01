@@ -233,20 +233,20 @@ const Register = ({ setIsLogin, setOpenModal }) => {
         const user = userCredential.user;
         await setUsers(email.value.trim(), fullName.value.trim(), user.uid);
         dispatch(currentUserAction(user.uid));
-        setLoader(false);
         setOpenModal(false);
         toast.success("Register account successfully!", {
           autoClose: 1500,
         });
       } catch (err) {
         console.log(err);
-        setLoader(false);
         toast.error(err, {
           autoClose: 1500,
         });
         toast.error(err.message, {
           autoClose: 1500,
         });
+      } finally {
+        setLoader(false);
       }
     }
   };
@@ -254,16 +254,26 @@ const Register = ({ setIsLogin, setOpenModal }) => {
   const handleAuthWithGoogle = async (e) => {
     e.preventDefault();
     try {
-      await authWithGoogle();
+      setLoader(true);
+      let response = await authWithGoogle();
+      let user = response.user;
+      let isNewUser = response.additionalUserInfo.isNewUser;
+      console.log({ response }, "USER >>>>>>");
+      if (isNewUser) {
+        await setUsers(user.email, user.displayName, user.uid);
+      }
+      dispatch(currentUserAction(user.uid));
       setOpenModal(false);
       toast.success("SignUp successfully!", {
         autoClose: 1500,
       });
     } catch (error) {
       console.log(error);
-      toast.error(error, {
+      toast.error(error.message, {
         autoClose: 1500,
       });
+    } finally {
+      setLoader(false);
     }
   };
 

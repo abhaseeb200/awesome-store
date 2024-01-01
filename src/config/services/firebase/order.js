@@ -1,8 +1,9 @@
 import { db } from "../../firebaseConfig"
 
-const orderProcess = (products, currentUserID) => {
+const orderProcess = (products, fullName ,currentUserID) => {
     return db.collection("orders").add({
         userId: currentUserID,
+        fullName: fullName,
         timeStamp: Date.now(),
         products: [...products],
         dateAndTime: new Date().toString(),

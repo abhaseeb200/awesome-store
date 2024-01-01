@@ -1,6 +1,6 @@
 import { db } from "../../firebaseConfig";
 
-const setUsers = (fullName,email,userID) => {
+const setUsers = (email,fullName,userID) => {
     return db.collection("users")
         .add({
             fullName: fullName,
@@ -9,5 +9,8 @@ const setUsers = (fullName,email,userID) => {
         })
 }
 
+const getUser = (userID) => {
+    return db.collection("users").where("userID","==",userID).get()
+}
 
-export { setUsers }
+export { setUsers, getUser }
