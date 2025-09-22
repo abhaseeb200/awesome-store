@@ -2,7 +2,6 @@ import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { HiOutlineSearch } from "react-icons/hi";
 import Input from "../../components/input";
-import { getOrder } from "../../config/services/firebase/order";
 import { useSelector } from "react-redux";
 
 const Orders = () => {
@@ -17,7 +16,7 @@ const Orders = () => {
   const handleGetOrders = async () => {
     setLoader(true);
     try {
-      let response = await getOrder(userID);
+      // let response = await getOrder(userID);
       let temp = [];
       response.forEach((product) => {
         // console.log(product.id);

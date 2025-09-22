@@ -17,8 +17,7 @@ import Login from "../../screens/login";
 import Register from "../../screens/register";
 import { emptyCarttAction } from "../../redux/actions/cartAction";
 import { emptyFavouriteAction } from "../../redux/actions/favouriteAction";
-import { currentUserAction } from "../../redux/actions/userAction";
-import { authLogout } from "../../config/services/firebase/auth";
+import { userAction } from "../../redux/actions/userAction";
 import "./style.css";
 
 const Navbar = () => {
@@ -39,11 +38,10 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await authLogout();
       toast.success("LogOut successfully!", {
         autoClose: 1500,
       });
-      dispatch(currentUserAction(""));
+      dispatch(userAction(""));
       dispatch(emptyCarttAction());
       dispatch(emptyFavouriteAction());
     } catch (error) {
@@ -90,7 +88,7 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    handleNavigation();
+    // handleNavigation();
     document.addEventListener("keydown", handleKeyPress);
     return () => {
       document.removeEventListener("keydown", handleKeyPress);

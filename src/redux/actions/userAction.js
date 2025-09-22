@@ -1,6 +1,6 @@
 import { USER } from "../types/userType";
 
-const currentUserAction = (user) => {
+const userAction = (user) => {
     console.log(user);
     return {
         type: USER,
@@ -8,4 +8,4 @@ const currentUserAction = (user) => {
     };
 };
 
-export { currentUserAction }
+export { userAction }

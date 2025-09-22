@@ -17,14 +17,6 @@ import {
   addToFavouriteAction,
   removeFromFavouriteAction,
 } from "../../redux/actions/favouriteAction";
-import {
-  deleteFavourite,
-  setFavourite,
-} from "../../config/services/firebase/favourite";
-import {
-  generateRandomColors,
-  getRandomSizes,
-} from "../../config/services/randomGenerators/randomGenerates";
 
 const Category = () => {
   const [open, setOpen] = useState(false);
@@ -76,9 +68,9 @@ const Category = () => {
         let updateData = data.map((item) => {
           return {
             ...item,
-            sizes: getRandomSizes(item.price),
+            // sizes: getRandomSizes(item.price),
             quantity: 0,
-            colors: generateRandomColors(),
+            // colors: generateRandomColors(),
           };
         });
         let temp = {
@@ -133,7 +125,7 @@ const Category = () => {
       });
     } else {
       if (userID) {
-        await setFavourite(currentProductData, userID, favourite);
+        // await setFavourite(currentProductData, userID, favourite);
         dispatch(addToFavouriteAction(currentProductData));
         setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {
@@ -154,7 +146,7 @@ const Category = () => {
     setAddToFavouriteLoader(true);
     if (userID) {
       try {
-        await deleteFavourite(currentProductData, userID, favourite);
+        // await deleteFavourite(currentProductData, userID, favourite);
         dispatch(removeFromFavouriteAction(currentProductData.id));
         setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {

@@ -5,12 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button";
 import Input from "../../components/input";
-import { currentUserAction } from "../../redux/actions/userAction";
-import {
-  authSignIn,
-  authWithGoogle,
-} from "../../config/services/firebase/auth";
-import { setUsers } from "../../config/services/firebase/users";
+import { userAction } from "../../redux/actions/userAction";
 
 const Login = ({ setIsLogin, setOpenModal }) => {
   const [loader, setLoader] = useState(false);
@@ -103,71 +98,71 @@ const Login = ({ setIsLogin, setOpenModal }) => {
   const dispatch = useDispatch()
 
   const signInHandler = async (e) => {
-    e.preventDefault();
-    if (email.value === "") {
-      setEmail({
-        value: email.value,
-        isError: true,
-        messageError: "Please enter your email address",
-      });
-    }
-    if (password.value === "") {
-      setPassword({
-        value: password.value,
-        isError: true,
-        messageError: "Please enter your password",
-      });
-    }
+    // e.preventDefault();
+    // if (email.value === "") {
+    //   setEmail({
+    //     value: email.value,
+    //     isError: true,
+    //     messageError: "Please enter your email address",
+    //   });
+    // }
+    // if (password.value === "") {
+    //   setPassword({
+    //     value: password.value,
+    //     isError: true,
+    //     messageError: "Please enter your password",
+    //   });
+    // }
 
-    if (email.value === "" || password.value === "") {
-      return;
-    }
+    // if (email.value === "" || password.value === "") {
+    //   return;
+    // }
 
-    //validation cheeck
-    if (!email.isError && !password.isError) {
-      try {
-        setLoader(true);
-        const userCredential = await authSignIn(email.value, password.value);
-        const user = userCredential.user;
-        dispatch(currentUserAction(user.uid))
-        setLoader(false);
-        setOpenModal(false);
-        toast.success("Login successfully!", {
-          autoClose: 1500,
-        });
-      } catch (err) {
-        setLoader(false);
-        toast.error(err.code, {
-          autoClose: 1500,
-        });
-      }
-    }
+    // //validation cheeck
+    // if (!email.isError && !password.isError) {
+    //   try {
+    //     setLoader(true);
+    //     const userCredential = await authSignIn(email.value, password.value);
+    //     const user = userCredential.user;
+    //     dispatch(userAction(user.uid))
+    //     setLoader(false);
+    //     setOpenModal(false);
+    //     toast.success("Login successfully!", {
+    //       autoClose: 1500,
+    //     });
+    //   } catch (err) {
+    //     setLoader(false);
+    //     toast.error(err.code, {
+    //       autoClose: 1500,
+    //     });
+    //   }
+    // }
   };
 
   const handleAuthWithGoogle = async (e) => {
-    e.preventDefault();
-    try {
-      setLoader(true);
-      let response = await authWithGoogle();
-      let user = response.user;
-      let isNewUser = response.additionalUserInfo.isNewUser;
-      console.log({ response }, "USER >>>>>>");
-      if (isNewUser) {
-        await setUsers(user.email, user.displayName, user.uid);
-      }
-      dispatch(currentUserAction(user.uid));
-      setOpenModal(false);
-      toast.success("Login successfully!", {
-        autoClose: 1500,
-      });
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message, {
-        autoClose: 1500,
-      });
-    } finally {
-      setLoader(false);
-    }
+    // e.preventDefault();
+    // try {
+    //   setLoader(true);
+    //   let response = await authWithGoogle();
+    //   let user = response.user;
+    //   let isNewUser = response.additionalUserInfo.isNewUser;
+    //   console.log({ response }, "USER >>>>>>");
+    //   if (isNewUser) {
+    //     await setUsers(user.email, user.displayName, user.uid);
+    //   }
+    //   dispatch(userAction(user.uid));
+    //   setOpenModal(false);
+    //   toast.success("Login successfully!", {
+    //     autoClose: 1500,
+    //   });
+    // } catch (error) {
+    //   console.log(error);
+    //   toast.error(error.message, {
+    //     autoClose: 1500,
+    //   });
+    // } finally {
+    //   setLoader(false);
+    // }
   };
 
 

@@ -17,14 +17,6 @@ import {
   incrementAction,
   removeFromCartAction,
 } from "../../redux/actions/cartAction";
-import { orderProcess } from "../../config/services/firebase/order";
-import {
-  deleteCart,
-  emptryCart,
-  getCart,
-  updateCart,
-} from "../../config/services/firebase/cart";
-import { getUser } from "../../config/services/firebase/users";
 
 const Cart = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -51,7 +43,6 @@ const Cart = () => {
     setDeleteLoader(true);
     if (userID) {
       try {
-        await deleteCart(userID, currentProductData, cart);
         dispatch(removeFromCartAction(currentProductData));
         toast.success("Remove successfully!", {
           autoClose: 1500,
@@ -97,7 +88,7 @@ const Cart = () => {
   const handleFirebaseEmptyCart = async () => {
     try {
       setCheckoutLoader(true);
-      await orderProcess(cart, userData?.fullName, userID);
+      // await orderProcess(cart, userData?.fullName, userID);
       await emptryCart(userID);
       dispatch(emptyCarttAction());
       setCheckoutLoader(false);
@@ -151,27 +142,26 @@ const Cart = () => {
   };
 
   const handleGetCart = async () => {
-    setMainLoader(true);
-    try {
-      let result = await getCart(userID);
-      if (result.exists) {
-        dispatch(emptyCarttAction());
-        let response = await result.data().productData;
-        response.forEach((item) => {
-          dispatch(addToCartAction(item));
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setMainLoader(false);
-    }
+    // setMainLoader(true);
+    // try {
+    //   if (result.exists) {
+    //     dispatch(emptyCarttAction());
+    //     let response = await result.data().productData;
+    //     response.forEach((item) => {
+    //       dispatch(addToCartAction(item));
+    //     });
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // } finally {
+    //   setMainLoader(false);
+    // }
   };
 
   const userDataFetch = async () => {
 
     try {
-      let response = await getUser(userID);
+      // let response = await getUser(userID);
       response.forEach((doc) => {
         console.log(doc.data(), "______");
         setUserData(doc.data())

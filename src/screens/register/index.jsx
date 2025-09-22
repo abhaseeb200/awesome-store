@@ -5,12 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 import { TbLoader2 } from "react-icons/tb";
 import Button from "../../components/button";
 import Input from "../../components/input";
-import {
-  authSignUp,
-  authWithGoogle,
-} from "../../config/services/firebase/auth";
-import { setUsers } from "../../config/services/firebase/users";
-import { currentUserAction } from "../../redux/actions/userAction";
+import { userAction } from "../../redux/actions/userAction";
 
 const Register = ({ setIsLogin, setOpenModal }) => {
   const [loader, setLoader] = useState(false);
@@ -177,104 +172,104 @@ const Register = ({ setIsLogin, setOpenModal }) => {
     }
   };
 
-  const signUpHandler = async (e) => {
-    e.preventDefault();
-    if (fullName.value === "") {
-      setFullName({
-        value: fullName.value,
-        isError: true,
-        messageError: "Please enter your full name",
-      });
-    }
-    if (email.value === "") {
-      setEmail({
-        value: email.value,
-        isError: true,
-        messageError: "Please enter your email address",
-      });
-    }
-    if (password.value === "") {
-      setPassword({
-        value: password.value,
-        isError: true,
-        messageError: "Please enter your password",
-      });
-    }
-    if (confirmPassword.value === "") {
-      setConfirmPassword({
-        value: confirmPassword.value,
-        isError: true,
-        messageError: "Password can't be empty",
-      });
-    }
+  // const signUpHandler = async (e) => {
+  //   e.preventDefault();
+  //   if (fullName.value === "") {
+  //     setFullName({
+  //       value: fullName.value,
+  //       isError: true,
+  //       messageError: "Please enter your full name",
+  //     });
+  //   }
+  //   if (email.value === "") {
+  //     setEmail({
+  //       value: email.value,
+  //       isError: true,
+  //       messageError: "Please enter your email address",
+  //     });
+  //   }
+  //   if (password.value === "") {
+  //     setPassword({
+  //       value: password.value,
+  //       isError: true,
+  //       messageError: "Please enter your password",
+  //     });
+  //   }
+  //   if (confirmPassword.value === "") {
+  //     setConfirmPassword({
+  //       value: confirmPassword.value,
+  //       isError: true,
+  //       messageError: "Password can't be empty",
+  //     });
+  //   }
 
-    if (
-      fullName.value === "" ||
-      email.value === "" ||
-      password.value === "" ||
-      confirmPassword.value === ""
-    ) {
-      return;
-    }
+  //   if (
+  //     fullName.value === "" ||
+  //     email.value === "" ||
+  //     password.value === "" ||
+  //     confirmPassword.value === ""
+  //   ) {
+  //     return;
+  //   }
 
-    //validation cheeck
-    if (
-      !fullName.isError &&
-      !email.isError &&
-      !password.isError &&
-      !confirmPassword.isError
-    ) {
-      try {
-        setLoader(true);
-        const userCredential = await authSignUp(
-          email.value.trim(),
-          password.value.trim()
-        );
-        const user = userCredential.user;
-        await setUsers(email.value.trim(), fullName.value.trim(), user.uid);
-        dispatch(currentUserAction(user.uid));
-        setOpenModal(false);
-        toast.success("Register account successfully!", {
-          autoClose: 1500,
-        });
-      } catch (err) {
-        console.log(err);
-        toast.error(err, {
-          autoClose: 1500,
-        });
-        toast.error(err.message, {
-          autoClose: 1500,
-        });
-      } finally {
-        setLoader(false);
-      }
-    }
-  };
+  //   //validation cheeck
+  //   if (
+  //     !fullName.isError &&
+  //     !email.isError &&
+  //     !password.isError &&
+  //     !confirmPassword.isError
+  //   ) {
+  //     try {
+  //       setLoader(true);
+  //       const userCredential = await authSignUp(
+  //         email.value.trim(),
+  //         password.value.trim()
+  //       );
+  //       const user = userCredential.user;
+  //       await setUsers(email.value.trim(), fullName.value.trim(), user.uid);
+  //       dispatch(userAction(user.uid));
+  //       setOpenModal(false);
+  //       toast.success("Register account successfully!", {
+  //         autoClose: 1500,
+  //       });
+  //     } catch (err) {
+  //       console.log(err);
+  //       toast.error(err, {
+  //         autoClose: 1500,
+  //       });
+  //       toast.error(err.message, {
+  //         autoClose: 1500,
+  //       });
+  //     } finally {
+  //       setLoader(false);
+  //     }
+  //   }
+  // };
 
   const handleAuthWithGoogle = async (e) => {
-    e.preventDefault();
-    try {
-      setLoader(true);
-      let response = await authWithGoogle();
-      let user = response.user;
-      let isNewUser = response.additionalUserInfo.isNewUser;
-      console.log({ response }, "USER >>>>>>");
-      if (isNewUser) {
-        await setUsers(user.email, user.displayName, user.uid);
-      }
-      dispatch(currentUserAction(user.uid));
-      setOpenModal(false);
-      toast.success("SignUp successfully!", {
-        autoClose: 1500,
-      });
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message, {
-        autoClose: 1500,
-      });
-    } finally {
-      setLoader(false);
-    }
+    // e.preventDefault();
+    // try {
+    //   setLoader(true);
+    //   let response = await authWithGoogle();
+    //   let user = response.user;
+    //   let isNewUser = response.additionalUserInfo.isNewUser;
+    //   console.log({ response }, "USER >>>>>>");
+    //   if (isNewUser) {
+    //     await setUsers(user.email, user.displayName, user.uid);
+    //   }
+    //   dispatch(userAction(user.uid));
+    //   setOpenModal(false);
+    //   toast.success("SignUp successfully!", {
+    //     autoClose: 1500,
+    //   });
+    // } catch (error) {
+    //   console.log(error);
+    //   toast.error(error.message, {
+    //     autoClose: 1500,
+    //   });
+    // } finally {
+    //   setLoader(false);
+    // }
   };
 
   return (
@@ -350,7 +345,7 @@ const Register = ({ setIsLogin, setOpenModal }) => {
             <Button
               name="Create an account"
               className="w-full justify-center text-sm"
-              onClick={signUpHandler}
+              // onClick={signUpHandler}
             />
           )}
         </div>

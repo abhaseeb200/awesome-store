@@ -14,15 +14,6 @@ import {
   addToFavouriteAction,
   removeFromFavouriteAction,
 } from "../../redux/actions/favouriteAction";
-import { setCart } from "../../config/services/firebase/cart";
-import {
-  deleteFavourite,
-  setFavourite,
-} from "../../config/services/firebase/favourite";
-import {
-  generateRandomColors,
-  getRandomSizes,
-} from "../../config/services/randomGenerators/randomGenerates";
 
 const ProductDetail = () => {
   const [open, setOpen] = useState(false);
@@ -80,9 +71,9 @@ const ProductDetail = () => {
           (product) => {
             return {
               ...product,
-              sizes: getRandomSizes(product.price),
+              // sizes: getRandomSizes(product.price),
               quantity: 0,
-              colors: generateRandomColors(),
+              // colors: generateRandomColors(),
             };
           }
         );
@@ -155,7 +146,6 @@ const ProductDetail = () => {
   const handleSetCart = async (updatedData) => {
     setAddToCartLoader(true);
     try {
-      await setCart(updatedData, userID, cart);
       dispatch(addToCartAction(updatedData));
       setAddToCartLoader(false);
       toast.success("Cart add successfully!", {
@@ -179,7 +169,7 @@ const ProductDetail = () => {
       });
     } else {
       if (userID) {
-        await setFavourite(currentProductData, userID, favourite);
+        // await setFavourite(currentProductData, userID, favourite);
         dispatch(addToFavouriteAction(currentProductData));
         setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {
@@ -201,11 +191,11 @@ const ProductDetail = () => {
     if (userID) {
       //user is login
       try {
-        let result = await deleteFavourite(
-          currentProductData,
-          userID,
-          favourite
-        );
+        // let result = await deleteFavourite(
+        //   currentProductData,
+        //   userID,
+        //   favourite
+        // );
         dispatch(removeFromFavouriteAction(currentProductData.id));
         setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {

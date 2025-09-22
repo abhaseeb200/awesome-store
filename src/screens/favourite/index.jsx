@@ -9,10 +9,6 @@ import {
   emptyFavouriteAction,
   removeFromFavouriteAction,
 } from "../../redux/actions/favouriteAction";
-import {
-  deleteFavourite,
-  getFavourite,
-} from "../../config/services/firebase/favourite";
 
 const Favourite = () => {
   const [open, setOpen] = useState(false);
@@ -32,7 +28,7 @@ const Favourite = () => {
     if (userID) {
       //user is login
       try {
-        await deleteFavourite(currentProductData, userID, favourite);
+        // await deleteFavourite(currentProductData, userID, favourite);
         dispatch(removeFromFavouriteAction(currentProductData.id));
         setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {
@@ -60,7 +56,7 @@ const Favourite = () => {
   const handleGetFavourite = async () => {
     setMainLoader(true);
     try {
-      let result = await getFavourite(userID);
+      // let result = await getFavourite(userID);
       // If the document exists, extract the data
       if (result.exists) {
         dispatch(emptyFavouriteAction());

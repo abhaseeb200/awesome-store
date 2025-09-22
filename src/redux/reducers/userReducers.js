@@ -1,7 +1,11 @@
 import { USER } from "../types/userType"
 
 const initialState = {
-    userID: "",
+    id: "",
+    email: "",
+    fullName: "",
+    role: "",
+    token: ""
 }
 
 const userReducers = (state = initialState, action) => {

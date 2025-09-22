@@ -1,7 +1,3 @@
-import {
-  generateRandomColors,
-  getRandomSizes,
-} from "../../config/services/randomGenerators/randomGenerates";
 import { DATA } from "../types/dataType";
 
 const initialState = {
@@ -15,9 +11,9 @@ const dataReducer = (state = initialState, action) => {
     case DATA:
       for (let category in action.data) {
         action.data[category].forEach((product) => {
-          product.sizes = getRandomSizes(product.price);
+          // product.sizes = getRandomSizes(product.price);
           product.quantity = 0;
-          product.colors = generateRandomColors();
+          // product.colors = generateRandomColors();
         });
       }
       return {

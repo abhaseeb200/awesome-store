@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import Modal from "..";
 import CardProductDetails from "../../cardProductDetails";
 import { addToCartAction } from "../../../redux/actions/cartAction";
-import { setCart } from "../../../config/services/firebase/cart";
 
 const ProductDetailsModal = ({
   open,
@@ -52,7 +51,7 @@ const ProductDetailsModal = ({
       };
       if (userID) {
         //user is login
-        handleSetCart(updatedData);
+        // handleSetCart(updatedData);
       } else {
         //user is login out
         dispatch(addToCartAction(updatedData));
@@ -66,7 +65,7 @@ const ProductDetailsModal = ({
   const handleSetCart = async (updatedData) => {
     setAddToCartLoader(true);
     try {
-      await setCart(updatedData, userID, cart);
+      // await setCart(updatedData, userID, cart);
       dispatch(addToCartAction(updatedData));
       setAddToCartLoader(false);
       toast.success("Cart add successfully!", {

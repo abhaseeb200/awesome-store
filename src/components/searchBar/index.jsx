@@ -11,10 +11,6 @@ import {
   addToSearchAction,
   removeToSearchAction,
 } from "../../redux/actions/searchAction";
-import {
-  generateRandomColors,
-  getRandomSizes,
-} from "../../config/services/randomGenerators/randomGenerates";
 
 const SearchBar = ({ setSearchBarModal }) => {
   const [search, setSearch] = useState("");
@@ -43,9 +39,9 @@ const SearchBar = ({ setSearchBarModal }) => {
       let updateData = products.map((item) => {
         return {
           ...item,
-          sizes: getRandomSizes(item.price),
+          // sizes: getRandomSizes(item.price),
           quantity: 0,
-          colors: generateRandomColors(),
+          // colors: generateRandomColors(),
         };
       });
       navigate("/search");

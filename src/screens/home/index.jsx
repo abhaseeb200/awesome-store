@@ -13,17 +13,9 @@ import {
   addToFavouriteAction,
   removeFromFavouriteAction,
 } from "../../redux/actions/favouriteAction";
-import {
-  deleteFavourite,
-  setFavourite,
-} from "../../config/services/firebase/favourite";
 import homeBannar from "../../assets/home-bannar.jpg";
 import { dataAction } from "../../redux/actions/dataAction";
 import axios from "axios";
-import {
-  generateRandomColors,
-  getRandomSizes,
-} from "../../config/services/randomGenerators/randomGenerates";
 
 const Home = () => {
   const [open, setOpen] = useState(false);
@@ -58,7 +50,7 @@ const Home = () => {
     } else {
       if (userID) {
         setAddToFavouriteLoader(true);
-        await setFavourite(currentProductData, userID, favourite);
+        // await setFavourite(currentProductData, userID, favourite);
         dispatch(addToFavouriteAction(currentProductData));
         toast.success("Favourite successfully!", {
           autoClose: 1500,
@@ -79,7 +71,7 @@ const Home = () => {
     if (userID) {
       //user is login
       try {
-        await deleteFavourite(currentProductData, userID, favourite);
+        // await deleteFavourite(currentProductData, userID, favourite);
         dispatch(removeFromFavouriteAction(currentProductData.id));
         setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {
@@ -90,7 +82,7 @@ const Home = () => {
       }
     } else {
       //user is logout
-      dispatch(removeFromFavouriteAction(currentProductData.id));
+      // dispatch(removeFromFavouriteAction(currentProductData.id));
       setAddToFavouriteLoader(false);
       toast.success("Remove favourite!", {
         autoClose: 1500,
@@ -100,22 +92,14 @@ const Home = () => {
 
   const handleFetch = async () => {
     try {
-      let response = await axios.get(
-        "https://dummyjson.com/products?limit=10&skip=0"
-      );
-      let tempCategoryProduct = {};
-      response.data.products.map((item) => {
-        if (!tempCategoryProduct[item.category]) {
-          tempCategoryProduct[item.category] = [];
-        }
-        tempCategoryProduct[item.category].push(item);
-      });
-      // console.log(response);
-      dispatch(
-        dataAction(tempCategoryProduct, response.data.skip, response.data.total)
-      );
-      setLoading(false);
+      let response = await axios.get();
+
+      // dispatch(
+      //   dataAction(tempCategoryProduct, response.data.skip, response.data.total)
+      // );
     } catch (error) {
+      console.log(error);
+    } finally {
       setLoading(false);
     }
   };
@@ -131,9 +115,9 @@ const Home = () => {
         let updateCurrentProductData = currentProductData.map((item) => {
           return {
             ...item,
-            sizes: getRandomSizes(item.price),
+            // sizes: getRandomSizes(item.price),
             quantity: 0,
-            colors: generateRandomColors(),
+            // colors: generateRandomColors(),
           };
         });
         let temp = {
@@ -152,8 +136,8 @@ const Home = () => {
   };
 
   useEffect(() => {
+    handleFetch();
     if (skipData === 0) {
-      handleFetch();
     }
   }, []);
 
@@ -170,7 +154,7 @@ const Home = () => {
         </>
       )}
 
-      <div className="px-4 md:p-8 lg:p-10 pt-5">
+      {/* <div className="px-4 md:p-8 lg:p-10 pt-5">
         <InfiniteScroll
           dataLength={Object.keys(productData).length}
           next={handleFetchMoreData}
@@ -226,7 +210,7 @@ const Home = () => {
             );
           })}
         </InfiniteScroll>
-      </div>
+      </div> */}
 
       <ProductDetailsModal
         open={open}

@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import CartProductOrder from "./components";
 import CartProductSkeleton from "../../components/cardProduct/skeleton";
-import { getOrderProductDoc } from "../../config/services/firebase/order";
 
 const OrderProducts = () => {
   const [currentProducts, setCurrentProducts] = useState([]);
@@ -15,7 +14,7 @@ const OrderProducts = () => {
 
   const handleGetOrderProductsDetails = async () => {
     try {
-      let response = await getOrderProductDoc(orderID);
+      // let response = await getOrderProductDoc(orderID);
       console.log(response.data().products, "RESPON");
       setCurrentProducts(response.data().products);
     } catch (error) {

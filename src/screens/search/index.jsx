@@ -11,11 +11,6 @@ import {
   removeFromFavouriteAction,
 } from "../../redux/actions/favouriteAction";
 import { addToCartAction } from "../../redux/actions/cartAction";
-import {
-  deleteFavourite,
-  setFavourite,
-} from "../../config/services/firebase/favourite";
-import { setCart } from "../../config/services/firebase/cart";
 
 const Search = () => {
   const [sortingProducts, setSortingProducts] = useState([]);
@@ -113,7 +108,7 @@ const Search = () => {
   const handleSetCart = async (updatedData) => {
     setAddToCartLoader(true);
     try {
-      await setCart(updatedData, userID, cart);
+      // await setCart(updatedData, userID, cart);
       dispatch(addToCartAction(updatedData));
       setAddToCartLoader(false);
       toast.success("Cart add successfully!", {
@@ -136,11 +131,11 @@ const Search = () => {
       });
     } else {
       if (userID) {
-        let response = await setFavourite(
-          currentProductData,
-          userID,
-          favourite
-        );
+        // let response = await setFavourite(
+        //   currentProductData,
+        //   userID,
+        //   favourite
+        // );
         dispatch(addToFavouriteAction(currentProductData));
         setAddToFavouriteLoader(false);
         toast.success("Favourite successfully!", {
@@ -161,11 +156,11 @@ const Search = () => {
     if (userID) {
       //user is login
       try {
-        let result = await deleteFavourite(
-          currentProductData,
-          userID,
-          favourite
-        );
+        // let result = await deleteFavourite(
+        //   currentProductData,
+        //   userID,
+        //   favourite
+        // );
         dispatch(removeFromFavouriteAction(currentProductData.id));
         setAddToFavouriteLoader(false);
         toast.success("Remove favourite!", {
