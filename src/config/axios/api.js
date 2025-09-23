@@ -1,18 +1,17 @@
 import axios from "axios";
-import store from "@/redux/store";
+import { store } from "@/redux/store";
 
 const api = axios.create({
-  baseURL: "https://api.example.com",
+  baseURL: "https://haseeb-awesome-server.netlify.app/api/",
   timeout: 10000,
 });
 
 api.interceptors.request.use(
   (config) => {
     const state = store.getState();
-    const token = state.user?.token; 
+    const token = state.user?.token;
 
     console.log(state.user, "++++ USER DATA ++++");
-    
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -29,7 +28,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     console.log("Response Received:", response);
-    return response.data; 
+    return response.data;
   },
   (error) => {
     if (error.response) {
